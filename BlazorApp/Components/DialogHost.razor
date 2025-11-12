@@ -1,0 +1,68 @@
+﻿@using BlazorApp.Service
+@inject DialogService DialogService
+
+@if (dialogComponent != null)
+{
+    <div class="dialog-overlay">
+
+        <!-- Dialog本体 -->
+         <div class="dialog-container">
+
+            <!-- タイトル -->
+            <div class="dialog-header">
+                <h5>@dialogTitle</h5>
+            </div>
+
+            <!-- コンテンツ -->
+            <div class="dialog-body">
+                <DynamicComponent Type="dialogComponent" Parameters="dialogParameters" />
+            </div>
+
+            <!-- ボタン -->
+@*             <div class="dialog-footer">
+                <button class="btn btn-primary" @onclick="Submit">OK</button>
+                <button class="btn btn-secondary" @onclick="Cancel">キャンセル</button>
+            </div> *@
+        </div>
+    </div>
+}
+
+@code {
+    private Type? dialogComponent;
+    private Dictionary<string, object>? dialogParameters;
+    private DialogOptions dialogOptions = new();
+
+    public string dialogTitle { get; set; } = "Title";
+    protected override void OnInitialized()
+    {
+        DialogService.OnOpen += (type, title, parameters, options) =>
+        {
+            dialogComponent = type;
+            dialogParameters = parameters;
+            dialogOptions = options;
+            StateHasChanged();
+        };
+
+        DialogService.OnClose += (result) =>
+        {
+            dialogComponent = null;
+            dialogParameters = null;
+            dialogOptions = new DialogOptions();
+            StateHasChanged(); // ← UIを更新してダイアログを消す
+        };
+    }
+
+    private void Submit()
+    {
+        DialogService.Close(true); // OKボタン → trueを返す
+        dialogComponent = null;
+        StateHasChanged();
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close(false); // キャンセル → falseを返す
+        dialogComponent = null;
+        StateHasChanged();
+    }
+}

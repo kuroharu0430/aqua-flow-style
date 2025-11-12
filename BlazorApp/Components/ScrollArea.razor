@@ -1,0 +1,35 @@
+﻿@using BlazorApp.Core.Model
+
+<div id="scrollArea_1" @ref="ScrollAreaRef" class="scrollArea"
+     style="max-width: 600px; max-height: 600px;pointer-events:auto;">
+    @ChildContent
+</div>
+
+
+@code {
+    [Inject] private IJSRuntime JS { get; set; } = null!;
+
+    [Parameter] public EventCallback<ElementReference> OnScrollAreaReady { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private ElementReference ScrollAreaRef;
+
+    [Parameter] public ElementReference SurfaceRef { get; set; }
+
+    private Position? BaseClient;     // ScrollAreaの画面上の基準位置
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initializeScrollManager", ScrollAreaRef);
+            BaseClient = await JS.InvokeAsync<MousePosition>("getClientPosition", ScrollAreaRef);
+        }
+
+        if (SurfaceRef.Context != null && ScrollAreaRef.Context != null)
+        {
+            await JS.InvokeVoidAsync("setScrollArea", SurfaceRef, ScrollAreaRef);
+        }
+    }
+}

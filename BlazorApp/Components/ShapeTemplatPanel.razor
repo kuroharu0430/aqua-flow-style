@@ -1,0 +1,62 @@
+﻿@using BlazorApp.Core.Enum;
+@using BlazorApp.ViewModel;
+
+
+<div class="shape-templates-panel">
+    @foreach (var template in Templates)
+    {
+        <div class="template-item"
+             @onmousedown="() => OnSelectedTemplate(template.Type)">
+            <i class="@template.IconClass"></i>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public List<ShapeTemplate> Templates { get; set; } = new();
+    [Parameter] public EventCallback<ShapeTemplate> OnSelected { get; set; }
+
+    private List<ShapeTemplate> ShapeTemplates = new()
+    {
+        new ShapeTemplate(ComponentType.Button, "Button", "fas fa-square"),
+        new ShapeTemplate(ComponentType.Label, "Label", "fas fa-font"),
+        new ShapeTemplate(ComponentType.Image, "Image", "fas fa-image"),
+        new ShapeTemplate(ComponentType.Link, "Link", "fas fa-link")
+    };
+
+    protected override void OnInitialized()
+    {
+        Templates = ShapeTemplates;
+    }
+
+    private async Task OnSelectedTemplate(ComponentType type)
+    {
+        var template = ShapeTemplates.FirstOrDefault(t => t.Type == type);
+        if (template is null)
+        {
+            Console.WriteLine($"[Error] テンプレートが見つかりません: {type}");
+            return;
+        }
+
+        // 必要ならここで new して渡す（コピーとして）
+        var selected = new ShapeTemplate(template.Type, template.Title, template.IconClass);
+
+        await OnSelected.InvokeAsync(selected);
+    }
+
+    public class ShapeTemplate
+    {
+        public ComponentType Type { get; set; }
+        public string Title { get; set; } = "Title";
+        public string IconClass { get; set; } = "fas fa-question"; // FontAwesomeのクラス
+
+        public ShapeTemplate(ComponentType type, string title, string iconClass)
+        {
+            Type = type;
+            Title = title;
+            IconClass = iconClass;
+        }
+
+    }
+
+}

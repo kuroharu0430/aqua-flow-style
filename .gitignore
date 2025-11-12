@@ -1,0 +1,15 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.cache
+*.log
+
+# Build artifacts
+bin/
+obj/
+*.pdb
+
+# Others
+*.DS_Store
+*.swp

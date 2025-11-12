@@ -1,0 +1,325 @@
+﻿@using BlazorApp.ViewModel
+@using BlazorApp.Service
+@using BlazorApp.Core.Enum;
+@using BlazorApp.EntityFramework.Models;
+@using BlazorApp.Core.Styling;
+@inject DialogService DialogService
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "inner" ? "active" : "")" @onclick="@(() => SetTab("inner"))">
+            内側Style
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "wrapper" ? "active" : "")" @onclick="@(() => SetTab("wrapper"))">
+            外枠余白
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "other" ? "active" : "")" @onclick="@(() => SetTab("other"))">
+            その他
+        </button>
+    </li>
+</ul>
+
+
+<div class="tab-content">
+    @if (activeTab == "inner")
+    {
+        <h5>内側Style</h5>
+        @foreach (var edit in StyleEdits)
+        {
+            <div class="form-group mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="checkbox"
+                    class="form-check-input"
+                    @bind="edit.IsEnabled" />
+
+                    <label class="form-label mb-0" style="min-width: 100px;">
+                        @edit.Key
+                    </label>
+
+                    <input class="form-control flex-grow-1"
+                    @bind="edit.Value"
+                    disabled="@(!edit.IsEnabled)"
+                    placeholder="空欄の場合、値はクリアされます"
+                    type="@edit.InputType" />
+
+                    <button class="btn btn-outline-secondary"
+                    @onclick="@(() => edit.Value = string.Empty)"
+                    disabled="@(!edit.IsEnabled)">
+                        クリア
+                    </button>
+                </div>
+            </div>
+        }
+    }
+
+    @if (activeTab == "wrapper")
+    {
+        <h5>外枠余白</h5>
+
+        @foreach (var edit in WrapperStyleEdits)
+        {
+            <div class="form-group mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="checkbox"
+                    class="form-check-input"
+                    @bind="edit.IsEnabled" />
+
+                    <label class="form-label mb-0" style="min-width: 100px;">
+                        @edit.Key
+                    </label>
+
+                    <input class="form-control flex-grow-1"
+                    @bind="edit.Value"
+                    disabled="@(!edit.IsEnabled)"
+                    placeholder="空欄の場合、値はクリアされます"
+                    type="@edit.InputType" />
+
+                    <button class="btn btn-outline-secondary"
+                    @onclick="@(() => edit.Value = string.Empty)"
+                    disabled="@(!edit.IsEnabled)">
+                        クリア
+                    </button>
+
+                </div>
+            </div>
+        }
+    }
+
+    @if (activeTab == "other")
+    {
+        <h5>その他</h5>
+        @foreach (var edit in FieldEdits)
+        {
+            <div class="form-group mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <input type="checkbox"
+                    class="form-check-input"
+                    @bind="edit.IsEnabled" />
+
+                    <label class="form-label mb-0" style="min-width: 100px;">
+                        @edit.DisplayName
+                    </label>
+
+                    <input class="form-control flex-grow-1"
+                    @bind="edit.Value"
+                    disabled="@(!edit.IsEnabled)"
+                    placeholder="空欄の場合、値はクリアされます"
+                    type="@edit.InputType" />
+
+                    <button class="btn btn-outline-secondary"
+                    @onclick="@(() => edit.Value = string.Empty)"
+                    disabled="@(!edit.IsEnabled)">
+                        クリア
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="dialog-footer mt-3">
+    <button class="btn btn-primary" @onclick="Submit">OK</button>
+    <button class="btn btn-secondary" @onclick="Cancel">キャンセル</button>
+</div>
+
+
+@code {
+    // tab制御
+    private string activeTab = "inner";
+
+    private void SetTab(string tab) => activeTab = tab;
+
+    [Parameter] public List<UILayoutModelBase> Layouts { get; set; } = new();
+    // [Parameter] public List<FieldTypeDefinition> FieldTypeDefinitions { get; set; } = new();
+    [Parameter] public List<FieldEditDefinition> FieldEditDefinitions { get; set; } = new();
+
+    private List<FieldEditViewModel> FieldEdits { get; set; } = [];
+
+    private List<StyleEditViewModel> StyleEdits { get; set; } = [];
+    private List<string> editableKeys = new()
+    {
+        // StyleKeys.Margin,
+        // StyleKeys.Padding,
+        StyleKeys.BackgroundColor,
+        "font-size", // これはStyleKeysにまだないから直書き
+        StyleKeys.Color,
+        // StyleKeys.BorderRadius
+    };
+
+    private List<StyleEditViewModel> WrapperStyleEdits = new();
+    private List<string> editableWrapperKeys = new()
+    {
+        StyleKeys.Padding,
+    };
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // StyleEdit
+        StyleEdits = StyleEditViewModel.Init(Layouts, editableKeys, false);
+        // WrapperStyleEdit
+        WrapperStyleEdits = StyleEditViewModel.Init(Layouts, editableWrapperKeys, true);
+        //FieldValueEdit
+        FieldEdits = FieldEditViewModel.Init(Layouts, FieldEditDefinitions);
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close(false);
+    }
+
+    private void Submit()
+    {
+        foreach (var layout in Layouts)
+        {
+            // Style更新
+            foreach (var edit in StyleEdits.Where(e => e.IsEnabled))
+            {
+                layout.Style[edit.Key] = edit.Value;
+            }
+
+            // WrapperStyle更新
+            foreach (var edit in WrapperStyleEdits.Where(e => e.IsEnabled))
+            {
+                layout.WrapperStyle[edit.Key] = edit.Value;
+            }
+
+            // FieldValue更新
+            foreach (var edit in FieldEdits.Where(e => e.IsEnabled))
+            {
+                var existing = layout.FieldValues
+                    .FirstOrDefault(f => f.FieldTypeDefinitionId == edit.FieldType.Id);
+
+                if (existing != null)
+                {
+                    existing.Value = edit.Value;
+                }
+                else
+                {
+                    layout.FieldValues.Add(new LayoutFieldValueModel
+                        {
+                            UILayoutBaseId = layout.Id,
+                            FieldTypeDefinitionId = edit.FieldType.Id,
+                            Value = edit.Value,
+                            LayoutStatus = LayoutStatus.Pending,
+                            FieldDefinition = edit.FieldType,
+                            OriginStatus = OriginStatus.FromAdd
+                        });
+                }
+
+            }
+
+        }
+        DialogService.Close(true);
+    }
+
+    public class StyleEditViewModel
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+        public bool IsEnabled { get; set; } = false;
+
+
+        // UI表示用（例: "余白"）
+        public string? DisplayName { get; set; }
+
+        // プレースホルダーやヒント
+        public string? Placeholder { get; set; }
+
+        // 型や入力タイプ（例: "color", "text", "number"）
+        public string InputType { get; set; } = "text";
+
+        public static List<StyleEditViewModel> Init(List<UILayoutModelBase> layouts, List<string> editableKeys, bool IsWrapperStyle)
+        {
+            var result = new List<StyleEditViewModel>();
+
+            foreach (var key in editableKeys)
+            {
+                var values = new List<string?>();
+                if (IsWrapperStyle)
+                {
+                    values = layouts.Select(layout => layout.WrapperStyle[key]).ToList();
+                }
+                else
+                {
+                    values = layouts.Select(layout => layout.Style[key]).ToList();
+                }
+   
+                var distinct = values.Distinct().ToList();
+
+                bool isConsistent = distinct.Count == 1;
+                var value = isConsistent ? distinct[0] ?? string.Empty : string.Empty;
+
+                var viewModel = new StyleEditViewModel
+                    {
+                        Key = key,
+                        Value = value,
+                        IsEnabled = isConsistent,
+                    };
+                result.Add(viewModel);
+            }
+
+            return result;
+        }
+    }
+
+    public class FieldEditViewModel
+    {
+        public FieldTypeDefinition FieldType { get; set; } = default!;
+        public string DisplayName { get; set; } = "";
+        public string Value { get; set; } = "";
+        public string InputType { get; set; } = "text";
+        public bool IsRequired { get; set; }
+        public bool IsEnabled { get; set; } = false;
+
+        public static List<FieldEditViewModel> Init(
+            List<UILayoutModelBase> layouts,
+            List<FieldEditDefinition> editDefs)
+        {
+            var layoutTypes = layouts.Select(x => x.ComponentType).Distinct().ToList();
+
+            // 対象レイアウトに含まれる定義だけ抽出
+            var applicableDefs = editDefs
+                    .Where(def => def.FieldType != null && layoutTypes.Contains(def.LayoutType))
+                    .GroupBy(def => def.FieldType.Type)
+                    .Where(group =>
+                        layoutTypes.All(layoutType =>
+                            group.Any(def => def.LayoutType == layoutType)))
+                    .ToList();
+
+            var result = new List<FieldEditViewModel>();
+
+            foreach (var attrGroup in applicableDefs)
+            {
+                var values = layouts
+                    .Select(layout =>
+                        layout.FieldValues?
+                            .FirstOrDefault(f => f.FieldDefinition?.Type == attrGroup.Key)
+                            ?.Value)
+                    .ToList();
+
+                var firstValue = values.FirstOrDefault();
+                var isConsistent = values.All(v => v == firstValue);
+
+                var representativeDef = attrGroup.First(); // どのレイアウトでもOK
+
+                result.Add(new FieldEditViewModel
+                    {
+                        FieldType = representativeDef.FieldType,
+                        DisplayName = representativeDef.DisplayName,
+                        Value = isConsistent ? firstValue ?? string.Empty : string.Empty,
+                        InputType = representativeDef.FieldType.InputType ?? "text",
+                        IsRequired = representativeDef.IsRequired,
+                        IsEnabled = isConsistent
+                    });
+            }
+
+            return result;
+        }
+    }
+}

@@ -1,0 +1,13 @@
+﻿@namespace BlazorApp.Components
+@using BlazorApp.ViewModel
+@using BlazorApp.EntityFramework.Enums
+@inherits UILayoutViewBase
+
+<div style="@WrapperStyles.ToString()">
+    <button @ref="ElementRef"
+            class="@Classes.ToString()"
+            style="@Styles.ToString()">
+        @Model[AttributeType.Text]
+    </button>
+</div>
+

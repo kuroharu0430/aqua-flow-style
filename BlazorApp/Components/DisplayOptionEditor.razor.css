@@ -1,0 +1,23 @@
+﻿.display-option-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.option-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+label {
+    min-width: 60px;
+}
+
+input[type="number"] {
+    width: 80px;
+    padding: 2px 6px;
+    font-size: 0.9rem;
+}

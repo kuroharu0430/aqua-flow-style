@@ -1,0 +1,60 @@
+0000000000000000000000000000000000000000 9df5604f552a6b63fe3b1f5453bc032bbbf7990d HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756211280 +0900	commit (initial): init
+9df5604f552a6b63fe3b1f5453bc032bbbf7990d 2e8457495c6064b9716d5781ed078a29d08306b2 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756211777 +0900	commit: init
+2e8457495c6064b9716d5781ed078a29d08306b2 fc93eeb79a1650c2e480d87dcc7540d456d7da2f HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756213134 +0900	commit: IsSelctedをわかりやすいように
+fc93eeb79a1650c2e480d87dcc7540d456d7da2f 0aaa018425bb5ba735a22faa4299967acfd44179 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756297365 +0900	commit: 複数移動可能にww
+0aaa018425bb5ba735a22faa4299967acfd44179 7a8f2561ba38c4d4fd243b27561eed68889978c5 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756304035 +0900	commit: Interface　Model等を見直し
+7a8f2561ba38c4d4fd243b27561eed68889978c5 01d9c63286246aa3473aada81542874bb80428bb HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756306121 +0900	commit: SelectableButtons　View修正
+01d9c63286246aa3473aada81542874bb80428bb 6eeca1e67b06357e7c85e59b9b8b57c555f1f59d HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756392597 +0900	commit: 状態いろいろ＋1以上のサイズのSwap可能
+6eeca1e67b06357e7c85e59b9b8b57c555f1f59d 5623d509e8d78407419d2e64ea314d7eab17b504 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756466340 +0900	commit: State, inject整理
+5623d509e8d78407419d2e64ea314d7eab17b504 2a78d4df47d19e4c946f86b973a493078f28a0ba HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756551979 +0900	commit: effect draggbleState　実装
+2a78d4df47d19e4c946f86b973a493078f28a0ba 943793fbc2dbfcc76fc75b85fb633d5d9f2cc57a HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756572680 +0900	commit: Sate整理
+943793fbc2dbfcc76fc75b85fb633d5d9f2cc57a e64fdb9e5481394868c2a30040373ad551e76423 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756627175 +0900	commit: 登録機能　実装　※TODO HasMouseDownなくす
+e64fdb9e5481394868c2a30040373ad551e76423 6bcb8777c12304fe9f776f78fe17984880328d15 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756659104 +0900	commit: 選択範囲・矩形制御をServiceに移譲　TODO矩形範囲Clamp
+6bcb8777c12304fe9f776f78fe17984880328d15 9eb1ce73c019dd915977e444522135cfb7809809 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756738943 +0900	commit: shiftKey押したらDragging Selecting反転
+9eb1ce73c019dd915977e444522135cfb7809809 6ee025ccdaaae4699545b99727dd70ca756558a4 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756827488 +0900	commit: ViewModel Factoryを作成
+6ee025ccdaaae4699545b99727dd70ca756558a4 f3e73f57bf43b432834b923df0720d876c4c315b HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756904434 +0900	commit: 各LayoutViewを表示可能に
+f3e73f57bf43b432834b923df0720d876c4c315b df2a07ad6dd58ec13dd43fdba88921c9e5007ae6 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756906845 +0900	commit: EF導入＋Projectに追加
+df2a07ad6dd58ec13dd43fdba88921c9e5007ae6 5505a2ab873f48047817e88ee88e8160d90a8667 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756913871 +0900	commit: DB連携可能に　DB値を元に表示
+5505a2ab873f48047817e88ee88e8160d90a8667 c7e90c017abac1956d1ed9772ca622f82b3eb549 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1756916760 +0900	commit: 各コンポーネントを登録時できるように
+c7e90c017abac1956d1ed9772ca622f82b3eb549 242f4ed64f0ee1dd6f0c1f63ca7a3a9d20a44085 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1757173772 +0900	commit: いろいろ
+242f4ed64f0ee1dd6f0c1f63ca7a3a9d20a44085 b399dfeab761a8824ddcef180e2e55e14c6bec11 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1757233822 +0900	commit: かくModeを整理
+b399dfeab761a8824ddcef180e2e55e14c6bec11 3238efcc5f2a2f85d725cd6b44607bbf403458dd HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1757260356 +0900	commit: 不要なものを削除
+3238efcc5f2a2f85d725cd6b44607bbf403458dd 9ec06321447d0123dc649ed4eebaec160a52a094 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1757346399 +0900	commit: DialogService＋ContextMenu実装
+9ec06321447d0123dc649ed4eebaec160a52a094 107a3b790edd4f6ab095614eeb57502befff5caf HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1757417938 +0900	commit: まぁまぁ不具合修正
+107a3b790edd4f6ab095614eeb57502befff5caf b9aefc7c729e748772b4a4792dc1d6ceafd90a65 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1757430667 +0900	commit: Undo履歴をいろいろ詰めるように…
+b9aefc7c729e748772b4a4792dc1d6ceafd90a65 3341719600905db1bc37efb04542bc50f20bb12b HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1757675582 +0900	commit: Model整理＋Redoモドキ　実装
+3341719600905db1bc37efb04542bc50f20bb12b 58ca278dbda8fefffadb1bb590a86ff2e0306ca2 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758043549 +0900	commit: 履歴周りを整理　※Pendingどうするか考える
+58ca278dbda8fefffadb1bb590a86ff2e0306ca2 fd785f37375012499f9380b6732615ed1f0e92de HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758116554 +0900	commit: FieldValue表示はVisibleだけ
+fd785f37375012499f9380b6732615ed1f0e92de 3c60207913a77d1adc022dd99e12cf9c750dfe8a HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758200689 +0900	commit: Service整理＋不要なファイル削除
+3c60207913a77d1adc022dd99e12cf9c750dfe8a 3cee98ae819450b4206e91fd2761d94a7ba885ac HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758205772 +0900	commit: DisplayOption実装＋いろいろ整理
+3cee98ae819450b4206e91fd2761d94a7ba885ac e799216ed4f88591b803dd6f38fe46eb85fd10f0 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758210988 +0900	commit: いろいろ
+e799216ed4f88591b803dd6f38fe46eb85fd10f0 e7b02d7319385851637b8b2b43c26a3e8e9b5ea6 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758213642 +0900	commit: 不要な処理を削除
+e7b02d7319385851637b8b2b43c26a3e8e9b5ea6 480944ea69c04fd5cae23a785b579bda85700a68 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758302393 +0900	commit: いろいろ開発中
+480944ea69c04fd5cae23a785b579bda85700a68 ac6b1ada443c30008099b19ae5ee1dfb5b3c16de HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758554525 +0900	commit: ScrollAreaRefをSufaceに必ず確認できるように
+ac6b1ada443c30008099b19ae5ee1dfb5b3c16de 74c3969d737a7a6a3b902de8e88d4126aeddccec HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758568898 +0900	commit: ScrollStateをInteractionStateに
+74c3969d737a7a6a3b902de8e88d4126aeddccec 19bd7da7f432fb2868e1efa12d93a9d2e9359a79 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758637567 +0900	commit: 選択範囲UI Renewal
+19bd7da7f432fb2868e1efa12d93a9d2e9359a79 5b8cb29fec37b84a98f0dd6feaf628185f954242 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758640892 +0900	commit: TrailCells　実装
+5b8cb29fec37b84a98f0dd6feaf628185f954242 04b18cb3efa7db780cd1d986af92e6c9a3d98e5b HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758641122 +0900	commit: 座標系ズレ修正
+04b18cb3efa7db780cd1d986af92e6c9a3d98e5b a52093b66778a999946c34a27024374775fe7451 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758646607 +0900	commit: 矩形制限＋TailCells不具合修正
+a52093b66778a999946c34a27024374775fe7451 3fe46eb81b95594be969598eb4625147e9758bd1 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1758820937 +0900	commit: UNdoRedo調整
+3fe46eb81b95594be969598eb4625147e9758bd1 7c974409fa97b345451d8497282ab505dbb02e3d HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759055845 +0900	commit: FielsValues Undo　実装
+7c974409fa97b345451d8497282ab505dbb02e3d 2f5f1ec7eb61c20b6dd5c8e186e0e00a9b08a6f2 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759063890 +0900	commit: 削除実装
+2f5f1ec7eb61c20b6dd5c8e186e0e00a9b08a6f2 a00ea7269458687fe2b5ddadf5c06ad9f55c770c HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759065688 +0900	commit: 不要なファイルを削除
+a00ea7269458687fe2b5ddadf5c06ad9f55c770c e1ca4edae1354c910c46ac4f25c75692bcfa5e03 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759068727 +0900	commit: Attributeをenumに　外部キーにunique制約を
+e1ca4edae1354c910c46ac4f25c75692bcfa5e03 b037377d8d8acfa12585615bd46f260749e62f00 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759071090 +0900	commit: FieldValuesにIndexer追加
+b037377d8d8acfa12585615bd46f260749e62f00 9a37d5c4961499148dd5f4f9a59a81791c0a3c0d HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759146681 +0900	commit: Layout表示関係　実装
+9a37d5c4961499148dd5f4f9a59a81791c0a3c0d 9827525c02b9721f3901d93912f6f872d5843ac8 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759158734 +0900	commit: StyleEdit ＋Dialog　実装
+9827525c02b9721f3901d93912f6f872d5843ac8 4f7b02459c77f0e6096e6e82477e58d2e3bb1698 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759406536 +0900	commit: EditDialog　実装
+4f7b02459c77f0e6096e6e82477e58d2e3bb1698 46e19e159848293c6a5bb1641e808f0afd8a9537 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759409732 +0900	commit: 不要なViewModel＋Factory削除
+46e19e159848293c6a5bb1641e808f0afd8a9537 a2c0488116bf6640413263687eae34859b339d2a HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759489206 +0900	commit: nantonaka
+a2c0488116bf6640413263687eae34859b339d2a d03b422c793ae8fcfec56a8b060bbb1eafe4fbcc HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759496320 +0900	commit: JS PageScroll監視
+d03b422c793ae8fcfec56a8b060bbb1eafe4fbcc 55d6682d865a6980e23af44ac6a3db7a85d39337 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759676648 +0900	commit: PageScroll対応
+55d6682d865a6980e23af44ac6a3db7a85d39337 f32731254b0513d4ac0fc1e2ee2127bb333641f3 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759769220 +0900	commit: Theme Page実装
+f32731254b0513d4ac0fc1e2ee2127bb333641f3 a1d519bfcce928d102858bcfe403f2fafa2fff92 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759841573 +0900	commit: 誤って削除したLayoutDefineを戻す
+a1d519bfcce928d102858bcfe403f2fafa2fff92 81dd4de237e24a129e491146fac9653ce8ec9406 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1759856900 +0900	commit: いろいろ改良
+81dd4de237e24a129e491146fac9653ce8ec9406 10d185afdf0f3c60438279cd11677bfaa30c9dcd HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1760457718 +0900	commit: FieldValue Style Edit 実装
+10d185afdf0f3c60438279cd11677bfaa30c9dcd 4a617beb1d150c42cdf6acb0d498e7b17b18bdfb HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1760457942 +0900	commit: 不要な処理を削除
+4a617beb1d150c42cdf6acb0d498e7b17b18bdfb 01c77c235114a2508d3ddf12434196afe45d585b HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1760459682 +0900	commit: WrapperStyle効かない不具合　修正　※改善の余地あり
+01c77c235114a2508d3ddf12434196afe45d585b 0c00d78482c4dcc5621e9968befe4a28fe5cf567 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1761236963 +0900	commit: Drag登録復活
+0c00d78482c4dcc5621e9968befe4a28fe5cf567 b442ac5587e1f206dec3ea53b8c54d527ca7d8ec HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1761830345 +0900	commit: LayoutDB保存　実装
+b442ac5587e1f206dec3ea53b8c54d527ca7d8ec ac325b0bedc8641b420c831a313f451d2288b527 HK2301028\okamoto115 <okamoto115@insite-corp.co.jp> 1762941142 +0900	commit: Commit

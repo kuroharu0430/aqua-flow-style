@@ -1,0 +1,62 @@
+﻿@namespace BlazorApp3.Client.Pages
+@page "/studyUI"
+@inherits LayoutComponentBase
+@rendermode InteractiveServer
+@using BlazorApp.Components
+
+
+<DialogHost />
+
+<div style="display:flex;">
+    <div class="theme-selector">
+        <label for="themeSelect">テーマ:</label>
+        <select id="themeSelect" @bind="SelectedThemeId">
+            @foreach (var theme in Themes)
+            {
+                <option value="@theme.Id">@theme.Name</option>
+            }
+        </select>
+    </div>
+
+    <select id="sectionSelect" @bind="CurrentSectionNumber">
+        @foreach (var layoutSection in Themes.First(t => t.Id == SelectedThemeId).LayoutSections)
+        {
+            <option value="@layoutSection.Number">@layoutSection.Number</option>
+        }
+    </select>
+
+    <span>@(IsSelectingMode ? "Selecting" : "Dragging")</span>
+    <div class="toggle-switch" style="display:flex;">
+        <label>
+            <input type="checkbox" @bind="IsSelectingMode" />
+            <span class="slider"></span>
+        </label>
+
+    </div>
+    <div class="grid-settings">
+
+        <label for="overlapModeSelect">重なりモード:</label>
+        <select id="overlapModeSelect" @bind="OverlapMode">
+            @foreach (var mode in OverlapModes)
+            {
+                <option value="@mode">@mode</option>
+            }
+        </select>
+    </div>
+
+    <button @onclick="() => Save()">
+        Save
+    </button>
+</div>
+
+<div class="section-wrapper" @key="CurrentSection.Id">
+    <div class="water-curtain"></div> <!-- 水のカーテン -->
+    <InteractionSurface Layouts="@LayoutsBySection[CurrentSection.Id]"
+                        SurfaceInteractionMode="SurfaceInteractionMode"
+                        OverlapMode="OverlapMode"
+                        CurrentSection="CurrentSection"
+                        FieldEditDefinitions="FieldEditDefinitions"
+                        FieldTypeDefinitions="@FieldTypeDefinitions" 
+                        OnLayoutAdded="HandleLayoutAdded" />
+</div>
+
