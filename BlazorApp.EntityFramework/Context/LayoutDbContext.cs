@@ -37,22 +37,6 @@ namespace BlazorApp.EntityFramework.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            // Theme テーブルは DeletedAt が null のものだけ
-            modelBuilder.Entity<Theme>()
-                .HasQueryFilter(e => e.DeletedAt == null);
-
-            // LayoutSection テーブル
-            modelBuilder.Entity<LayoutSection>()
-                .HasQueryFilter(e => e.DeletedAt == null);
-
-            // UIBaseLayout テーブル
-            modelBuilder.Entity<UIBaseLayout>()
-                .HasQueryFilter(e => e.DeletedAt == null);
-
-            // LayoutFieldValue テーブル
-            modelBuilder.Entity<LayoutFieldValue>()
-                .HasQueryFilter(e => e.DeletedAt == null);
-
             // SoftDelete状態のレコードは読み込まない
             modelBuilder.Entity<Theme>()
                 .HasQueryFilter(f => f.DeletedAt == null);
