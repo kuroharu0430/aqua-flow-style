@@ -1,25 +1,30 @@
-ï»¿window.registerSurfaceShortcut = function (dotnetHelper) {
+window.registerSurfaceShortcut = function (dotnetHelper) {
     document.addEventListener('keydown', function (event) {
         const keys = [];
+
+        // CüƒL[‚Íƒtƒ‰ƒO‚Å’Ç‰Á
         if (event.ctrlKey) keys.push("Ctrl");
         if (event.shiftKey) keys.push("Shift");
         if (event.altKey) keys.push("Alt");
+        // Mac‘Î‰‚È‚ç’Ç‰Á
+        if (event.metaKey) keys.push("Meta");
 
-        // ãƒ¡ã‚¤ãƒ³ã‚­ãƒ¼ã ã‘ code ã‚’ push
+        // ƒƒCƒ“ƒL[‚¾‚¯ code ‚ğ pushiCüƒL[‚ÍœŠOj
         if (
             event.code !== "ControlLeft" &&
             event.code !== "ControlRight" &&
             event.code !== "ShiftLeft" &&
             event.code !== "ShiftRight" &&
             event.code !== "AltLeft" &&
-            event.code !== "AltRight"
+            event.code !== "AltRight" &&
+            // Mac‘Î‰‚È‚ç’Ç‰Á
+            event.code !== "MetaLeft" &&
+            event.code !== "MetaRight"
         ) {
             keys.push(event.code);
         }
-        console.log(keys) 
 
         event.preventDefault();
         dotnetHelper.invokeMethodAsync('HandleShortcut', keys);
     });
-}
-
+};

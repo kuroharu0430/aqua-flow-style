@@ -9,31 +9,69 @@ namespace BlazorApp.Components
 
     public partial class InteractionSurface : ComponentBase
     {
+        [Parameter]
+        public EventCallback OnSave { get; set; }
+
         [JSInvokable]
-        public Task HandleShortcut()
+        public Task HandleShortcut(string[] keys)
         {
-            UndoManager.Undo();
+            // TODO State.Modeで制御する必要あり？？
+
+            // Ctrl+Shift+Z → Redo
+            // Undoも発火するのでUndoよりも先
+            if (keys.Contains("Ctrl") && keys.Contains("Shift") && keys.Contains("KeyZ"))
+            {
+                UndoManager.Redo();
+            }
+            // Ctrl+Z → Undo
+            else if (keys.Contains("Ctrl") && keys.Contains("KeyZ"))
+            {
+                UndoManager.Undo();
+            }
+            // Escape → Cancel
+            else if (keys.Contains("Escape"))
+            {
+                CancelLayoutSelectionAll();
+            }
+            // Delete → Delete
+            else if (keys.Contains("Delete"))
+            {
+                DeleteLayouts();
+            }
+            // Ctrl+A → SelectAll
+            else if (keys.Contains("Ctrl") && keys.Contains("KeyA"))
+            {
+                SelectLayoutAll();
+            }
+            // Ctrl+S → Save
+            else if (keys.Contains("Ctrl") && keys.Contains("KeyS"))
+            {
+                OnSave.InvokeAsync();
+            }
+            else
+            {
+                // 何もしない
+            }
+
             StateHasChanged();
             return Task.CompletedTask;
         }
 
-        [JSInvokable]
-        public Task HandleRedo()
-        {
-            UndoManager.Redo();
-            StateHasChanged();
-            return Task.CompletedTask;
-        }
-
-        [JSInvokable]
-        public Task HandleEscape()
+        private void CancelLayoutSelectionAll()
         {
             foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected))
             {
                 layout.SelectionState = SelectionState.None;
             }
-            StateHasChanged();
-            return Task.CompletedTask;
         }
+
+        private void SelectLayoutAll()
+        {
+            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.None))
+            {
+                layout.SelectionState = SelectionState.Selected;
+            }
+        }
+
     }
 }

@@ -455,6 +455,7 @@ namespace BlazorApp.Components
 
         /// <summary>
         /// MousePositionと重なったLayoutを取得する
+        /// Layoutがない場合はnullを返す
         /// </summary>
         /// <returns></returns>
         private UILayoutModelBase? GetTargetLayoutAtCusor()
@@ -470,6 +471,10 @@ namespace BlazorApp.Components
                 layout.RectBounds.Contains(State.AbsoluteMousePosition.X, State.AbsoluteMousePosition.Y));
         }
 
+        /// <summary>
+        /// Layoutsを選択状態にする
+        /// </summary>
+        /// <param name="target"></param>
         private void SetSelectingLayout(UILayoutModelBase? target)
         {
             if (target != null && target.SelectionState != SelectionState.Selected)
@@ -478,6 +483,28 @@ namespace BlazorApp.Components
                 foreach (var layout in VisibleLayouts)
                     layout.SelectionState = SelectionState.None;
                 target.SelectionState = SelectionState.Selected;
+            }
+        }
+
+        /// <summary>
+        /// Layoutsをすべて非選択状態にする
+        /// </summary>
+        private void CancelLayoutSelectionAll()
+        {
+            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected))
+            {
+                layout.SelectionState = SelectionState.None;
+            }
+        }
+
+        /// <summary>
+        /// Layoutsを全て選択状態にする
+        /// </summary>
+        private void SelectLayoutAll()
+        {
+            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.None))
+            {
+                layout.SelectionState = SelectionState.Selected;
             }
         }
     }
