@@ -13,21 +13,26 @@ namespace BlazorApp.Service
 
         public void Undo()
         {
-            if (UndoStack.TryPeek(out var snapshot))
+            if (UndoStack.TryPop(out var snapshot))
             {
-                // 現在の状態をRedoStackに積む（CloneCurrentで）
+                // 現在の状態を RedoStack に積む
                 RedoStack.Push(snapshot.CloneCurrent(snapshot));
+
+                // UndoStack から取り出した snapshot を復元
+                snapshot.Restore();
             }
-            Restore(UndoStack);
         }
 
         public void Redo()
         {
-            if (RedoStack.TryPeek(out var snapshot))
+            if (RedoStack.TryPop(out var snapshot))
             {
-                UndoStack.Push(snapshot.CloneCurrent(snapshot)); // 今の状態を保存
+                // 現在の状態を UndoStack に積む
+                UndoStack.Push(snapshot.CloneCurrent(snapshot));
+
+                // RedoStack から取り出した snapshot を復元
+                snapshot.Restore();
             }
-            Restore(RedoStack);
         }
 
         public void Restore(Stack<CompositeSnapshot> stack)

@@ -20,8 +20,8 @@ namespace BlazorApp.EntityFramework.Context
 
         public override int SaveChanges()
         {
-            foreach (var entry in ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Deleted))
+            // 削除の時だけ代入、それ以外は規定値DeletedAt=nullが代入される
+            foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Deleted))
             {
                 var prop = entry.Entity.GetType().GetProperty("DeletedAt");
                 if (prop != null)
@@ -30,9 +30,9 @@ namespace BlazorApp.EntityFramework.Context
                     prop.SetValue(entry.Entity, DateTime.UtcNow);
                 }
             }
-
             return base.SaveChanges();
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
