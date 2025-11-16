@@ -59,7 +59,7 @@ namespace BlazorApp3.Client.Pages
 
             // ViewModelに変換するのでNoTracking
             var layouts = DbContext.UIBaseLayouts
-                .Where(l => sectionIds.Contains(l.PageId))
+                .Where(l => sectionIds.Contains(l.LayoutSectionId))
                 .Include(l => l.FieldValues)
                 .ThenInclude(f => f.FieldDefinition)
                 .AsNoTracking()
@@ -71,7 +71,7 @@ namespace BlazorApp3.Client.Pages
                 .ToDictionary(
                     section => section.Id,
                     section => layouts
-                        .Where(l => l.PageId == section.Id)
+                        .Where(l => l.LayoutSectionId == section.Id)
                         .Select(layout => new UILayoutModelBase(layout))
                         .ToList()
                 );
@@ -109,7 +109,7 @@ namespace BlazorApp3.Client.Pages
 
             foreach (var layout in LayoutsBySection[CurrentSection.Id])
             {
-                var entity = layout.ToEntity();
+                var layoutEntity = layout.ToEntity();
 
                 switch ((layout.OriginStatus, layout.LayoutStatus))
                 {
@@ -118,16 +118,22 @@ namespace BlazorApp3.Client.Pages
                         break;
 
                     case (OriginStatus.FromAdd, _):
-                        context.Add(entity);                 
+                        context.Add(layoutEntity);
+                        // ここでId が確定
+                        context.SaveChanges();
+                        // ViewModelに代入
+                        layout.Id = layoutEntity.Id;
+                        //layout.FieldValuesに
+                        layout.FieldValues.ForEach(f => f.UILayoutBaseId = layoutEntity.Id);
                         layout.OriginStatus = OriginStatus.FromDb;
                         break;
 
                     case (OriginStatus.FromDb, LayoutStatus.Deleted):
-                        context.Remove(entity);
+                        context.Remove(layoutEntity);
                         break;
 
                     case (OriginStatus.FromDb, _):
-                        context.Update(entity);
+                        context.Update(layoutEntity);
                         break;
                 }
 
@@ -143,6 +149,10 @@ namespace BlazorApp3.Client.Pages
 
                         case (OriginStatus.FromAdd, _):
                             context.Add(fieldEntity);
+                            // ここでId が確定
+                            context.SaveChanges();
+                            // ViewModelに代入
+                            field.Id = fieldEntity.Id;
                             field.OriginStatus = OriginStatus.FromDb;
                             break;
 
@@ -157,9 +167,8 @@ namespace BlazorApp3.Client.Pages
                 }
             }
             context.SaveChanges();
-            DbContext.SaveChanges();
+            //DbContext.SaveChanges();
         }
-
     }
 
     public enum LayoutDragMode

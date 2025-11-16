@@ -16,7 +16,7 @@ namespace BlazorApp.ViewModel
         public UILayoutModelBase(UIBaseLayout entity)
         {
             Id = entity.Id;
-            LayoutSectionId = entity.PageId;
+            LayoutSectionId = entity.LayoutSectionId;
             Name = entity.Name;
             ComponentType = entity.LayoutType;
             GridBounds = new GridBounds(entity.X, entity.Y, entity.SizeX, entity.SizeY);
@@ -102,7 +102,7 @@ namespace BlazorApp.ViewModel
                 StyleJson = this.Style.ToJson(),
                 WrapperStyleJson = this.WrapperStyle.ToJson(),
                 CssJson = string.Empty,
-                PageId = this.LayoutSectionId,
+                LayoutSectionId = this.LayoutSectionId,
                 // 状態は共有してないので別で保存
                 //FieldValues = [.. this.FieldValues.Select(f => f.ToEntity())]
             };

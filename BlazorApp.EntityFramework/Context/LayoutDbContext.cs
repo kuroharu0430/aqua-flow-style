@@ -2,10 +2,12 @@
 using BlazorApp.EntityFramework.Enums;
 using BlazorApp.EntityFramework.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using static System.Collections.Specialized.BitVector32;
 
 namespace BlazorApp.EntityFramework.Context
 {
+    // TODO 他とContextを分けるか要検討
     public class LayoutDbContext : DbContext
     {
         public LayoutDbContext(DbContextOptions<LayoutDbContext> options) : base(options) { }
@@ -16,10 +18,50 @@ namespace BlazorApp.EntityFramework.Context
         public DbSet<FieldTypeDefinition> FieldTypeDefinitions { get; set; }
         public DbSet<FieldEditDefinition> FieldEditDefinitions { get; set; }
 
+        public override int SaveChanges()
+        {
+            foreach (var entry in ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Deleted))
+            {
+                var prop = entry.Entity.GetType().GetProperty("DeletedAt");
+                if (prop != null)
+                {
+                    entry.State = EntityState.Modified;
+                    prop.SetValue(entry.Entity, DateTime.UtcNow);
+                }
+            }
 
+            return base.SaveChanges();
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Theme テーブルは DeletedAt が null のものだけ
+            modelBuilder.Entity<Theme>()
+                .HasQueryFilter(e => e.DeletedAt == null);
+
+            // LayoutSection テーブル
+            modelBuilder.Entity<LayoutSection>()
+                .HasQueryFilter(e => e.DeletedAt == null);
+
+            // UIBaseLayout テーブル
+            modelBuilder.Entity<UIBaseLayout>()
+                .HasQueryFilter(e => e.DeletedAt == null);
+
+            // LayoutFieldValue テーブル
+            modelBuilder.Entity<LayoutFieldValue>()
+                .HasQueryFilter(e => e.DeletedAt == null);
+
+            // SoftDelete状態のレコードは読み込まない
+            modelBuilder.Entity<Theme>()
+                .HasQueryFilter(f => f.DeletedAt == null);
+            modelBuilder.Entity<LayoutSection>()
+                .HasQueryFilter(f => f.DeletedAt == null);
+            modelBuilder.Entity<UIBaseLayout>()
+                .HasQueryFilter(f => f.DeletedAt == null);
+            modelBuilder.Entity<LayoutFieldValue>()
+                .HasQueryFilter(f => f.DeletedAt == null);
 
             // 初回Migaration時にTheme, LayoutSectionがある状態を保証
             modelBuilder.Entity<Theme>().HasData(
@@ -39,7 +81,6 @@ namespace BlazorApp.EntityFramework.Context
                 ScreenHeight = 600
             };
             modelBuilder.Entity<LayoutSection>().HasData(layoutSection);
-
 
             modelBuilder.Entity<FieldTypeDefinition>().HasData(
                 new FieldTypeDefinition
