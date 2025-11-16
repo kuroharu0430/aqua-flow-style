@@ -6,7 +6,6 @@ using BlazorApp.Core.State;
 using BlazorApp.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.EntityFramework.Models;
-using System.Collections.Generic;
 
 namespace BlazorApp3.Client.Pages
 {
@@ -60,7 +59,7 @@ namespace BlazorApp3.Client.Pages
 
             // ViewModelに変換するのでNoTracking
             var layouts = DbContext.UIBaseLayouts
-                .Where(l => sectionIds.Contains(l.PageId))
+                .Where(l => sectionIds.Contains(l.LayoutSectionId))
                 .Include(l => l.FieldValues)
                 .ThenInclude(f => f.FieldDefinition)
                 .AsNoTracking()
@@ -72,7 +71,7 @@ namespace BlazorApp3.Client.Pages
                 .ToDictionary(
                     section => section.Id,
                     section => layouts
-                        .Where(l => l.PageId == section.Id)
+                        .Where(l => l.LayoutSectionId == section.Id)
                         .Select(layout => new UILayoutModelBase(layout))
                         .ToList()
                 );
@@ -130,11 +129,7 @@ namespace BlazorApp3.Client.Pages
                         break;
 
                     case (OriginStatus.FromDb, LayoutStatus.Deleted):
-                        // Pending
-
-                        //context.Remove(layoutEntity);
-                        // layoutの削除
-                        //LayoutsBySection[CurrentSection.Id].Remove(layout);
+                        context.Remove(layoutEntity);
                         break;
 
                     case (OriginStatus.FromDb, _):
@@ -162,9 +157,7 @@ namespace BlazorApp3.Client.Pages
                             break;
 
                         case (OriginStatus.FromDb, LayoutStatus.Deleted):
-                            // Pending
-                            //context.Remove(fieldEntity);
-                            //layout.FieldValues.Remove(field);
+                            context.Remove(fieldEntity);
                             break;
 
                         case (OriginStatus.FromDb, _):

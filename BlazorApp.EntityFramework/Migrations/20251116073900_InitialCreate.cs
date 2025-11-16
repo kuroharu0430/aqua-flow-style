@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -34,7 +35,8 @@ namespace BlazorApp.EntityFramework.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -77,6 +79,7 @@ namespace BlazorApp.EntityFramework.Migrations
                     HeightPerCell = table.Column<int>(type: "INTEGER", nullable: false),
                     ScreenWidth = table.Column<int>(type: "INTEGER", nullable: false),
                     ScreenHeight = table.Column<int>(type: "INTEGER", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
                     ThemeId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
@@ -105,14 +108,15 @@ namespace BlazorApp.EntityFramework.Migrations
                     StyleJson = table.Column<string>(type: "TEXT", nullable: false),
                     WrapperStyleJson = table.Column<string>(type: "TEXT", nullable: false),
                     CssJson = table.Column<string>(type: "TEXT", nullable: false),
-                    PageId = table.Column<int>(type: "INTEGER", nullable: false)
+                    LayoutSectionId = table.Column<int>(type: "INTEGER", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UIBaseLayouts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UIBaseLayouts_LayoutSections_PageId",
-                        column: x => x.PageId,
+                        name: "FK_UIBaseLayouts_LayoutSections_LayoutSectionId",
+                        column: x => x.LayoutSectionId,
                         principalTable: "LayoutSections",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -126,7 +130,8 @@ namespace BlazorApp.EntityFramework.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     UILayoutBaseId = table.Column<int>(type: "INTEGER", nullable: false),
                     FieldTypeDefinitionId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: false)
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -160,8 +165,8 @@ namespace BlazorApp.EntityFramework.Migrations
 
             migrationBuilder.InsertData(
                 table: "Themes",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 1, "Default" });
+                columns: new[] { "Id", "DeletedAt", "Name" },
+                values: new object[] { 1, null, "Default" });
 
             migrationBuilder.InsertData(
                 table: "FieldEditDefinitions",
@@ -179,8 +184,8 @@ namespace BlazorApp.EntityFramework.Migrations
 
             migrationBuilder.InsertData(
                 table: "LayoutSections",
-                columns: new[] { "Id", "ColumnNumber", "HeightPerCell", "Number", "RowNumber", "ScreenHeight", "ScreenWidth", "ThemeId", "WidthPerCell" },
-                values: new object[] { 1, 10, 100, 1, 10, 600, 400, 1, 100 });
+                columns: new[] { "Id", "ColumnNumber", "DeletedAt", "HeightPerCell", "Number", "RowNumber", "ScreenHeight", "ScreenWidth", "ThemeId", "WidthPerCell" },
+                values: new object[] { 1, 10, null, 100, 1, 10, 600, 400, 1, 100 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_FieldEditDefinitions_FieldTypeDefinitionId",
@@ -204,9 +209,9 @@ namespace BlazorApp.EntityFramework.Migrations
                 column: "ThemeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UIBaseLayouts_PageId",
+                name: "IX_UIBaseLayouts_LayoutSectionId",
                 table: "UIBaseLayouts",
-                column: "PageId");
+                column: "LayoutSectionId");
         }
 
         /// <inheritdoc />

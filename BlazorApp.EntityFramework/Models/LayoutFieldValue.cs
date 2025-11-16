@@ -6,7 +6,7 @@ namespace BlazorApp.EntityFramework.Models
 {
     // Unique制約
     [Index(nameof(UILayoutBaseId), nameof(FieldTypeDefinitionId), IsUnique = true)]
-    public class LayoutFieldValue
+    public class LayoutFieldValue : ISoftDeletable
     {
         [Key]
         public int Id { get; set; } // サロゲートキー（主キー）
@@ -19,6 +19,8 @@ namespace BlazorApp.EntityFramework.Models
 
         [Required]
         public string Value { get; set; } = string.Empty; // 実データ
+
+        public DateTime? DeletedAt { get; set; }
 
         // ナビゲーションプロパティ
         public UIBaseLayout BaseLayout { get; set; } = null!;
