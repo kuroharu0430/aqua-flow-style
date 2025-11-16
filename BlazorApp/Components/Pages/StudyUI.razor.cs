@@ -6,6 +6,7 @@ using BlazorApp.Core.State;
 using BlazorApp.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.EntityFramework.Models;
+using System.Collections.Generic;
 
 namespace BlazorApp3.Client.Pages
 {
@@ -129,7 +130,11 @@ namespace BlazorApp3.Client.Pages
                         break;
 
                     case (OriginStatus.FromDb, LayoutStatus.Deleted):
-                        context.Remove(layoutEntity);
+                        // Pending
+
+                        //context.Remove(layoutEntity);
+                        // layoutの削除
+                        //LayoutsBySection[CurrentSection.Id].Remove(layout);
                         break;
 
                     case (OriginStatus.FromDb, _):
@@ -157,7 +162,9 @@ namespace BlazorApp3.Client.Pages
                             break;
 
                         case (OriginStatus.FromDb, LayoutStatus.Deleted):
-                            context.Remove(fieldEntity);
+                            // Pending
+                            //context.Remove(fieldEntity);
+                            //layout.FieldValues.Remove(field);
                             break;
 
                         case (OriginStatus.FromDb, _):
