@@ -17,13 +17,15 @@
             }
         </select>
     </div>
-
-    <select id="sectionSelect" @bind="CurrentSectionNumber">
-        @foreach (var layoutSection in Themes.First(t => t.Id == SelectedThemeId).LayoutSections)
-        {
-            <option value="@layoutSection.Number">@layoutSection.Number</option>
-        }
-    </select>
+    <div class="theme-selector">
+        <label for="themeSelect">Section:</label>
+        <select id="sectionSelect" @bind="CurrentSectionNumber">
+            @foreach (var layoutSection in Themes.First(t => t.Id == SelectedThemeId).LayoutSections)
+            {
+                <option value="@layoutSection.Number">@layoutSection.Number</option>
+            }
+        </select>
+    </div>
 
     <span>@(IsSelectingMode ? "Selecting" : "Dragging")</span>
     <div class="toggle-switch" style="display:flex;">
@@ -56,7 +58,7 @@
                         OverlapMode="OverlapMode"
                         CurrentSection="CurrentSection"
                         FieldEditDefinitions="FieldEditDefinitions"
-                        FieldTypeDefinitions="@FieldTypeDefinitions" 
+                        FieldTypeDefinitions="@FieldTypeDefinitions"
                         OnLayoutAdded="HandleLayoutAdded" />
 </div>
 

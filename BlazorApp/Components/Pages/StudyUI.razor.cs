@@ -71,6 +71,7 @@ namespace BlazorApp3.Client.Pages
                 .ToDictionary(
                     section => section.Id,
                     section => layouts
+                        .Where(l => l.PageId == section.Id)
                         .Select(layout => new UILayoutModelBase(layout))
                         .ToList()
                 );
