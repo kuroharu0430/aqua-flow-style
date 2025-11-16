@@ -49,9 +49,7 @@ namespace BlazorApp.Components
         public MousePosition? BaseScrollArea { get; set; }
 
         public RectBounds? SelectionRect { get; set; } = null;
-
-        [Parameter] public RenderFragment? ChildContent { get; set; }
-
+        public readonly record struct TrailCell(int gridX, int gridY);
         protected override void OnInitialized()
         {
             State.ModeChanged += OnInteractionModeChanged;
@@ -124,6 +122,7 @@ namespace BlazorApp.Components
             State.PageMousePosition = new MousePosition((int)e.PageX, (int)e.PageY);
             var (top, left) = await GetScrollOffsetAsync();
             State.ScrollState.UpdateScroll(top, left);
+            State.ScrollState.UpdateBounds(await GetScrollAreaBoundsAsync());
             BaseScrollArea = await JS.InvokeAsync<MousePosition>("getRelativePositionFromManager", SurfaceRef);
 
             // 右クリック or メニュー表示中ならスキップ
@@ -209,10 +208,10 @@ namespace BlazorApp.Components
 
             if (LayoutDragMode == LayoutDragMode.Registering)
             {
+                // 登録処理
                 dragTarget = new UILayoutModelBase(pendingTemplate!.Title, 0, 0, pendingTemplate.Type, CurrentSection.Id);
                 dragTarget.LayoutStatus = LayoutStatus.Pending;
                 dragTarget.SelectionState = SelectionState.Selected;
-                //Layouts.Add(dragTarget);
                 OnLayoutAdded.InvokeAsync(dragTarget);
             }
             else
@@ -454,8 +453,19 @@ namespace BlazorApp.Components
             State.SetMode(InteractionMode.StandBy);
         }
 
+        /// <summary>
+        /// MousePositionと重なったLayoutを取得する
+        /// </summary>
+        /// <returns></returns>
         private UILayoutModelBase? GetTargetLayoutAtCusor()
         {
+            // 表示されていないLayoutは選択しない
+            if (!State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y)
+                .Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
+            {
+                return null;
+            }
+
             return VisibleLayouts.FirstOrDefault(layout =>
                 layout.RectBounds.Contains(State.AbsoluteMousePosition.X, State.AbsoluteMousePosition.Y));
         }
@@ -471,8 +481,6 @@ namespace BlazorApp.Components
             }
         }
     }
-
-    public readonly record struct TrailCell(int gridX, int gridY);
 
     public class ScrollPosition
     {

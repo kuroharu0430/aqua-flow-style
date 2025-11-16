@@ -19,7 +19,7 @@
 
         public int Width => XMax - XMin;
         public int Height => YMax - YMin;
-        public bool IsEmpty => Width <= 0 || Height <= 0;
+        public bool IsEmpty => Width < 0 || Height < 0;
 
         public bool Contains(RectBounds target) =>
             target.XMin >= XMin && target.XMax <= XMax &&
@@ -49,7 +49,7 @@
             var xMax = Math.Max(XMax, point.X);
             var yMax = Math.Max(YMax, point.Y);
 
-            return new RectBounds(xMin, yMin, xMax, yMax).Normalize();
+            return new RectBounds(xMin, yMin, xMax, yMax);
         }
 
         public RectBounds Normalize() =>

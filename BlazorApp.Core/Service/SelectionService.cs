@@ -68,7 +68,7 @@ namespace BlazorApp.Core.Service
             var rawBounds = RectBounds.FromTwoPoints(RelativeStart, State.RelativeMousePosition);
 
             // 矩形制限
-            var scrollRect = ScrollState.RectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
+            var scrollRect = ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
             var maxRectBounds = scrollRect.Union((Session.InitialMousePosition.X, Session.InitialMousePosition.Y));
             return rawBounds.Clamp(maxRectBounds);
             //return rawBounds;
