@@ -85,9 +85,9 @@ h1:focus {
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    width: 400px;
+/*    width: 400px;
     height: 800px;
-    overflow: auto;
+    overflow: auto;*/
 }
 
 .scrollArea {

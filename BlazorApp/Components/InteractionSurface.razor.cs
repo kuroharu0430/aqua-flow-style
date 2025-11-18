@@ -249,8 +249,20 @@ namespace BlazorApp.Components
             // ScrollArea の左上を原点とする
             var position = State.AbsoluteMousePosition - BaseScrollArea;
 
-            int gridX = position.X / State.DisplayOption.WidthPerCell;
-            int gridY = position.Y / State.DisplayOption.HeightPerCell;
+            // Scroll補正を加えた座標に変換
+            var rect = State.ScrollState.AbsoluteRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
+
+            // スクロールエリアの最大に
+            int clampedX = Math.Clamp(position.X, rect.XMin, rect.XMax - 1);
+            int clampedY = Math.Clamp(position.Y, rect.YMin, rect.YMax - 1);
+
+            int gridX = clampedX / State.DisplayOption.WidthPerCell;
+            int gridY = clampedY / State.DisplayOption.HeightPerCell;
+
+            // 最大カラム数を超えないように制御
+            gridX = Math.Min(gridX, State.DisplayOption.ColumnNumber-1);
+            gridY = Math.Min(gridY, State.DisplayOption.RowNumber-1);
+
 
             // traileffect
             if (TrailCells.LastOrDefault() != new TrailCell(gridX, gridY))

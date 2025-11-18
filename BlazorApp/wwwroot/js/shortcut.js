@@ -16,7 +16,6 @@
         ) {
             keys.push(event.code);
         }
-        console.log(keys) 
 
         event.preventDefault();
         dotnetHelper.invokeMethodAsync('HandleShortcut', keys);
