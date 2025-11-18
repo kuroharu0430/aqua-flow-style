@@ -57,21 +57,5 @@ namespace BlazorApp.Components
             return Task.CompletedTask;
         }
 
-        private void CancelLayoutSelectionAll()
-        {
-            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected))
-            {
-                layout.SelectionState = SelectionState.None;
-            }
-        }
-
-        private void SelectLayoutAll()
-        {
-            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.None))
-            {
-                layout.SelectionState = SelectionState.Selected;
-            }
-        }
-
     }
 }
