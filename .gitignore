@@ -13,3 +13,8 @@ obj/
 # Others
 *.DS_Store
 *.swp
+
+# Sqlite
+layout.db
+layout.db-shm
+layout.db-wal
