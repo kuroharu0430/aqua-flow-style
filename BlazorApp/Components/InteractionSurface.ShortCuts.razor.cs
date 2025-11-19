@@ -9,9 +9,6 @@ namespace BlazorApp.Components
 
     public partial class InteractionSurface : ComponentBase
     {
-        [Parameter]
-        public EventCallback OnSave { get; set; }
-
         [JSInvokable]
         public Task HandleShortcut(string[] keys)
         {

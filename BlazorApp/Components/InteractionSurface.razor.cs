@@ -12,6 +12,7 @@ using BlazorApp.Service;
 using BlazorApp.Core.Enum;
 using BlazorApp.Core.Model.SnapShots;
 using BlazorApp.EntityFramework.Models;
+using System.Reflection.Metadata.Ecma335;
 
 namespace BlazorApp.Components
 {
@@ -37,9 +38,9 @@ namespace BlazorApp.Components
 
         [Parameter] public List<FieldTypeDefinition> FieldTypeDefinitions { get; set; } = [];
         [Parameter] public List<FieldEditDefinition> FieldEditDefinitions { get; set; } = [];
-
-       [Parameter] public SurfaceInteractionMode SurfaceInteractionMode { get; set; }
-
+        [Parameter] public SurfaceInteractionMode SurfaceInteractionMode { get; set; }
+        [Parameter] public EventCallback<UILayoutModelBase> OnLayoutAdded { get; set; }
+        [Parameter] public EventCallback OnSave { get; set; }
         public LayoutDragMode LayoutDragMode { get; set; } = LayoutDragMode.Move;
 
         [Parameter] public OverlapMode OverlapMode { get; set; }
@@ -50,6 +51,7 @@ namespace BlazorApp.Components
 
         public RectBounds? SelectionRect { get; set; } = null;
         public readonly record struct TrailCell(int gridX, int gridY);
+
         protected override void OnInitialized()
         {
             State.ModeChanged += OnInteractionModeChanged;
@@ -120,6 +122,7 @@ namespace BlazorApp.Components
         {
             // 座標・Scroll取得
             State.PageMousePosition = new MousePosition((int)e.PageX, (int)e.PageY);
+
             var (top, left) = await GetScrollOffsetAsync();
             State.ScrollState.UpdateScroll(top, left);
             State.ScrollState.UpdateBounds(await GetScrollAreaBoundsAsync());
@@ -148,7 +151,7 @@ namespace BlazorApp.Components
                 {
                     interactionMode = SurfaceInteractionMode.Dragging;
                 }
-                else if(SurfaceInteractionMode == SurfaceInteractionMode.Dragging)
+                else if (SurfaceInteractionMode == SurfaceInteractionMode.Dragging)
                 {
                     interactionMode = SurfaceInteractionMode.Selecting;
                 }
@@ -171,7 +174,8 @@ namespace BlazorApp.Components
             State.PageMousePosition = new MousePosition((int)e.PageX, (int)e.PageY);
 
             // DragStat
-            if (State.CurrentMode == InteractionMode.Idle)
+            // ContextMenuの競合を避ける＋clickとの競合を避ける判定
+            if (State.CurrentMode == InteractionMode.Idle && State.MoveEnough)
             {
                 State.ScrollState.UpdateBounds(await GetScrollAreaBoundsAsync());
 
@@ -198,9 +202,6 @@ namespace BlazorApp.Components
                     break;
             }
         }
-
-        [Parameter]
-        public EventCallback<UILayoutModelBase> OnLayoutAdded { get; set; }
 
         protected void StartDrag()
         {
@@ -300,7 +301,7 @@ namespace BlazorApp.Components
         protected async Task UpdateSelection()
         {
             if (Mode != InteractionMode.Selecting) return;
-            
+
             SelectionService.UpdateTempSelection();
             SelectionRect = SelectionService.GetViewRectBounds();
         }
@@ -311,24 +312,62 @@ namespace BlazorApp.Components
             if (e.Button == 2 || Mode == InteractionMode.ContextMenu)
                 return;
 
-            if (Mode == InteractionMode.Dragging || Mode == InteractionMode.Registering)
+            switch (Mode)
             {
-                UndoManager.Push(State.CommitDrag());
+                case InteractionMode.Idle:
+                    HandleClick(e);
+                    break;
+
+                case InteractionMode.Dragging:
+                case InteractionMode.Registering:
+                    UndoManager.Push(State.CommitDrag());
+                    break;
+
+                case InteractionMode.Selecting:
+                    ConfirmSelection();
+                    break;
             }
-            else if (Mode == InteractionMode.Selecting)
-            {
-                // 選択確定
-                foreach (var layout in VisibleLayouts)
-                {
-                    if (layout.SelectionState == SelectionState.TempSelected)
-                    {
-                        // 選択確定
-                        layout.SelectionState = SelectionState.Selected;
-                    }
-                }
-            }
+
             State.SetMode(InteractionMode.StandBy);
         }
+
+          /// <summary>
+          /// Click処理
+          /// </summary>
+          /// <param name="e"></param>
+        private void HandleClick(MouseEventArgs e)
+        {
+            var target = GetTargetLayoutAtCusor();
+            if (target == null) return;
+
+            // Ctrlキーが押されていない場合は他を解除
+            if (e.CtrlKey)
+            {
+                target.SelectionState =
+                    target.SelectionState == SelectionState.Selected
+                    ? SelectionState.None
+                    : SelectionState.Selected;
+            }
+            else
+            {
+                foreach (var layout in VisibleLayouts)
+                {
+                    layout.SelectionState = SelectionState.None;
+
+                }
+                target.SelectionState = SelectionState.Selected;
+            }
+        }
+
+        /// <summary>
+        /// 範囲選択の確定
+        /// </summary>
+        private void ConfirmSelection()
+        {
+            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.TempSelected))
+                layout.SelectionState = SelectionState.Selected;
+        }
+
 
         private async Task<(int Top, int Left)> GetScrollOffsetAsync()
         {
@@ -417,7 +456,7 @@ namespace BlazorApp.Components
                     { nameof(LayoutEditDialog.FieldEditDefinitions), FieldEditDefinitions }
                 },
                 new DialogOptions { }
-            ); 
+            );
 
             // 編集が確定したら履歴に積む
             if (result is true)

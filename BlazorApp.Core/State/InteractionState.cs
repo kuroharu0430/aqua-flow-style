@@ -23,6 +23,8 @@ namespace BlazorApp.Core.State
 
         public MousePosition PageMousePosition { get; set; }
 
+        public MousePosition? PageMouseDownPosition { get; set; } = null;
+
         public MousePosition RelativeMousePosition => (MousePosition)(PageMousePosition - SurfaceBase);
         public MousePosition AbsoluteMousePosition => new MousePosition(
                 RelativeMousePosition.X + ScrollState.ScrollLeft,
@@ -31,10 +33,33 @@ namespace BlazorApp.Core.State
 
         public MousePosition SurfaceBase { get; set; }
 
+        /// <summary>
+        /// マウスダウンからMoveしたかの判定　Drag or Clickの判定につかう
+        /// </summary>
+        public bool MoveEnough
+        {
+            get
+            {
+                if (PageMouseDownPosition == null || PageMousePosition == null)
+                {
+                    return false;
+                }
+                const int DragThreshold = 5;
+                int dx = Math.Abs(PageMousePosition.X - PageMouseDownPosition.X);
+                int dy = Math.Abs(PageMousePosition.Y - PageMouseDownPosition.Y);
+                return dx > DragThreshold || dy > DragThreshold;
+            }
+        }
         public void SetMode(InteractionMode mode)
         {
             CurrentMode = mode;
             ModeChanged?.Invoke(mode);
+
+            // Idleに入った瞬間に基準座標を保存
+            if (mode == InteractionMode.Idle)
+            {
+                PageMouseDownPosition = PageMousePosition;
+            }
         }
 
         public void StartMoveSession(IDraggable dragTarget, List<IDraggable> visibleLayouts)
@@ -89,9 +114,9 @@ namespace BlazorApp.Core.State
                 }
                 // Idle や Restoring は無視
             }
+            // TODO DIspose()の方が適切
             Session = null;
-            // TODO
-            //UndoManager.RedoStack.Clear();
+
             return new CompositeSnapshot(snapshotList, UndoActionType.Dragged);
         }
 
