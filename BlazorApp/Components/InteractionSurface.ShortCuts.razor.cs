@@ -15,47 +15,28 @@ namespace BlazorApp.Components
         [JSInvokable]
         public Task HandleShortcut(string[] keys)
         {
-            // TODO State.Modeで制御する必要あり？？
+            var shortcuts = new List<(string[] combo, Action action)>
+            {
+                (new[] { "Ctrl", "Shift", "KeyZ" }, () => UndoManager.Redo()),
+                (new[] { "Ctrl", "KeyZ" }, () => UndoManager.Undo()),
+                (new[] { "Escape" }, () => CancelLayoutSelectionAll()),
+                (new[] { "Delete" }, () => DeleteLayouts()),
+                (new[] { "Ctrl", "KeyA" }, () => SelectLayoutAll()),
+                (new[] { "Ctrl", "KeyS" }, () => OnSave.InvokeAsync())
+            };
 
-            // Ctrl+Shift+Z → Redo
-            // Undoも発火するのでUndoよりも先
-            if (keys.Contains("Ctrl") && keys.Contains("Shift") && keys.Contains("KeyZ"))
+            foreach (var (combo, action) in shortcuts)
             {
-                UndoManager.Redo();
-            }
-            // Ctrl+Z → Undo
-            else if (keys.Contains("Ctrl") && keys.Contains("KeyZ"))
-            {
-                UndoManager.Undo();
-            }
-            // Escape → Cancel
-            else if (keys.Contains("Escape"))
-            {
-                CancelLayoutSelectionAll();
-            }
-            // Delete → Delete
-            else if (keys.Contains("Delete"))
-            {
-                DeleteLayouts();
-            }
-            // Ctrl+A → SelectAll
-            else if (keys.Contains("Ctrl") && keys.Contains("KeyA"))
-            {
-                SelectLayoutAll();
-            }
-            // Ctrl+S → Save
-            else if (keys.Contains("Ctrl") && keys.Contains("KeyS"))
-            {
-                OnSave.InvokeAsync();
-            }
-            else
-            {
-                // 何もしない
+                // 順不同で比較（ソートしてから比較）
+                if (combo.OrderBy(k => k).SequenceEqual(keys.OrderBy(k => k)))
+                {
+                    action.Invoke();
+                    break;
+                }
             }
 
             StateHasChanged();
             return Task.CompletedTask;
         }
-
     }
 }

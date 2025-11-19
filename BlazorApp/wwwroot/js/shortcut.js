@@ -17,7 +17,12 @@
             keys.push(event.code);
         }
 
-        event.preventDefault();
+        // ショートカットや特殊キーならブラウザの標準動作を止める
+        if (event.ctrlKey || event.altKey || event.shiftKey ||
+            ["Escape", "Delete"].includes(event.code)) {
+            event.preventDefault();
+        }
+
         dotnetHelper.invokeMethodAsync('HandleShortcut', keys);
     });
 }
