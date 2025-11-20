@@ -33,22 +33,22 @@
             <div class="form-group mb-2">
                 <div class="d-flex align-items-center gap-2">
                     <input type="checkbox"
-                    class="form-check-input"
-                    @bind="edit.IsEnabled" />
+                           class="form-check-input"
+                           @bind="edit.IsEnabled" />
 
                     <label class="form-label mb-0" style="min-width: 100px;">
                         @edit.Key
                     </label>
 
                     <input class="form-control flex-grow-1"
-                    @bind="edit.Value"
-                    disabled="@(!edit.IsEnabled)"
-                    placeholder="空欄の場合、値はクリアされます"
-                    type="@edit.InputType" />
+                           @bind="edit.Value"
+                           disabled="@(!edit.IsEnabled)"
+                           placeholder="空欄の場合、値はクリアされます"
+                           type="@edit.InputType" />
 
                     <button class="btn btn-outline-secondary"
-                    @onclick="@(() => edit.Value = string.Empty)"
-                    disabled="@(!edit.IsEnabled)">
+                            @onclick="@(() => edit.Value = string.Empty)"
+                            disabled="@(!edit.IsEnabled)">
                         クリア
                     </button>
                 </div>
@@ -65,22 +65,22 @@
             <div class="form-group mb-2">
                 <div class="d-flex align-items-center gap-2">
                     <input type="checkbox"
-                    class="form-check-input"
-                    @bind="edit.IsEnabled" />
+                           class="form-check-input"
+                           @bind="edit.IsEnabled" />
 
                     <label class="form-label mb-0" style="min-width: 100px;">
                         @edit.Key
                     </label>
 
                     <input class="form-control flex-grow-1"
-                    @bind="edit.Value"
-                    disabled="@(!edit.IsEnabled)"
-                    placeholder="空欄の場合、値はクリアされます"
-                    type="@edit.InputType" />
+                           @bind="edit.Value"
+                           disabled="@(!edit.IsEnabled)"
+                           placeholder="空欄の場合、値はクリアされます"
+                           type="@edit.InputType" />
 
                     <button class="btn btn-outline-secondary"
-                    @onclick="@(() => edit.Value = string.Empty)"
-                    disabled="@(!edit.IsEnabled)">
+                            @onclick="@(() => edit.Value = string.Empty)"
+                            disabled="@(!edit.IsEnabled)">
                         クリア
                     </button>
 
@@ -97,22 +97,22 @@
             <div class="form-group mb-2">
                 <div class="d-flex align-items-center gap-2">
                     <input type="checkbox"
-                    class="form-check-input"
-                    @bind="edit.IsEnabled" />
+                           class="form-check-input"
+                           @bind="edit.IsEnabled" />
 
                     <label class="form-label mb-0" style="min-width: 100px;">
                         @edit.DisplayName
                     </label>
 
                     <input class="form-control flex-grow-1"
-                    @bind="edit.Value"
-                    disabled="@(!edit.IsEnabled)"
-                    placeholder="空欄の場合、値はクリアされます"
-                    type="@edit.InputType" />
+                           @bind="edit.Value"
+                           disabled="@(!edit.IsEnabled)"
+                           placeholder="空欄の場合、値はクリアされます"
+                           type="@edit.InputType" />
 
                     <button class="btn btn-outline-secondary"
-                    @onclick="@(() => edit.Value = string.Empty)"
-                    disabled="@(!edit.IsEnabled)">
+                            @onclick="@(() => edit.Value = string.Empty)"
+                            disabled="@(!edit.IsEnabled)">
                         クリア
                     </button>
                 </div>
@@ -172,8 +172,15 @@
         DialogService.Close(false);
     }
 
-    private void Submit()
+    private async Task Submit()
     {
+        var result = await DialogService.ConfirmAsync("保存しますがよろしいでしょうか");
+
+        if (!result)
+        {
+            return;
+        }
+
         foreach (var layout in Layouts)
         {
             // Style更新
@@ -248,7 +255,7 @@
                 {
                     values = layouts.Select(layout => layout.Style[key]).ToList();
                 }
-   
+
                 var distinct = values.Distinct().ToList();
 
                 bool isConsistent = distinct.Count == 1;

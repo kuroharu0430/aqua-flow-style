@@ -331,10 +331,10 @@ namespace BlazorApp.Components
             State.SetMode(InteractionMode.StandBy);
         }
 
-          /// <summary>
-          /// Click処理
-          /// </summary>
-          /// <param name="e"></param>
+        /// <summary>
+        /// Click処理
+        /// </summary>
+        /// <param name="e"></param>
         private void HandleClick(MouseEventArgs e)
         {
             var target = GetTargetLayoutAtCusor();

@@ -1,68 +1,79 @@
 ﻿@using BlazorApp.Service
 @inject DialogService DialogService
 
-@if (dialogComponent != null)
+@foreach (var dialog in dialogs)
 {
-    <div class="dialog-overlay">
 
-        <!-- Dialog本体 -->
-         <div class="dialog-container">
+    @if (dialog != null)
+    {
+        <div class="dialog-overlay">
 
-            <!-- タイトル -->
-            <div class="dialog-header">
-                <h5>@dialogTitle</h5>
+            <!-- Dialog本体 -->
+            <div class="dialog-container">
+
+                <!-- タイトル -->
+                <div class="dialog-header">
+                    <h5>@dialog.Title</h5>
+                </div>
+
+                <!-- コンテンツ -->
+                <div class="dialog-body">
+                    @dialog.ChildContent
+                </div>
+
+
             </div>
-
-            <!-- コンテンツ -->
-            <div class="dialog-body">
-                <DynamicComponent Type="dialogComponent" Parameters="dialogParameters" />
-            </div>
-
-            <!-- ボタン -->
-@*             <div class="dialog-footer">
-                <button class="btn btn-primary" @onclick="Submit">OK</button>
-                <button class="btn btn-secondary" @onclick="Cancel">キャンセル</button>
-            </div> *@
         </div>
-    </div>
+    }
 }
 
 @code {
-    private Type? dialogComponent;
-    private Dictionary<string, object>? dialogParameters;
-    private DialogOptions dialogOptions = new();
+    private List<DialogEntry> dialogs = new();
 
-    public string dialogTitle { get; set; } = "Title";
     protected override void OnInitialized()
     {
-        DialogService.OnOpen += (type, title, parameters, options) =>
+        DialogService.OnOpen += (title, parameters, options, flagment) =>
         {
-            dialogComponent = type;
-            dialogParameters = parameters;
-            dialogOptions = options;
+            dialogs.Add(new DialogEntry(title, parameters, options, flagment));
             StateHasChanged();
         };
 
         DialogService.OnClose += (result) =>
         {
-            dialogComponent = null;
-            dialogParameters = null;
-            dialogOptions = new DialogOptions();
-            StateHasChanged(); // ← UIを更新してダイアログを消す
+            if (dialogs.Count > 0)
+                dialogs.RemoveAt(dialogs.Count - 1); // 最後のダイアログを閉じる
+            StateHasChanged();
         };
     }
 
-    private void Submit()
+    private void Submit(DialogEntry entry)
     {
-        DialogService.Close(true); // OKボタン → trueを返す
-        dialogComponent = null;
+        DialogService.Close(true);
+        dialogs.Remove(entry);
         StateHasChanged();
     }
 
-    private void Cancel()
+    private void Cancel(DialogEntry entry)
     {
-        DialogService.Close(false); // キャンセル → falseを返す
-        dialogComponent = null;
+        DialogService.Close(false);
+        dialogs.Remove(entry);
         StateHasChanged();
     }
+
+    private class DialogEntry
+    {
+        public RenderFragment? ChildContent { get; set; }
+        public string Title { get; set; }
+        public Dictionary<string, object>? Parameters { get; set; }
+        public DialogOptions Options { get; set; }
+
+        public DialogEntry(string title, Dictionary<string, object>? parameters, DialogOptions options, RenderFragment? childContent = null)
+        {
+            Title = title;
+            Parameters = parameters;
+            Options = options;
+            ChildContent = childContent;
+        }
+    }
+
 }
