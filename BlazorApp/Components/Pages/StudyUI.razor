@@ -3,7 +3,8 @@
 @inherits LayoutComponentBase
 @rendermode InteractiveServer
 @using BlazorApp.Components
-
+@using BlazorApp.Service
+@inject DialogService DialogService
 
 <DialogHost />
 
@@ -16,7 +17,11 @@
                 <option value="@theme.Id">@theme.Name</option>
             }
         </select>
+        <button @onclick="CreateNewTheme">＋</button>
+
     </div>
+
+
     <div class="theme-selector">
         <label for="themeSelect">Section:</label>
         <select id="sectionSelect" @bind="CurrentSectionNumber">

@@ -1,0 +1,38 @@
+﻿@using BlazorApp.Service
+@inject DialogService DialogService
+
+<div class="dialog-body">
+    <div class="form-group mb-3">
+        <label class="form-label">テーマ名</label>
+        <input class="form-control" @bind="ThemeName" placeholder="テーマ名を入力してください" />
+    </div>
+</div>
+
+<div class="dialog-footer mt-3">
+    <button class="btn btn-primary" @onclick="Save">保存</button>
+    <button class="btn btn-secondary" @onclick="Cancel">キャンセル</button>
+</div>
+
+@code {
+    private string ThemeName { get; set; } = "";
+
+    private void Save()
+    {
+        // 空文字は認めない
+        if (!string.IsNullOrWhiteSpace(ThemeName))
+        {
+            DialogService.Close(ThemeName);
+        }
+        else
+        {
+            DialogService.Close(false);
+        }
+
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close(false);
+    }
+}
+

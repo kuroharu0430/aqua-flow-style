@@ -134,7 +134,6 @@
     private void SetTab(string tab) => activeTab = tab;
 
     [Parameter] public List<UILayoutModelBase> Layouts { get; set; } = new();
-    // [Parameter] public List<FieldTypeDefinition> FieldTypeDefinitions { get; set; } = new();
     [Parameter] public List<FieldEditDefinition> FieldEditDefinitions { get; set; } = new();
 
     private List<FieldEditViewModel> FieldEdits { get; set; } = [];

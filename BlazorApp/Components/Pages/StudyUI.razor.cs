@@ -6,6 +6,8 @@ using BlazorApp.Core.State;
 using BlazorApp.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.EntityFramework.Models;
+using BlazorApp.Service;
+using BlazorApp.Components.Dialog;
 
 namespace BlazorApp3.Client.Pages
 {
@@ -53,7 +55,7 @@ namespace BlazorApp3.Client.Pages
             // ViewModelに変換しないのでTracking
             Themes = DbContext.Themes
                 .Include(t => t.LayoutSections)
-                .ToList(); // ← Tracking OK
+                .ToList();
 
             var sectionIds = Themes.SelectMany(t => t.LayoutSections).Select(s => s.Id).ToList();
 
@@ -169,6 +171,48 @@ namespace BlazorApp3.Client.Pages
             context.SaveChanges();
             //DbContext.SaveChanges();
         }
+
+        private async Task CreateNewTheme()
+        {
+            var result = await DialogService.OpenAsync<CreateTheme>(
+                "テーマ作成",
+                new Dictionary<string, object> { },
+                new DialogOptions { }
+            );
+
+            if (result is string themeName)
+            {
+                // 新しい Theme を作成
+                var newTheme = new Theme
+                {
+                    Name = themeName,
+                    LayoutSections = new List<LayoutSection>
+                    {
+                        {
+                            // 必ず1セクション作成
+                            LayoutSection.CreateDefault()
+                        }
+                    }
+                };
+
+                // DbContextに追加して保存
+                DbContext.Themes.Add(newTheme);
+                DbContext.SaveChanges();
+
+                // メモリ上のリストにも追加
+                Themes.Add(newTheme);
+                int newThemeId = newTheme.Id;
+                int newSectionId = newTheme.LayoutSections[0].Id;
+                // Dictionaryにも反映しておく
+                LayoutsBySection[newSectionId] = new List<UILayoutModelBase>();
+
+                // 選択中テーマを新しいものに切り替え
+                SelectedThemeId = newTheme.Id;
+
+                StateHasChanged();
+
+            }
+        }
     }
 
     public enum LayoutDragMode
@@ -177,88 +221,4 @@ namespace BlazorApp3.Client.Pages
         Move,
         Resize
     }
-
-    //Themes = new List<Theme>
-    //{
-    //    new Theme { Id = 1, Name = "Dark" },
-    //    new Theme { Id = 2, Name = "Light" }
-    //};
-    //var pages = new List<LayoutSection>();
-
-    //int pageIdCounter = 1;
-    //int layoutIdCounter = 1;
-
-    //foreach (var theme in Themes)
-    //{
-    //    for (int sectionIndex = 0; sectionIndex < 3; sectionIndex++)
-    //    {
-    //        var page = new LayoutSection
-    //        {
-    //            Id = pageIdCounter++,
-    //            Number = sectionIndex + 1,
-    //            ThemeId = theme.Id,
-    //            Theme = theme,
-    //            ColumnNumber = 100,
-    //            RowNumber = 100,
-    //            WidthPerCell = 100,
-    //            HeightPerCell = 100,
-    //            ScreenWidth = 800,
-    //            ScreenHeight = 600,
-    //            Layouts = new List<UIBaseLayout>()
-    //        };
-
-    //        for (int i = 0; i < 1000; i++)
-    //        {
-    //            int x = i % 50;
-    //            int y = i / 50;
-
-    //            ComponentType type = (i % 4) switch
-    //            {
-    //                0 => ComponentType.Button,
-    //                1 => ComponentType.Label,
-    //                2 => ComponentType.Image,
-    //                3 => ComponentType.Button,
-    //                _ => ComponentType.Button,
-    //            };
-
-    //            string name = $"{type}_{i + 1}";
-
-    //            var layout = new UIBaseLayout
-    //            {
-    //                Id = layoutIdCounter++,
-    //                Name = name,
-    //                X = x,
-    //                Y = y,
-    //                SizeX = 1,
-    //                SizeY = 1,
-    //                LayoutType = type,
-    //                PageId = page.Id,
-    //                Page = page,
-    //                StyleJson = "{}",
-    //                WrapperStyleJson = "{}",
-    //                CssJson = "{}",
-    //                FieldValues = new List<LayoutFieldValue>()
-    //            };
-
-    //            page.Layouts.Add(layout);
-    //        }
-
-    //        LayoutSections.Add(page);
-    //    }
-
-    //    foreach (var section in LayoutSections)
-    //    {
-    //        LayoutsBySection[section.Id] = section.Layouts
-    //            .Select(layout => new UILayoutModelBase(
-    //                layout.Name,
-    //                layout.X,
-    //                layout.Y,
-    //                layout.LayoutType)
-    //            {
-    //                LayoutSectionId = section.Id,
-    //            })
-    //            .ToList();
-    //    }
-    //}
-
 }

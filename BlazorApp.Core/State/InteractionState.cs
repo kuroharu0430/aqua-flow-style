@@ -148,17 +148,17 @@ namespace BlazorApp.Core.State
         public (int X, int Y)? LastGridPosition { get; set; }
         public (int X, int Y)? ValidGridPosition { get; set; }
 
-        public void Record(IDraggable btn)
+        public void Record(IDraggable layout)
         {
             var snapshot = new LayoutSnapshot(
-                btn,
-                btn.GridBounds.DeepCopy(),
-                btn.LayoutStatus
+                layout,
+                layout.GridBounds.DeepCopy(),
+                layout.LayoutStatus
             );
 
             PreMoveSnapshot.Add(snapshot);
 
-            if (!OldRecord.Any(x => x.target == btn))
+            if (!OldRecord.Any(x => x.target == layout))
             {
                 OldRecord.Add(snapshot); // 最初の状態だけ積む！
             }

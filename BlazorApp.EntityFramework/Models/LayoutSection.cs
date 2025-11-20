@@ -21,6 +21,18 @@ namespace BlazorApp.EntityFramework.Models
 
         public List<UIBaseLayout> Layouts { get; set; } = new(); // 子レイアウトへのナビゲーション
 
-
+        public static LayoutSection CreateDefault()
+        {
+            return new LayoutSection
+            {
+                Number = 1,
+                ColumnNumber = 10,
+                RowNumber = 10,
+                WidthPerCell = 100,
+                HeightPerCell = 100,
+                ScreenWidth = 400,
+                ScreenHeight = 600
+            };
+        }
     }
 }
