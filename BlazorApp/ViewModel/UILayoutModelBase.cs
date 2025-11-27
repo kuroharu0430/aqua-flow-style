@@ -50,6 +50,31 @@ namespace BlazorApp.ViewModel
         public RectBounds RectBounds { get; set; } = new RectBounds(0, 0, 0, 0);
 
         public bool NeedsRectUpdate { get; set; } = true;
+        //private bool _needsRectUpdate = true;
+
+        //public bool NeedsRectUpdate
+        //{
+        //    get => _needsRectUpdate;
+        //    set
+        //    {
+        //        if (_needsRectUpdate != value)
+        //        {
+        //            _needsRectUpdate = value;
+
+        //            if (value)
+        //            {
+        //                // Ready状態に遷移
+        //                LayoutStatus = LayoutStatus.Ready;
+        //            }
+        //            else
+        //            {
+        //                // Already状態に遷移
+        //                LayoutStatus = LayoutStatus.Already;
+        //            }
+        //        }
+        //    }
+        //}
+
 
         public SelectionState SelectionState { get; set; }
         public InteractionPhase InteractionPhase { get; set; }
@@ -73,6 +98,9 @@ namespace BlazorApp.ViewModel
         public string this[AttributeType type] =>
                     VisibleFieldValues.FirstOrDefault(v => v.AttributeType == type)?.Value ?? string.Empty;
 
+        /// <summary>
+        /// ComponetTypeとViewのMapping
+        /// </summary>
         public static readonly Dictionary<ComponentType, Type> ComponentMap = new()
         {
             { ComponentType.Button, typeof(ButtonLayoutView) },

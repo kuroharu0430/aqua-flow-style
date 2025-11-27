@@ -1,7 +1,7 @@
 ﻿@using BlazorApp.Core.Model
 
-<div id="scrollArea_1" @ref="ScrollAreaRef" class="scrollArea"
-     style="max-width: 600px; max-height: 600px;pointer-events:auto;">
+<div id="scrollArea_1" @ref="ScrollAreaRef" class="scrollArea @CssClass"
+style="max-width: 600px; max-height: 600px;pointer-events:auto;">
     @ChildContent
 </div>
 
@@ -16,6 +16,8 @@
     private ElementReference ScrollAreaRef;
 
     [Parameter] public ElementReference SurfaceRef { get; set; }
+
+    [Parameter] public string CssClass { get; set; } = string.Empty;
 
     private Position? BaseClient;     // ScrollAreaの画面上の基準位置
 

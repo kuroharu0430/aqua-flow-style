@@ -7,7 +7,7 @@
 <div @ref="SurfaceRef"
      id="SurfaceId"
      class="interaction-surface"
-          style="
+     style="
         --cell-width: @(CurrentSection.WidthPerCell)px;
         --cell-height: @(CurrentSection.HeightPerCell)px;
         --columns: @(CurrentSection.ColumnNumber);
@@ -22,20 +22,20 @@
     <div style="display:flex;">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />
 
-        <button @onmousedown:stopPropagation="true"
+        <button class="button small undo" @onmousedown:stopPropagation="true"
                 @onmousedown="() => UndoManager.Undo()">
-            Undo
+            <i class="fas fa-undo"></i>
         </button>
 
-        <button @onmousedown:stopPropagation="true"
+        <button class="button small redo" @onmousedown:stopPropagation="true"
                 @onmousedown="() => UndoManager.Redo()">
-            Redo
+            <i class="fas fa-redo"></i>
         </button>
     </div>
 
     <DisplayOptionEditor Section="CurrentSection" />
 
-    <ScrollArea SurfaceRef="SurfaceRef">
+    <ScrollArea SurfaceRef="SurfaceRef" CssClass="grid-frame">
 
         <div class="grid-wrapper"
              style="
@@ -48,6 +48,7 @@
                 box-sizing: border-box;
                 pointer-events: none;">
         </div>
+
 
         @foreach (var layout in VisibleLayouts)
         {
@@ -104,7 +105,7 @@
             <ul>
                 <li @onclick="EditStyle">スタイル編集</li>
                 <li @onclick="DeleteLayouts">削除</li>
-@*                 <li @onclick="DeleteLayout">複写</li>
+                @*                 <li @onclick="DeleteLayout">複写</li>
  *@            </ul>
         </div>
     }

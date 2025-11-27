@@ -169,7 +169,8 @@ namespace BlazorApp3.Client.Pages
                 }
             }
             context.SaveChanges();
-            //DbContext.SaveChanges();
+            // 追従しているcontextもsave
+            DbContext.SaveChanges();
         }
 
         private async Task CreateNewTheme()

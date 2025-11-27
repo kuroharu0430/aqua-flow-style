@@ -26,4 +26,16 @@
 
 @code {
     [Parameter] public LayoutSection Section { get; set; } = new();
+
+    // 値が変わったことを親に通知するためのコールバック
+    [Parameter] public EventCallback<LayoutSection> DisplayParameterChanged { get; set; }
+
+    private async Task NotifyChange()
+    {
+        if (DisplayParameterChanged.HasDelegate)
+        {
+            await DisplayParameterChanged.InvokeAsync(Section);
+        }
+    }
+
 }

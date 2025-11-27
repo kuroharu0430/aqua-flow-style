@@ -51,7 +51,7 @@ namespace BlazorApp.Service
                 builder.CloseElement();
 
                 builder.OpenElement(2, "button");
-                builder.AddAttribute(3, "class", "btn btn-primary");
+                builder.AddAttribute(3, "class", "button ok");
                 builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => Close(true)));
                 builder.AddContent(5, "OK");
                 builder.CloseElement();
@@ -79,13 +79,13 @@ namespace BlazorApp.Service
                 builder.CloseElement();
 
                 builder.OpenElement(2, "button");
-                builder.AddAttribute(3, "class", "btn btn-primary");
+                builder.AddAttribute(3, "class", "button ok");
                 builder.AddAttribute(4, "onclick", EventCallback.Factory.Create(this, () => { Close(true); tcs.SetResult(true); }));
                 builder.AddContent(5, "はい");
                 builder.CloseElement();
 
                 builder.OpenElement(6, "button");
-                builder.AddAttribute(7, "class", "btn btn-secondary");
+                builder.AddAttribute(7, "class", "button cancel");
                 builder.AddAttribute(8, "onclick", EventCallback.Factory.Create(this, () => { Close(false); tcs.SetResult(false); }));
                 builder.AddContent(9, "いいえ");
                 builder.CloseElement();

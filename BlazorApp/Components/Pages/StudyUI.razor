@@ -10,26 +10,27 @@
 
 <div style="display:flex;">
     <div class="theme-selector">
-        <label for="themeSelect">テーマ:</label>
-        <select id="themeSelect" @bind="SelectedThemeId">
+        <label class="sticky-label" for="themeSelect">テーマ:</label>
+        <select class="select" id="themeSelect" @bind="SelectedThemeId">
             @foreach (var theme in Themes)
             {
                 <option value="@theme.Id">@theme.Name</option>
             }
         </select>
-        <button @onclick="CreateNewTheme">＋</button>
+        <button class="button small" @onclick="CreateNewTheme">＋</button>
 
     </div>
 
 
     <div class="theme-selector">
-        <label for="themeSelect">Section:</label>
-        <select id="sectionSelect" @bind="CurrentSectionNumber">
+        <label class="sticky-label" for="themeSelect">Section:</label>
+        <select class="select" id="sectionSelect" @bind="CurrentSectionNumber">
             @foreach (var layoutSection in Themes.First(t => t.Id == SelectedThemeId).LayoutSections)
             {
                 <option value="@layoutSection.Number">@layoutSection.Number</option>
             }
         </select>
+        <button class="button small" @onclick="CreateNewTheme">＋</button>
     </div>
 
     <span>@(IsSelectingMode ? "Selecting" : "Dragging")</span>
@@ -51,7 +52,7 @@
         </select>
     </div>
 
-    <button @onclick="() => Save()">
+    <button class="button" @onclick="() => Save()">
         Save
     </button>
 </div>
