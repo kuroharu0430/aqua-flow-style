@@ -30,10 +30,22 @@
                 <option value="@layoutSection.Number">@layoutSection.Number</option>
             }
         </select>
-        <button class="button small" @onclick="CreateNewTheme">＋</button>
+        <button class="button small" @onclick="CreateNewSelction">＋</button>
     </div>
 
-    <span>@(IsSelectingMode ? "Selecting" : "Dragging")</span>
+    <div class="theme-selector">
+        <div class="theme-selector">
+            <label class="sticky-label" for="overlapModeSelect">重なりモード:</label>
+            <select class="select" id="overlapModeSelect" @bind="OverlapMode">
+                @foreach (var mode in OverlapModes)
+                {
+                    <option value="@mode">@mode</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <span class="sticky-label">@(IsSelectingMode ? "Selecting" : "Dragging")</span>
     <div class="toggle-switch" style="display:flex;">
         <label>
             <input type="checkbox" @bind="IsSelectingMode" />
@@ -41,20 +53,6 @@
         </label>
 
     </div>
-    <div class="grid-settings">
-
-        <label for="overlapModeSelect">重なりモード:</label>
-        <select id="overlapModeSelect" @bind="OverlapMode">
-            @foreach (var mode in OverlapModes)
-            {
-                <option value="@mode">@mode</option>
-            }
-        </select>
-    </div>
-
-    <button class="button" @onclick="() => Save()">
-        Save
-    </button>
 </div>
 
 <div class="section-wrapper" @key="CurrentSection.Id">
@@ -65,7 +63,7 @@
                         CurrentSection="CurrentSection"
                         FieldEditDefinitions="FieldEditDefinitions"
                         FieldTypeDefinitions="@FieldTypeDefinitions"
-                        OnLayoutAdded="HandleLayoutAdded" 
+                        OnLayoutAdded="HandleLayoutAdded"
                         OnSave="Save" />
 </div>
 

@@ -6,6 +6,7 @@ a, .btn-link {
     color: #006bb7;
 }
 
+
 .button {
     position: relative;
     display: inline-block;
@@ -22,8 +23,8 @@ a, .btn-link {
     border-radius: 8px;
     /* ベース色＋グラデで上面を少し明るく */
     background: linear-gradient(to bottom, #79d9ff 0%, #35b0f5 50%, #177fcf 100%);
-    /* ボトムの段差（ベベル感） */
-    border-bottom: 3px solid #c96d00;
+    /* ボトムの段差（ベベル感） → 深いブルーに変更 */
+    border-bottom: 3px solid #0a2a66; /* 道警風の濃紺 */
     /* 内側ハイライト＋外側の落ち影 */
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 8px rgba(0,0,0,0.18);
     transition: transform 0.05s ease, background 0.2s ease, box-shadow 0.2s ease;
@@ -34,10 +35,10 @@ a, .btn-link {
     0 1px 0 rgba(255,255,255,0.35), 0 2px 1px rgba(255,255,255,0.25);
 }
 
+
     /* hover：少し濃く&影強め */
     .button:hover {
         filter: brightness(1.1);
-        background: linear-gradient(to bottom, #ff8f2c 0%, #f7881a 50%, #e66f00 100%);
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.40), 0 6px 12px rgba(0,0,0,0.22);
     }
 
@@ -94,10 +95,6 @@ a, .btn-link {
         border-bottom: 3px solid #566271;
         color: #fff;
     }
-
-
-
-
 
 .content {
     padding-top: 1.1rem;
@@ -423,12 +420,12 @@ select.select {
         border-bottom-width: 2px;
     }
 
+/*    付箋付きLabel*/
 .sticky-label {
     display: flex;
     align-items: center; /* 縦中央 */
     height: 40px; /* セレクトと同じ高さ */
     padding: 0 12px; /* 左右だけ */
-    border-radius: 8px;
     font-weight: 700;
     font-size: 0.95rem;
     color: #0b5cab;
@@ -447,6 +444,102 @@ select.select {
     box-shadow: 0 6px 16px rgba(0,0,0,0.18), /* 外側の落ち影（ふわっと） */
     inset 0 1px 0 rgba(255,255,255,0.35); /* 内側ハイライトで軽い立体感 */
 }
+
+/* 本体：AQUA配色＋影を強化 */
+.aqua-input {
+    font: 15px/1.6 sans-serif;
+    height:40px;
+    width: calc(100% - 20px);
+    padding: 0.3em;
+    color: #0b5cab;
+    border: 1px solid #d6efff;  通常時は淡いAquaの縁 
+    border-radius: 4px;
+    background-color: #eaf7ff;
+    transition: 0.3s;
+     影：インセット＆外側を少し強めて“RICH”に 
+    box-shadow: 1px 1px 3px 0 rgba(26, 143, 227, 0.35) inset,  元より濃い青影 
+    0 8px 18px rgba(0, 0, 0, 0.16);  外側の落ち影を強化 
+}
+
+    /* Hover：明るさアップ＋縁も少し鮮やかに（Brightly） */
+    .aqua-input:hover {
+        filter: brightness(1.08);  明るさをしっかり上げる 
+        border-color: #cfeeff;  縁も少し明るく 
+        box-shadow: 1px 1px 3px 0 rgba(26, 143, 227, 0.40) inset, 0 10px 22px rgba(0, 0, 0, 0.18);
+    }
+
+    /* Focus：ボーダーを濃く＋リングもやや強め */
+    .aqua-input:focus {
+        outline: none;
+        border-color: #1185d1;  濃いAquaブルー（しっかり見せる） 
+        background-color: #f0fbff;  少しだけトーンアップ 
+
+        box-shadow: 1px 1px 3px 0 rgba(26, 143, 227, 0.45) inset,  内側ハイライト強化 
+        0 0 0 3px rgba(61, 169, 255, 0.40),  外側リングを強めに 
+        0 12px 26px rgba(0, 0, 0, 0.20);
+    }
+
+    /* Disabled：存在感を弱める */
+    .aqua-input:disabled {
+        cursor: not-allowed;
+        color: rgba(11, 92, 171, 0.65);
+        background-color: #f5fbff;
+        border-color: #e3f4ff;
+        box-shadow: 1px 1px 2px 0 rgba(26, 143, 227, 0.25) inset, 0 4px 10px rgba(0, 0, 0, 0.10);
+    }
+
+
+/* 蛍光ペンっぽいラベル（高さ 40px に馴染む） */
+.highlighter {
+    display: inline-flex;
+    align-items: center; /* 40pxの高さに対して縦中央 */
+    height: 40px;
+    padding: 0 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: .4px;
+    color: #0b5cab; /* AQUA系の濃青文字 */
+    position: relative;
+}
+
+    /* 背面の蛍光帯（テキストより少し上下に広げる） */
+
+/* 蛍光ペン風ラベル（高さ40px用） */
+
+/* 蛍光ペン風ラベル（高さ40px用） */
+.highlighter {
+    display: inline-flex;
+    align-items: center; /* 縦中央 */
+    height: 40px;
+    padding: 0 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: .4px;
+    color: #0b5cab; /* アクア系の濃青文字 */
+    position: relative; /* ← ::before の基準にする */
+}
+
+    /* 下半分だけ帯を敷く。左上ほぼ透明→右下（下方向）に濃く */
+    .highlighter::before {
+        content: ""; /* ← 必須：疑似要素を描画する */
+        position: absolute; /* ← 親(highlighter)基準で配置 */
+        z-index: -1; /* ← 文字の背面に置く */
+        /* 帯のサイズと位置（下半分に近い厚み） */
+        left: 4px;
+        right: 4px;
+        bottom: 6px;
+        height: calc(50% - 6px);
+        border-radius: 4px;
+        /* 斜めグラデ：左上ほぼ透明 → 右下濃く */
+        background: linear-gradient( 145deg, rgba(207, 238, 255, 0.03) 0%, rgba(186, 229, 255, 0.22) 28%, rgba(160, 214, 250, 0.55) 58%, rgba(120, 190, 235, 0.97) 100% );
+        /* ほんのり“にじみ”で蛍光感を補強 */
+        box-shadow: 0 3px 12px rgba(120, 190, 235, 0.40), 0 0 0 4px rgba(168, 220, 255, 0.22);
+    }
+
+    /* Hover：少し明るく */
+    .highlighter:hover {
+        filter: brightness(1.06);
+    }
 
 
 

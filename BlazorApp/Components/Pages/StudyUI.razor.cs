@@ -211,8 +211,12 @@ namespace BlazorApp3.Client.Pages
                 SelectedThemeId = newTheme.Id;
 
                 StateHasChanged();
-
             }
+        }
+
+        private void CreateNewSelction()
+        {
+
         }
     }
 

@@ -31,6 +31,12 @@
                 @onmousedown="() => UndoManager.Redo()">
             <i class="fas fa-redo"></i>
         </button>
+        <button class="button" @onclick="() => CancelLayoutSelectionAll()">
+            選択解除
+        </button>
+        <button class="button" @onclick="() => OnSave.InvokeAsync()">
+            Save
+        </button>
     </div>
 
     <DisplayOptionEditor Section="CurrentSection" />
