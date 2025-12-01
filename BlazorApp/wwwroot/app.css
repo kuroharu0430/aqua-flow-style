@@ -2,6 +2,12 @@
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.interactive-buttons {
+    display: flex;
+    align-items: center; /* 縦方向の中央揃え */
+    gap: 10px; /* 子要素の間隔を20px */
+}
+
 a, .btn-link {
     color: #006bb7;
 }
@@ -355,66 +361,7 @@ input:checked + .slider {
     padding: 4px 0;
 }
 
-select.select {
-    appearance: none;
-    height: 40px;
-    padding: 0 44px 0 12px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #0b5cab; /* 強めの青 */
-    background: linear-gradient(to bottom, #cfeeff 0%, #a8dcff 55%, #8cc6f0 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 8px rgba(0,0,0,0.18);
-    border-bottom: 3px solid #156bb5;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
-    position: relative;
-}
 
-    /* 右端の矢印 */
-    select.select::after {
-        content: "▾"; /* or "▼" */
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        line-height: 1;
-        color: #fff; /* ← ここで矢印色を自由に変更 */
-        pointer-events: none;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.35);
-    }
-
-
-    /* 開いたドロップリスト側は “濃い文字色＋淡い背景” にして可読性確保 */
-    select.select option {
-        color: #0e1d2b; /* 濃い紺っぽい文字（見やすい） */
-        background: #eaf7ff; /* うっすら水色背景 */
-    }
-
-    /* hover/active/focus の一貫性 */
-    select.select:hover {
-        filter: brightness(1.06);
-    }
-
-    select.select:active {
-        transform: translateY(1px);
-        border-bottom-width: 2px;
-    }
-
-    select.select:focus-visible {
-        outline: 2px solid rgba(61, 169, 255, 0.85);
-        outline-offset: 2px;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.40), 0 0 0 3px rgba(61, 169, 255, 0.35), 0 6px 12px rgba(0,0,0,0.20);
-    }
-
-    /* 無効状態 */
-    select.select:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 2px 4px rgba(0,0,0,0.12);
-        border-bottom-width: 2px;
-    }
 
 /*    付箋付きLabel*/
 .sticky-label {

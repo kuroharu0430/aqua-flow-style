@@ -19,15 +19,15 @@
      @oncontextmenu="OnTextContextMenu"
      @oncontextmenu:preventDefault="true">
 
-    <div style="display:flex;">
+    <div class="interactive-buttons">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />
 
-        <button class="button small undo" @onmousedown:stopPropagation="true"
+        <button class="button small undo" @onmousedown:stopPropagation="true" title="巻き戻しctrl+Z"
                 @onmousedown="() => UndoManager.Undo()">
             <i class="fas fa-undo"></i>
         </button>
 
-        <button class="button small redo" @onmousedown:stopPropagation="true"
+        <button class="button small redo" @onmousedown:stopPropagation="true" title="巻き戻しctrl+shift+Z"
                 @onmousedown="() => UndoManager.Redo()">
             <i class="fas fa-redo"></i>
         </button>
@@ -38,8 +38,6 @@
             Save
         </button>
     </div>
-
-    <DisplayOptionEditor Section="CurrentSection" />
 
     <ScrollArea SurfaceRef="SurfaceRef" CssClass="grid-frame">
 

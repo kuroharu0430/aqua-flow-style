@@ -17,15 +17,12 @@
                 }
             </select>
             <button class="button small" @onclick="CreateNewTheme">＋</button>
-
+            <DisplayOptionEditor Section="CurrentSection" />
         </div>
     </HeaderContent>
 
     <MainContent>
         <div style="display:flex;">
-
-
-
             <div class="theme-selector">
                 <label class="sticky-label" for="themeSelect">Section:</label>
                 <select class="select" id="sectionSelect" @bind="CurrentSectionNumber">
