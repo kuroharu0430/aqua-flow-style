@@ -14,7 +14,7 @@ obj/
 *.DS_Store
 *.swp
 
-# Sqlite
-layout.db
-layout.db-shm
-layout.db-wal
+# local SQLite databases
+*.db
+*.db-shm
+*.db-wal

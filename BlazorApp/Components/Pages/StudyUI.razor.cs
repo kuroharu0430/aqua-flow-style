@@ -11,7 +11,7 @@ using BlazorApp.Components.Dialog;
 
 namespace BlazorApp3.Client.Pages
 {
-    public partial class StudyUI : LayoutComponentBase
+    public partial class StudyUI
     {
         [Inject] public required LayoutDbContext DbContext { get; set; }
         [Inject] public required IDbContextFactory<LayoutDbContext> DbContextFactory { get; set; }
