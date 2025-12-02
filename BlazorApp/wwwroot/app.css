@@ -403,7 +403,7 @@ input:checked + .slider {
 
     .aqua-input:focus {
         outline: none;
-        box-shadow: inset 1px 1px 2px 0 #79d9ff;
+        box-shadow: inset 4px 4px 8px 0 #79d9ff;
     }
 
 
@@ -442,3 +442,37 @@ input:checked + .slider {
     .highlighter:hover {
         filter: brightness(1.06);
     }
+
+.selectbox {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+}
+
+    .selectbox::after {
+        position: absolute;
+        right: 15px;
+        width: 10px;
+        height: 7px;
+        background-color: #535353;
+        clip-path: polygon(0 0, 100% 0, 50% 100%);
+        content: '';
+        pointer-events: none;
+    }
+
+    .selectbox select {
+        appearance: none;
+        min-width: 230px;
+        height: 2.8em;
+        padding: .4em calc(.8em + 30px) .4em .8em;
+        border: none;
+        border-bottom: 2px solid #d0d0d0;
+        background-color: #fff;
+        color: #333333;
+        font-size: 1em;
+        cursor: pointer;
+    }
+
+        .selectbox select:focus {
+            outline: none;
+        }

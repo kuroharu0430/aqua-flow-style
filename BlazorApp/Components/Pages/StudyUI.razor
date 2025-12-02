@@ -10,12 +10,14 @@
     <HeaderContent>
         <div class="theme-selector">
             <label class="sticky-label" for="themeSelect">テーマ:</label>
-            <select class="select" id="themeSelect" @bind="SelectedThemeId">
-                @foreach (var theme in Themes)
-                {
-                    <option value="@theme.Id">@theme.Name</option>
-                }
-            </select>
+            <label class="selectbox">
+                <select id="themeSelect" @bind="SelectedThemeId">
+                    @foreach (var theme in Themes)
+                    {
+                        <option value="@theme.Id">@theme.Name</option>
+                    }
+                </select>
+            </label>
             <button class="button small" @onclick="CreateNewTheme">＋</button>
             <DisplayOptionEditor Section="CurrentSection" />
         </div>

@@ -22,12 +22,12 @@
     <div class="interactive-buttons">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />
 
-        <button class="button small undo" @onmousedown:stopPropagation="true" title="巻き戻しctrl+Z"
+        <button class="button small undo"  title="巻き戻しctrl+Z"
                 @onmousedown="() => UndoManager.Undo()">
             <i class="fas fa-undo"></i>
         </button>
 
-        <button class="button small redo" @onmousedown:stopPropagation="true" title="巻き戻しctrl+shift+Z"
+        <button class="button small redo" title="やり直しctrl+shift+Z"
                 @onmousedown="() => UndoManager.Redo()">
             <i class="fas fa-redo"></i>
         </button>
