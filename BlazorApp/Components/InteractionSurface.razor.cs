@@ -41,7 +41,7 @@ namespace BlazorApp.Components
         [Parameter] public SurfaceInteractionMode SurfaceInteractionMode { get; set; }
         [Parameter] public EventCallback<UILayoutModelBase> OnLayoutAdded { get; set; }
         [Parameter] public EventCallback OnSave { get; set; }
-        public LayoutDragMode LayoutDragMode { get; set; } = LayoutDragMode.Move;
+        public LayoutDragMode CurrentDragMode { get; set; } = LayoutDragMode.Move;
 
         [Parameter] public OverlapMode OverlapMode { get; set; }
 
@@ -100,7 +100,9 @@ namespace BlazorApp.Components
         {
             // 仮オブジェクトを生成
             pendingTemplate = template;
-            LayoutDragMode = LayoutDragMode.Registering;
+            CurrentDragMode = LayoutDragMode.Registering;
+            // 選択解除
+            CancelLayoutSelectionAll();
         }
 
         protected MousePosition? RipplePosition { get; set; } = null;
@@ -207,12 +209,14 @@ namespace BlazorApp.Components
         {
             var dragTarget = GetTargetLayoutAtCusor();
 
-            if (LayoutDragMode == LayoutDragMode.Registering)
+            if (CurrentDragMode == LayoutDragMode.Registering)
             {
                 // 登録処理
                 dragTarget = new UILayoutModelBase(pendingTemplate!.Title, 0, 0, pendingTemplate.Type, CurrentSection.Id);
                 dragTarget.LayoutStatus = LayoutStatus.Pending;
                 dragTarget.SelectionState = SelectionState.Selected;
+                // TemplateGost release
+                pendingTemplate = null;
                 OnLayoutAdded.InvokeAsync(dragTarget);
             }
             else
@@ -227,7 +231,7 @@ namespace BlazorApp.Components
 
             State.SetMode(InteractionMode.Dragging);
 
-            if (LayoutDragMode != LayoutDragMode.Registering)
+            if (CurrentDragMode != LayoutDragMode.Registering)
             {
                 // Target内の相対位置を取得
                 int relativeX = State.AbsoluteMousePosition.X - dragTarget.RectBounds.XMin;
@@ -237,7 +241,7 @@ namespace BlazorApp.Components
                 bool isResizeArea = relativeX >= dragTarget.RectBounds.Width - ResizeHandleSize &&
                                     relativeY >= dragTarget.RectBounds.Height - ResizeHandleSize;
 
-                LayoutDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
+                CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
             }
             State.StartMoveSession(dragTarget, VisibleLayouts.Cast<IDraggable>().ToList());
         }
@@ -277,7 +281,7 @@ namespace BlazorApp.Components
             }
 
             // DragService or ResizeService
-            switch (LayoutDragMode)
+            switch (CurrentDragMode)
             {
                 case LayoutDragMode.Move:
                 case LayoutDragMode.Registering:
@@ -387,7 +391,7 @@ namespace BlazorApp.Components
             {
                 case InteractionMode.StandBy:
                     // Selecting以外のZeroPoint
-                    LayoutDragMode = LayoutDragMode.Move;
+                    CurrentDragMode = LayoutDragMode.Move;
                     pendingTemplate = null;
                     ContextMenuPosition = null;
                     // 仮登録状態のLayoutの始末

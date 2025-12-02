@@ -1,8 +1,9 @@
 ﻿@using BlazorApp.Core.State;
 @using BlazorApp.ViewModel;
 @using BlazorApp.Core.Model;
-@using BlazorApp.Service
-@inject DialogService DialogService
+@using BlazorApp.Service;
+@using BlazorApp3.Client.Pages;
+@inject DialogService DialogService;
 
 <div @ref="SurfaceRef"
      id="SurfaceId"
@@ -114,4 +115,17 @@
         </div>
     }
 
+    @if (pendingTemplate is not null && CurrentDragMode == LayoutDragMode.Registering)
+    {
+        <div class="ghost-shape"
+             style="position:absolute;
+                left:@($"{State.RelativeMousePosition.X}px");
+                top:@($"{State.RelativeMousePosition.Y}px");
+                width:@($"{CurrentSection.WidthPerCell}px");
+                height:@($"{CurrentSection.HeightPerCell}px");
+                opacity:0.5;
+                pointer-events:none;">
+            <i class="@pendingTemplate.IconClass"></i>
+        </div>
+    }
 </div>

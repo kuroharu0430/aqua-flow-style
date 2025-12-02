@@ -5,7 +5,7 @@
 <div class="shape-templates-panel">
     @foreach (var template in Templates)
     {
-        <div class="template-item"
+        <div class="template-item" title="@template.Title"
              @onmousedown="() => OnSelectedTemplate(template.Type)">
             <i class="@template.IconClass"></i>
         </div>

@@ -476,3 +476,18 @@ input:checked + .slider {
         .selectbox select:focus {
             outline: none;
         }
+
+.ghost-shape {
+    border: 1px dashed #333;
+    background-color: rgba(200,200,200,0.3);
+    display: flex; /* フレックスボックスで中央寄せ */
+    align-items: center; /* 縦方向中央 */
+    justify-content: center; /* 横方向中央 */
+}
+
+    .ghost-shape i {
+        font-size: 2em; /* 親フォントサイズの2倍に */
+        color: #000;
+    }
+
+
