@@ -25,6 +25,9 @@ namespace BlazorApp.Core.Model.SnapShots
         IReversible CloneCurrent(); 
     }
 
+    /// <summary>
+    /// UnndoRedoのtype　※履歴表示用　今は不要
+    /// </summary>
     public enum UndoActionType
     {
         Dragged,

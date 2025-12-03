@@ -5,10 +5,8 @@ namespace BlazorApp.Core.Service
 {
     public class ResizeService : InteractionService
     {
-        public bool? TryResize(int relativeX, int relativeY, OverlapMode mode)
+        public bool? TryResize(int gridX, int gridY, OverlapMode mode)
         {
-            var (gridX, gridY) = ToGridPosition(relativeX, relativeY, State.DisplayOption.WidthPerCell, State.DisplayOption.HeightPerCell);
-
             if (!StartDrag(dragTarget, gridX, gridY))
                 return null;
 

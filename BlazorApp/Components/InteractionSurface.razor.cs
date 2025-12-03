@@ -13,6 +13,7 @@ using BlazorApp.Core.Enum;
 using BlazorApp.Core.Model.SnapShots;
 using BlazorApp.EntityFramework.Models;
 using System.Reflection.Metadata.Ecma335;
+using System;
 
 namespace BlazorApp.Components
 {
@@ -207,12 +208,22 @@ namespace BlazorApp.Components
 
         protected void StartDrag()
         {
+            // GridにMouseがない場合はDragを開始しない
+            var rect = State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
+            if (!rect.Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
+            {
+                return;
+            }
+            // Grid位置取得
+
             var dragTarget = GetTargetLayoutAtCusor();
 
             if (CurrentDragMode == LayoutDragMode.Registering)
             {
                 // 登録処理
-                dragTarget = new UILayoutModelBase(pendingTemplate!.Title, 0, 0, pendingTemplate.Type, CurrentSection.Id);
+                (int gridX, int gridY)  = GetPositionInGrid();
+
+                dragTarget = new UILayoutModelBase(pendingTemplate!.Title, gridX, gridY, pendingTemplate.Type, CurrentSection.Id);
                 dragTarget.LayoutStatus = LayoutStatus.Pending;
                 dragTarget.SelectionState = SelectionState.Selected;
                 // TemplateGost release
@@ -221,12 +232,11 @@ namespace BlazorApp.Components
             }
             else
             {
+                if (dragTarget == null)
+                {
+                    return;
+                }
                 SetSelectingLayout(dragTarget);
-            }
-
-            if (dragTarget == null)
-            {
-                return;
             }
 
             State.SetMode(InteractionMode.Dragging);
@@ -251,23 +261,7 @@ namespace BlazorApp.Components
             if (Mode != InteractionMode.Dragging)
                 return;
 
-            // ScrollArea の左上を原点とする
-            var position = State.AbsoluteMousePosition - BaseScrollArea;
-
-            // Scroll補正を加えた座標に変換
-            var rect = State.ScrollState.AbsoluteRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
-
-            // スクロールエリアの最大に
-            int clampedX = Math.Clamp(position.X, rect.XMin, rect.XMax - 1);
-            int clampedY = Math.Clamp(position.Y, rect.YMin, rect.YMax - 1);
-
-            int gridX = clampedX / State.DisplayOption.WidthPerCell;
-            int gridY = clampedY / State.DisplayOption.HeightPerCell;
-
-            // 最大カラム数を超えないように制御
-            gridX = Math.Min(gridX, State.DisplayOption.ColumnNumber-1);
-            gridY = Math.Min(gridY, State.DisplayOption.RowNumber-1);
-
+            (int gridX, int gridY)  = GetPositionInGrid();
 
             // traileffect
             if (TrailCells.LastOrDefault() != new TrailCell(gridX, gridY))
@@ -285,15 +279,35 @@ namespace BlazorApp.Components
             {
                 case LayoutDragMode.Move:
                 case LayoutDragMode.Registering:
-                    DragService.TryDrag(position.X, position.Y, OverlapMode);
+                    DragService.TryDrag(gridX, gridY, OverlapMode);
                     break;
                 case LayoutDragMode.Resize:
-                    ResizeService.TryResize(position.X, position.Y, OverlapMode);
+                    ResizeService.TryResize(gridX, gridY, OverlapMode);
                     break;
                 default:
                     // 何もしない
                     break;
             }
+        }
+
+        private (int gridX, int gridY) GetPositionInGrid()
+        {
+            // ScrollArea の左上を原点とする
+            var AbsoluteMouseposition = State.AbsoluteMousePosition - BaseScrollArea;
+
+            // Scroll補正を加えた座標に変換
+            var rect = State.ScrollState.AbsoluteRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
+
+            // スクロールエリアの最大に
+            int clampedX = Math.Clamp(AbsoluteMouseposition.X, rect.XMin, rect.XMax - 1);
+            int clampedY = Math.Clamp(AbsoluteMouseposition.Y, rect.YMin, rect.YMax - 1);
+
+            int gridX = clampedX / State.DisplayOption.WidthPerCell;
+            int gridY = clampedY / State.DisplayOption.HeightPerCell;
+
+            // 最大カラム数を超えないように制御
+            return (gridX: Math.Min(gridX, State.DisplayOption.ColumnNumber-1),
+                    gridY: Math.Min(gridY, State.DisplayOption.RowNumber-1));
         }
 
         // 範囲選択モード関係

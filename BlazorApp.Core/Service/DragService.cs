@@ -8,9 +8,10 @@ namespace BlazorApp.Core.Service
     {
         protected (int dx, int dy) confirmedDirection = (0, 0);
 
-        public bool? TryDrag(int relativeX, int relativeY, OverlapMode mode)
+        public bool? TryDrag(int gridX, int gridY, OverlapMode mode)
         {
-            var (gridX, gridY) = ToGridPosition(relativeX, relativeY, State.DisplayOption.WidthPerCell, State.DisplayOption.HeightPerCell);
+            // TODO 不要
+            //var (gridX, gridY) = ToGridPosition(relativeX, relativeY, State.DisplayOption.WidthPerCell, State.DisplayOption.HeightPerCell);
 
             if (!StartDrag(dragTarget, gridX, gridY))
                 return null;
