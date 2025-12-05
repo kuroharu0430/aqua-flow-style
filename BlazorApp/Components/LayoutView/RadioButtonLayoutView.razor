@@ -1,0 +1,13 @@
+﻿@namespace BlazorApp.Components
+@using BlazorApp.ViewModel
+@using BlazorApp.EntityFramework.Enums
+@inherits UILayoutViewBase
+
+<div class="componet-Wrapper" style="@WrapperStyles.ToString()">
+    <input type="text"
+           @ref="ElementRef"
+           class="@Classes.ToString()"
+           style="@Styles.ToString()"
+           value="@Model[AttributeType.Text]" />
+    <div class="resize-handle"></div>
+</div>

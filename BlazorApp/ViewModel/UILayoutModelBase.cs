@@ -102,13 +102,18 @@ namespace BlazorApp.ViewModel
         /// ComponetTypeとViewのMapping
         /// </summary>
         public static readonly Dictionary<ComponentType, Type> ComponentMap = new()
-        {
-            { ComponentType.Button, typeof(ButtonLayoutView) },
-            { ComponentType.Image, typeof(ImageLayoutView) },
-            { ComponentType.Label, typeof(LabelLayoutView) },
-            { ComponentType.Link, typeof(LinkLayoutView) },
-            // 他のタイプも追加
-        };
+{
+    { ComponentType.Button, typeof(ButtonLayoutView) },
+    { ComponentType.Image, typeof(ImageLayoutView) },
+    { ComponentType.Label, typeof(LabelLayoutView) },
+    { ComponentType.Link, typeof(LinkLayoutView) },
+
+    // 追加分
+    { ComponentType.TextBox, typeof(TextBoxLayoutView) },
+    { ComponentType.CheckBox, typeof(CheckBoxLayoutView) },
+    { ComponentType.RadioButton, typeof(RadioButtonLayoutView) },
+    { ComponentType.Dropdown, typeof(DropdownLayoutView) }
+};
 
         public Type GetViewComponentType()
         {

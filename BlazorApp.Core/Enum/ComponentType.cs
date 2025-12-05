@@ -6,11 +6,9 @@
         Label = 1,
         Image = 2,
         Link = 3,
-        //Radio = 4,
-        //Check = 5,
-        //Toggle = 6,
-        //Slider = 7,
-        //Spacer = 8
+        TextBox = 4,
+        CheckBox = 5,
+        RadioButton = 6,
+        Dropdown = 7
     }
-
 }

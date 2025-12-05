@@ -21,7 +21,13 @@
         new ShapeTemplate(ComponentType.Button, "Button", "fas fa-square"),
         new ShapeTemplate(ComponentType.Label, "Label", "fas fa-font"),
         new ShapeTemplate(ComponentType.Image, "Image", "fas fa-image"),
-        new ShapeTemplate(ComponentType.Link, "Link", "fas fa-link")
+        new ShapeTemplate(ComponentType.Link, "Link", "fas fa-link"),
+
+        new ShapeTemplate(ComponentType.TextBox, "TextBox", "fas fa-i-cursor"),
+        new ShapeTemplate(ComponentType.CheckBox, "CheckBox", "fas fa-check-square"),
+        new ShapeTemplate(ComponentType.RadioButton, "RadioButton", "fas fa-dot-circle"),
+        new ShapeTemplate(ComponentType.Dropdown, "Dropdown", "fas fa-caret-down"),
+
     };
 
     protected override void OnInitialized()
@@ -56,7 +62,5 @@
             Title = title;
             IconClass = iconClass;
         }
-
     }
-
 }
