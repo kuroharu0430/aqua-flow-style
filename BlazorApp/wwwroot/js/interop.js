@@ -118,6 +118,7 @@ window.getCorrectedBoundsByIdAndRef = (surfaceId, buttonElement) => {
 };
 
 
+// ScrollAreaの状態の取得(), AutoScroll機能付き
 class ScrollManager {
     constructor(scrollAreaElement) {
         this.scrollArea = scrollAreaElement;
@@ -130,11 +131,12 @@ class ScrollManager {
         this.ticking = false;
         this.directionX = DirectionX.None;
         this.directionY = DirectionY.None;
-
         this.mode = 'manual'; // 'manual', 'locked', 'auto' など拡張可能
-
-        this.edgeSize = 30;
-        this.scrollSpeed = 20;
+        this.lastClientX = 0;
+        this.lastClientY = 0;
+        this.edgeSize = 100;
+        this.CurrentSpeed = 20;
+        this.MaxSpeed = 50;
 
         this.init();
     }
@@ -149,49 +151,89 @@ class ScrollManager {
             this.scrollWidth = this.scrollArea.scrollWidth;
             this.scrollHeight = this.scrollArea.scrollHeight;
         });
-        document.addEventListener('mousedown', this.startState.bind(this));
-        // マウス座標の監視とスクロール制御（必要時のみ）
-        document.addEventListener('mousemove', (e) => {
-            if (!this.isDragging) return;
 
-            // マウスの移動方向
+        document.addEventListener('mousedown', this.startState.bind(this));
+        document.addEventListener('mouseup', this.resetState.bind(this));
+
+        // Scroll状態の更新
+        document.addEventListener('mousemove', (e) => {
+/*            if (!this.isDragging) return;*/
+
+            // 直近座標
+            this.lastClientX = e.clientX;
+            this.lastClientY = e.clientY;
+
+            // 方向更新
             this.directionX = e.movementX > 0 ? DirectionX.RIGHT :
-                e.movementX < 0 ? DirectionX.LEFT :
-                    DirectionX.None;
+                e.movementX < 0 ? DirectionX.LEFT : DirectionX.None;
 
             this.directionY = e.movementY > 0 ? DirectionY.DOWN :
-                e.movementY < 0 ? DirectionY.UP :
-                    DirectionY.None;
-            window.requestAnimationFrame(() => {
-                // Y方向スクロール
-                if (e.clientY < this.bounds.top + this.edgeSize &&
-                    this.directionY === DirectionY.UP) {
-                    this.scrollArea.scrollTop -= this.scrollSpeed;
-                    this.scrollTop = this.scrollArea.scrollTop;
-                    this.scrollLeft = this.scrollArea.scrollLeft;
-                } else if (e.clientY > this.bounds.bottom - this.edgeSize &&
-                    this.directionY === DirectionY.DOWN) {
-                    this.scrollArea.scrollTop += this.scrollSpeed;
-                }
-
-                // X方向スクロール
-                if (e.clientX < this.bounds.left + this.edgeSize &&
-                    this.directionX === DirectionX.LEFT) {
-                    this.scrollArea.scrollLeft -= this.scrollSpeed;
-                } else if (e.clientX > this.bounds.right - this.edgeSize &&
-                    this.directionX === DirectionX.RIGHT) {
-                    this.scrollArea.scrollLeft += this.scrollSpeed;
-                }
-
-                // 状態更新
-                this.scrollTop = this.scrollArea.scrollTop;
-                this.scrollLeft = this.scrollArea.scrollLeft;
-
-                this.ticking = false;
-            });
+                e.movementY < 0 ? DirectionY.UP : DirectionY.None;
         });
+    }
 
-        document.addEventListener('mouseup', this.resetState.bind(this));
+    // AutoScroll
+    runLoop() {
+        const step = () => {
+            if (!this.isDragging) return;
+
+            const eX = this.lastClientX;
+            const eY = this.lastClientY;
+
+            // Y方向スクロール
+            if (eY < this.bounds.top + this.edgeSize &&
+                this.directionY === DirectionY.UP) {
+                const dist = (this.bounds.top + this.edgeSize) - eY;
+                const speed = this.calculateSpeed(dist);
+                this.scrollArea.scrollTop -= speed;
+            } else if (eY > this.bounds.bottom - this.edgeSize &&
+                this.directionY === DirectionY.DOWN) {
+                const dist = eY - (this.bounds.bottom - this.edgeSize);
+                const speed = this.calculateSpeed(dist);
+                this.scrollArea.scrollTop += speed;
+            }
+
+            // X方向スクロール
+            if (eX < this.bounds.left + this.edgeSize &&
+                this.directionX === DirectionX.LEFT) {
+                const dist = (this.bounds.left + this.edgeSize) - eX;
+                const speed = this.calculateSpeed(dist);
+                this.scrollArea.scrollLeft -= speed;
+            } else if (eX > this.bounds.right - this.edgeSize &&
+                this.directionX === DirectionX.RIGHT) {
+                const dist = eX - (this.bounds.right - this.edgeSize);
+                const speed = this.calculateSpeed(dist);
+                this.scrollArea.scrollLeft += speed;
+            }
+
+            requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    // AutoScroll開始
+    startState(e) {
+        this.isDragging = true;
+        this.lastClientX = e.clientX;
+        this.lastClientY = e.clientY;
+        this.bounds = this.scrollArea.getBoundingClientRect(); 
+        this.runLoop(); // rAFループ開始
+    }
+
+    resetState() {
+        this.isDragging = false;
+        this.directionX = DirectionX.None;
+        this.directionY = DirectionY.None;
+    }
+
+    // 速度計算　端に端に近づくと線形で加速
+    calculateSpeed(distanceFromEdge) {
+        if (distanceFromEdge <= 0) return 0;
+        if (distanceFromEdge >= this.edgeSize) return this.CurrentSpeed;
+
+        // 線形補間
+        const ratio = 1 - (distanceFromEdge / this.edgeSize);
+        return this.CurrentSpeed + (this.MaxSpeed - this.CurrentSpeed) * ratio;
     }
 
     setMode(mode) {
@@ -234,14 +276,9 @@ class ScrollManager {
         // requestAnimationFrame の制御フラグ
         this.ticking = false;
 
-        // スクロール位置の同期（必要なら）
+        // スクロール位置の同期
         this.scrollTop = this.scrollArea.scrollTop;
         this.scrollLeft = this.scrollArea.scrollLeft;
-    }
-
-    startState() {
-        // ドラッグ状態開始
-        this.isDragging = true;
     }
 }
 
