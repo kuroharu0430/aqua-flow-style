@@ -192,18 +192,6 @@ namespace BlazorApp.Components
                         break;
                 }
             }
-
-            switch (Mode)
-            {
-                case InteractionMode.Selecting:
-                    await UpdateSelection();
-                    break;
-
-                case InteractionMode.Dragging:
-                case InteractionMode.Registering:
-                    UpdateDragPosition();
-                    break;
-            }
         }
 
         protected void StartDrag()
@@ -254,6 +242,7 @@ namespace BlazorApp.Components
                 CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
             }
             State.StartMoveSession(dragTarget, VisibleLayouts.Cast<IDraggable>().ToList());
+            _= RunDragLoop();
         }
 
         protected void UpdateDragPosition()
@@ -289,6 +278,35 @@ namespace BlazorApp.Components
                     break;
             }
         }
+
+        /// <summary>
+        /// Drag中にLoop更新する　※AutoScroll対策
+        /// </summary>
+        private async Task RunDragLoop()
+        {
+            while (Mode == InteractionMode.Dragging)
+            {
+                // Scroll更新
+                var (top, left) = await GetScrollOffsetAsync();
+                State.ScrollState.UpdateScroll(top, left);
+                //State.PageMousePosition = new MousePosition((int)e.PageX, (int)e.PageY);
+
+                switch (Mode)
+                {
+                    case InteractionMode.Selecting:
+                        await UpdateSelection();
+                        break;
+
+                    case InteractionMode.Dragging:
+                    case InteractionMode.Registering:
+                        UpdateDragPosition();
+                        break;
+                }
+                _= InvokeAsync(StateHasChanged);
+                await Task.Delay(16); // 60fps相当
+            }
+        }
+
 
         private (int gridX, int gridY) GetPositionInGrid()
         {

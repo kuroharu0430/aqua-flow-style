@@ -134,9 +134,9 @@ class ScrollManager {
         this.mode = 'manual'; // 'manual', 'locked', 'auto' など拡張可能
         this.lastClientX = 0;
         this.lastClientY = 0;
-        this.edgeSize = 200;
-        this.CurrentSpeed = 30;
-        this.MaxSpeed = 100;
+        this.edgeSize = 100;
+        this.CurrentSpeed = 20;
+        this.MaxSpeed = 50;
 
         this.init();
     }
