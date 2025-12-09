@@ -132,7 +132,7 @@ namespace BlazorApp.Components
             BaseScrollArea = await JS.InvokeAsync<MousePosition>("getRelativePositionFromManager", SurfaceRef);
 
             // 右クリック or メニュー表示中ならスキップ
-            if (e.Button == 2)
+            if (e.Button == (long)MouseButton.Right)
                 return;
 
             if (Mode == InteractionMode.ContextMenu)
@@ -280,16 +280,15 @@ namespace BlazorApp.Components
         }
 
         /// <summary>
-        /// Drag中にLoop更新する　※AutoScroll対策
+        /// Drag中にLoop更新する　※AutoScroll対応
         /// </summary>
         private async Task RunDragLoop()
         {
-            while (Mode == InteractionMode.Dragging)
+            while (Mode == InteractionMode.Dragging || Mode ==InteractionMode.Registering || Mode ==InteractionMode.Selecting)
             {
                 // Scroll更新
                 var (top, left) = await GetScrollOffsetAsync();
                 State.ScrollState.UpdateScroll(top, left);
-                //State.PageMousePosition = new MousePosition((int)e.PageX, (int)e.PageY);
 
                 switch (Mode)
                 {
@@ -332,6 +331,7 @@ namespace BlazorApp.Components
         protected void StartSelection()
         {
             State.StartSelectingSession(VisibleLayouts.Cast<IDraggableOnMouse>().ToList());
+            _= RunDragLoop();
         }
 
         protected async Task UpdateSelection()

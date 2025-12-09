@@ -152,12 +152,12 @@ class ScrollManager {
             this.scrollHeight = this.scrollArea.scrollHeight;
         });
 
-        document.addEventListener('mousedown', this.startState.bind(this));
+/*        document.addEventListener('mousedown', this.startState.bind(this));*/
         document.addEventListener('mouseup', this.resetState.bind(this));
 
         // Scroll状態の更新
         document.addEventListener('mousemove', (e) => {
-/*            if (!this.isDragging) return;*/
+            if (!this.isDragging) return;
 
             // 直近座標
             this.lastClientX = e.clientX;
@@ -305,6 +305,15 @@ window.GetScrollOffsetAsync = (scrollAreaElement) => {
 };
 
 
+window.getClientPosition = (element) => {
+    if (!element) return { x: 0, y: 0 };
+    const rect = element.getBoundingClientRect();
+    return {
+        X: Math.round(rect.left + window.scrollX),
+        Y: Math.round(rect.top + window.scrollY)
+    };
+};
+
 const DirectionX = {
     None: 'none',
     LEFT: 'left',
@@ -317,11 +326,4 @@ const DirectionY = {
     DOWN: 'down'
 };
 
-window.getClientPosition = (element) => {
-    if (!element) return { x: 0, y: 0 };
-    const rect = element.getBoundingClientRect();
-    return {
-        X: Math.round(rect.left + window.scrollX),
-        Y: Math.round(rect.top + window.scrollY)
-    };
-};
+
