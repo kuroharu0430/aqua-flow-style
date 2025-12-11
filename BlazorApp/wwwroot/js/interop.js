@@ -152,7 +152,7 @@ class ScrollManager {
             this.scrollHeight = this.scrollArea.scrollHeight;
         });
 
-/*        document.addEventListener('mousedown', this.startState.bind(this));*/
+        document.addEventListener('mousedown', this.startState.bind(this));
         document.addEventListener('mouseup', this.resetState.bind(this));
 
         // Scroll状態の更新

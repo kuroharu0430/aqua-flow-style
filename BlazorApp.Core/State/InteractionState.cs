@@ -114,7 +114,7 @@ namespace BlazorApp.Core.State
                 }
                 // Idle や Restoring は無視
             }
-            // TODO DIspose()の方が適切
+            // TODO Dispose()の方が適切
             Session = null;
 
             return new CompositeSnapshot(snapshotList, UndoActionType.Dragged);
@@ -188,7 +188,7 @@ public enum InteractionMode
 {
     StandBy,        // 何もしてない
     Idle,           // MoseDown中
-    Dragging,       // ボタンを動かしてる
+    Dragging,       // Layoutを動かしてる
     Selecting,      // 範囲選択中
     Registering,    // 新規登録モード
     ContextMenu     // 右クリックメニュー表示中
