@@ -5,9 +5,13 @@ namespace BlazorApp.Service
 {
     public class UndoManager
     {
-        public Stack<CompositeSnapshot> UndoStack = new();
 
-        public Stack<CompositeSnapshot> RedoStack = new();
+        private Stack<CompositeSnapshot> UndoStack = new();
+
+        private Stack<CompositeSnapshot> RedoStack = new();
+
+        public bool CanUndo => UndoStack.Any();
+        public bool CanRedo => RedoStack.Any();
 
         public void Push(CompositeSnapshot snapList) => UndoStack.Push(snapList);
 
