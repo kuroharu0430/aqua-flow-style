@@ -2,15 +2,12 @@
 @using BlazorApp.ViewModel
 @inherits UILayoutViewBase
 
-
-<a @ref="ElementRef"
-        class="@Classes.ToString()"
-        style="@Styles.ToString()">
-@*         @Model.Label
- *@
-    <div class="resize-handle"></div>
-</a>
-
-@code {
-
-}
+<div class="@WrapperClasses.ToString()"
+     style="@WrapperStyles.ToString()">
+    <a @ref="ElementRef"
+           class="@Classes.ToString()"
+           style="@Styles.ToString()">
+@*         @Model[AttributeType.Text]
+ *@        <div class="resize-handle"></div>
+    </a>
+</div>

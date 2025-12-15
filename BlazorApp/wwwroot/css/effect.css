@@ -55,27 +55,28 @@
     }
 }
 
-/* 一時選択状態：点滅アニメーション */
-.tempselected,
-.selected {
-    animation: blink 1s infinite;
+/* 仮選択：うすぼんやり光る Aqua */
+/* 仮選択：うすぼんやり光る Aqua */
+.tempselected {
+    z-index: 100;
+    filter: brightness(1.08);
+    outline: 2px solid rgba(0, 255, 255, 0.4);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }
 
-@keyframes blink {
-    0%, 100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.4;
-    }
+/* 確定選択：くっきり強調された Aqua */
+.selected {
+    z-index:100;
+    filter: brightness(1.25);
+    outline: 2px solid rgba(0, 255, 255, 0.9);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.5); /* 二重グローで存在感アップ */
+    border-radius: 4px; /* 少し角丸にすると柔らかい印象 */
 }
 
-/* 選択状態：色調を明るくする */
-.selected {
-    filter: brightness(1.2);
-    outline: 2px solid rgba(0, 123, 255, 0.5); /* optional: subtle border */
-    box-shadow: 0 0 6px rgba(0, 123, 255, 0.3); /* optional: subtle glow */
+
+/* スムーズな切り替え */
+.wrapper {
+    transition: filter 0.2s ease, outline 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hovering {

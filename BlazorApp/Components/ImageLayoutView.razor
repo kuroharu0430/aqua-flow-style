@@ -2,14 +2,15 @@
 @using BlazorApp.ViewModel
 @inherits UILayoutViewBase
 
-<div style="@WrapperStyles.ToString()">
+<div class="@WrapperClasses.ToString()"
+     style="@WrapperStyles.ToString()">
     <img @ref="ElementRef"
          class="@Classes.ToString()"
          style="@Styles.ToString()"
          src="Images/aqua.webp"
-         alt="@Model.Name" 
+         alt="@Model.Name"
          draggable="false" />
-     <div class="resize-handle"></div>
+    <div class="resize-handle"></div>
 </div>
 
 @code {

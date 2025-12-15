@@ -20,6 +20,7 @@ namespace BlazorApp.Components
         protected StyleBuilder Styles = new();
         protected StyleBuilder WrapperStyles = new();
         protected CssClassBuilder Classes = new();
+        protected CssClassBuilder WrapperClasses = new();
         protected ElementReference ElementRef;
 
 
@@ -43,9 +44,11 @@ namespace BlazorApp.Components
                   .AddRange(Model.Style.ToDictionary())
                   .ApplyExternalStyle(Style);
 
+            WrapperClasses.Clear()
+                  .AddCase(Model.SelectionState);
+
             Classes.Clear()
                    .Add("layout-base")
-                   .AddCase(Model.SelectionState)
                    .AddCase(Model.InteractionPhase)
                    .AddCase(Model.MobilityState)
                    .ApplyExternalCssClass(CssClass);
