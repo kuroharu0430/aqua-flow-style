@@ -10,9 +10,6 @@ namespace BlazorApp.Core.Service
 
         public bool? TryDrag(int gridX, int gridY, OverlapMode mode)
         {
-            // TODO 不要
-            //var (gridX, gridY) = ToGridPosition(relativeX, relativeY, State.DisplayOption.WidthPerCell, State.DisplayOption.HeightPerCell);
-
             if (!StartDrag(dragTarget, gridX, gridY))
                 return null;
 

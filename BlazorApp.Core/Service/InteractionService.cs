@@ -39,17 +39,6 @@ namespace BlazorApp.Core.Service
 
         protected List<IDraggable>? allLayouts => Session?.AllButtons;
 
-        protected ScrollState? scrollSate => State?.ScrollState;
-
-
-        public (int gridX, int gridY) ToGridPosition(int relativeX, int relativeY, int WidthPerCell, int HeightPerCell)
-        {
-            int gridX = relativeX / WidthPerCell;
-            int gridY = relativeY / HeightPerCell;
-
-            return (gridX, gridY);
-        }
-
         protected bool StartDrag(IDraggable hitButton, int gridX, int gridY)
         {
             // 前回MouseMoveの履歴をClear
@@ -70,11 +59,6 @@ namespace BlazorApp.Core.Service
 
             // 意味のある移動
             return true;
-        }
-
-        protected void EndSession(int gridX, int gridY)
-        {
-            LastGridPosition = (gridX, gridY);
         }
 
         protected bool TryBePushed(IDraggable overlapping, int MoveDirectionX, int MoveDirectionY, List<IDraggable> allButtons)

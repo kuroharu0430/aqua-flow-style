@@ -56,7 +56,6 @@
 }
 
 /* 仮選択：うすぼんやり光る Aqua */
-/* 仮選択：うすぼんやり光る Aqua */
 .tempselected {
     z-index: 100;
     filter: brightness(1.08);
