@@ -23,13 +23,13 @@ namespace BlazorApp.Core.Service
                 LastGridPosition =(gridX, gridY);
             }
 
-            var selectedButtons = allLayouts
+            var selectedLayouts = allLayouts
                 .Where(btn => btn.SelectionState == SelectionState.Selected || btn == dragTarget)
                 .ToList();
 
 
             // 変更前に記録 + 移動 + validate
-            foreach (var btn in selectedButtons)
+            foreach (var btn in selectedLayouts)
             {
                 Session.Record(btn);
 
@@ -47,7 +47,7 @@ namespace BlazorApp.Core.Service
             var result = mode switch
             {
                 OverlapMode.PlaceFree => TryPlaceFree(dragTarget, directionX, directionY, allLayouts),
-                OverlapMode.Push => TryPush(dragTarget, directionX, directionY, allLayouts, selectedButtons),
+                OverlapMode.Push => TryPush(dragTarget, directionX, directionY, allLayouts, selectedLayouts),
                 OverlapMode.Swap => TrySwap(dragTarget, directionX, directionY, allLayouts),
                 //OverlapMode.Reorder => TryReorder(hitButton, directionX, directionY, allButtons),
                 _ => null
