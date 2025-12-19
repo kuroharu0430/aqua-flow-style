@@ -149,19 +149,12 @@ namespace BlazorApp.Components
             var interactionMode = SurfaceInteractionMode;
             if (e.ShiftKey)
             {
-                // TODO Switchに変える
-                if (SurfaceInteractionMode == SurfaceInteractionMode.Selecting)
+                interactionMode = SurfaceInteractionMode switch
                 {
-                    interactionMode = SurfaceInteractionMode.Dragging;
-                }
-                else if (SurfaceInteractionMode == SurfaceInteractionMode.Dragging)
-                {
-                    interactionMode = SurfaceInteractionMode.Selecting;
-                }
-                else
-                {
-                    // 何もしない
-                }
+                    SurfaceInteractionMode.Selecting => SurfaceInteractionMode.Dragging,
+                    SurfaceInteractionMode.Dragging => SurfaceInteractionMode.Selecting,
+                    _ => SurfaceInteractionMode
+                };
             }
 
             // 意図だけをStateに保存（確定はMoveで）

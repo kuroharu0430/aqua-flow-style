@@ -34,18 +34,18 @@ namespace BlazorApp.Core.Service
             return result;
         }
 
-        public bool? TryPush(IDraggable hitButton, int directionX, int directionY, List<IDraggable> allButtons)
+        public bool? TryPush(IDraggable hitLayout, int directionX, int directionY, List<IDraggable> allButtons)
         {
             // 変更前に記録
-            Session.Record(hitButton); 
+            Session.Record(hitLayout); 
 
             // size変更
-            hitButton.GridBounds.SizeX = Math.Abs(hitButton.GridBounds.SizeX + directionX);
-            hitButton.GridBounds.SizeY = Math.Abs(hitButton.GridBounds.SizeY + directionY);
-            hitButton.NeedsRectUpdate = true;
+            hitLayout.GridBounds.SizeX = Math.Abs(hitLayout.GridBounds.SizeX + directionX);
+            hitLayout.GridBounds.SizeY = Math.Abs(hitLayout.GridBounds.SizeY + directionY);
+            hitLayout.NeedsRectUpdate = true;
 
             // validate
-            if(!hitButton.GridBounds.IsValid(ColumnNumber, RowNumber))
+            if(!hitLayout.GridBounds.IsValid(ColumnNumber, RowNumber))
             {
                 Session.Revert();
                 return false;
@@ -53,7 +53,7 @@ namespace BlazorApp.Core.Service
 
             // 衝突判定（GridBoundsの Intersects を使う）
             var targets = allButtons.Where(btn =>
-                btn != hitButton && btn.GridBounds.Intersects(hitButton.GridBounds));
+                btn != hitLayout && btn.GridBounds.Intersects(hitLayout.GridBounds));
 
             foreach (var target in targets)
             {
@@ -67,18 +67,18 @@ namespace BlazorApp.Core.Service
             return true;
         }
 
-        public bool? TryPlaceFree(IDraggable hitButton, int directionX, int directionY, List<IDraggable> allButtons)
+        public bool? TryPlaceFree(IDraggable hitLayout, int directionX, int directionY, List<IDraggable> allButtons)
         {
             // 変更前に記録
-            Session.Record(hitButton);
+            Session.Record(hitLayout);
 
             // size変更
-            hitButton.GridBounds.SizeX = Math.Abs(hitButton.GridBounds.SizeX + directionX);
-            hitButton.GridBounds.SizeY = Math.Abs(hitButton.GridBounds.SizeY + directionY);
-            hitButton.NeedsRectUpdate = true;
+            hitLayout.GridBounds.SizeX = Math.Abs(hitLayout.GridBounds.SizeX + directionX);
+            hitLayout.GridBounds.SizeY = Math.Abs(hitLayout.GridBounds.SizeY + directionY);
+            hitLayout.NeedsRectUpdate = true;
 
             // 妥当性チェック
-            if (!hitButton.GridBounds.IsValid(ColumnNumber, RowNumber))
+            if (!hitLayout.GridBounds.IsValid(ColumnNumber, RowNumber))
             {
                 Session.Revert();
                 return false;
@@ -86,7 +86,7 @@ namespace BlazorApp.Core.Service
 
             // 衝突判定
             var targets = allButtons.Where(btn =>
-                btn != hitButton && btn.GridBounds.Intersects(hitButton.GridBounds));
+                btn != hitLayout && btn.GridBounds.Intersects(hitLayout.GridBounds));
 
             if (targets.Any())
             {

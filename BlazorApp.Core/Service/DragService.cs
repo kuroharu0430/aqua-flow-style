@@ -24,7 +24,7 @@ namespace BlazorApp.Core.Service
             }
 
             var selectedLayouts = allLayouts
-                .Where(btn => btn.SelectionState == SelectionState.Selected || btn == dragTarget)
+                .Where(btn => btn.SelectionState == SelectionState.Selected)
                 .ToList();
 
 
@@ -48,7 +48,7 @@ namespace BlazorApp.Core.Service
             {
                 OverlapMode.PlaceFree => TryPlaceFree(dragTarget, directionX, directionY, allLayouts),
                 OverlapMode.Push => TryPush(dragTarget, directionX, directionY, allLayouts, selectedLayouts),
-                OverlapMode.Swap => TrySwap(dragTarget, directionX, directionY, allLayouts),
+                OverlapMode.Swap => TrySwap(dragTarget, directionX, directionY, allLayouts, selectedLayouts),
                 //OverlapMode.Reorder => TryReorder(hitButton, directionX, directionY, allButtons),
                 _ => null
             };
@@ -116,62 +116,50 @@ namespace BlazorApp.Core.Service
             return true;
         }
 
-        public bool? TrySwap(IDraggable hitButton, int directionX, int directionY, List<IDraggable> allButtons)
+        public bool? TrySwap(IDraggable hitButton, int directionX, int directionY, List<IDraggable> allButtons, List<IDraggable> selectedButtons)
         {
-            //if (!TryMove(hitButton, directionX, directionY))
-            //{
-            //    // ダメなら処理終了
-            //    return false;
-            //}
-            //hitButton.InteractionPhase = InteractionPhase.Floating;
-
-            //confirmedDirection = (
-            //        confirmedDirection.Item1 + directionX,
-            //        confirmedDirection.Item2 + directionY
-            //    );
-
-            // 一部はみだしがないかCheck
-            var overlaps = allButtons
-                .Where(btn => btn != hitButton && btn.GridBounds.Intersects(hitButton.GridBounds));
-
-            // 重なりがなければ処理成功
-            if (!overlaps.Any())
+            // 衝突判定（GridBoundsの Intersects を使う）
+            foreach (var layout in selectedButtons)
             {
-                return true;
+                var targets = allButtons.Where(other =>
+                    !selectedButtons.Contains(other) &&
+                    other.GridBounds.Intersects(layout.GridBounds)).ToList();
+
+                foreach (var target in targets)
+                {
+                    Session.Record(layout);
+                    Session.Record(target);
+
+                    // 自分のサイズ分だけ相手を反対側にぶん投げ
+                    if (directionX != 0)
+                    {
+                        target.GridBounds.X = target.GridBounds.X +
+                            (directionX > 0 ? -layout.GridBounds.SizeX : layout.GridBounds.SizeX);
+                    }
+
+                    if (directionY != 0)
+                    {
+                        target.GridBounds.Y = target.GridBounds.Y +
+                            (directionY > 0 ? -layout.GridBounds.SizeY : layout.GridBounds.SizeY);
+                    }
+
+                    // 妥当性チェック
+                    // はみ出してない？ + 当たってない？
+                    var isHitting = allButtons.Any(other =>
+                        other != layout && other.GridBounds.Intersects(target.GridBounds));
+
+                    if (!target.GridBounds.IsValid(ColumnNumber, RowNumber) && isHitting)
+                    {
+                        Session.Revert();
+
+                        return false;
+                    }
+
+                    layout.NeedsRectUpdate = true;
+                    target.NeedsRectUpdate = true;
+                }
+
             }
-
-            // 合成領域を作成（Union）
-            var union = overlaps.First().GridBounds;
-            foreach (var overlap in overlaps.Skip(1))
-            {
-                union = union.Union(overlap.GridBounds);
-            }
-
-            // 判定：hitButton がunionを完全に覆っているか？
-            if (!hitButton.GridBounds.Contains(union))
-            {
-                // はみ出し者がいるので失敗 
-                //CurrentMoveSession.Restore();
-                return false;
-            }
-
-            // 成立→スワップ処理
-            foreach (var target in overlaps)
-            {
-                // 変更前に記録
-                Session.Record(target);
-
-                int pushX = Math.Sign(confirmedDirection.dx) * (hitButton.GridBounds.SizeX);
-                int pushY = Math.Sign(confirmedDirection.dy) * (hitButton.GridBounds.SizeY);
-
-                target.GridBounds.X -= pushX;
-                target.GridBounds.Y -= pushY;
-
-                target.NeedsRectUpdate = true;
-            }
-            // 成立→0に戻す
-            confirmedDirection= (0, 0);
-            // 巻き戻しパターンはなし
             return true;
         }
 
