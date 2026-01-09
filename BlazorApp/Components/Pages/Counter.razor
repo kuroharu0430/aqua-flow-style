@@ -1,19 +1,110 @@
 ﻿@page "/counter"
 @rendermode InteractiveServer
+@inject IJSRuntime JS
+@* @inject MyAIClient AI
+ *@
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Speaker</PageTitle>
 
-<h1>Counter</h1>
+<h1>Speaker & Listen</h1>
 
-<p role="status">Current count: @currentCount</p>
+<h3>ボリューム調整</h3>
+<input type="range" min="0" max="1" step="0.1" @bind="Volume" />
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button @onclick="Speak">喋らせる</button>
+
+<button @onclick="StartRecognition">聞き取り開始</button>
+
+<pre>@RecognizedText</pre>
+<pre style="background-color:greenyellow;">@AdjustRecognizedText</pre>
+
 
 @code {
-    private int currentCount = 0;
+    private double Volume { get; set; } = 1.0;
 
-    private void IncrementCount()
+    private string RecognizedText = "";
+    private string AdjustRecognizedText = "";
+
+    private async Task StartRecognition()
     {
-        currentCount++;
+        await JS.InvokeVoidAsync(
+            "speech.startContinuousRecognition",
+            DotNetObjectReference.Create(this)
+        );
+    }
+
+    private async Task Speak()
+    {
+        await JS.InvokeVoidAsync("speech.speak",
+            "私の名前は七海やちよ。いつも10ゲームだけの上乗せでごめんなさい。たまーに最高30ゲーム上乗せのあるからこれからもよろしくね。続きましてわたしはくろえ。先日は復活の連続で250ゲームの上乗せをさせたけれど、あれはまれな例で、通常は50ゲームくらいだから今後はあまり期待しないでくださいね。"
+            ,
+            Volume
+        );
+    }
+
+    [JSInvokable]
+    public async Task OnRecognized(string text)
+    {
+        // 元の認識結果をログに追記
+        RecognizedText += $"{text}\n";
+
+        // AI に補正させる
+        // var fixedText = await FixTextWithAI(text);
+
+        AdjustRecognizedText += $"[fixed] {text}\n";
+
+        // 補正後のテキストでコマンド判定
+        // HandleVoiceCommand(fixedText);
+
+        StateHasChanged();
+    }
+
+
+    // private async Task<string> FixTextWithAI(string input)
+    // {
+    //     try
+    //     {
+    //         var prompt = $"以下の文章を正しい日本語に補正してください:\n{input}";
+    //         return await AI.FixTextAsync(prompt);
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         AdjustRecognizedText += "[error] 例外発生\n";
+    //         AdjustRecognizedText += $"Message: {ex.Message}\n";
+    //         AdjustRecognizedText += $"Type: {ex.GetType().Name}\n";
+
+    //         if (ex.InnerException != null)
+    //         {
+    //             AdjustRecognizedText += $"Inner: {ex.InnerException.Message}\n";
+    //         }
+
+    //         // スタックトレースも出す（原因特定に最強）
+    //         AdjustRecognizedText += $"StackTrace:\n{ex.StackTrace}\n";
+
+    //         return input;
+    //     }
+    // }
+
+    private void HandleVoiceCommand(string text)
+    {
+        var cmd = text.ToLower();
+
+        if (cmd.Contains("スタート"))
+        {
+            // 例：スタート処理
+            RecognizedText += "[cmd] スタート実行\n";
+        }
+        else if (cmd.Contains("ストップ"))
+        {
+            RecognizedText += "[cmd] ストップ実行\n";
+        }
+        else if (cmd.Contains("喋れ"))
+        {
+            _ = Speak();
+        }
+        else if (cmd.Contains("赤"))
+        {
+            RecognizedText += "[cmd] 背景を赤にする（例）\n";
+        }
     }
 }

@@ -25,6 +25,17 @@ builder.Services.AddTransient<DragService>();
 builder.Services.AddTransient<ResizeService>();
 builder.Services.AddTransient<SelectionService>();
 
+//builder.Services.AddHttpClient<MyAIClient>();
+//builder.Services.AddSingleton(sp =>
+//{
+//    var config = sp.GetRequiredService<IConfiguration>();
+//    var apiKey = config["OpenAI:ApiKey"];
+//    var http = sp.GetRequiredService<HttpClient>();
+//    return new MyAIClient(http, apiKey);
+//});
+
+
+
 //builder.Services.AddDbContext<LayoutDbContext>(options =>
 //    options.UseSqlite("Data Source=layout.db"));
 
