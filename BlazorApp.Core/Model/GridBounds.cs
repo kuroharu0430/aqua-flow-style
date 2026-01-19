@@ -40,6 +40,14 @@
             SizeX == other.SizeX &&
             SizeY == other.SizeY;
 
+        /// <summary>
+        /// 最大行数・列数からはみ出していないかの判定
+        /// </summary>
+        /// <param name="maxX"></param>
+        /// <param name="maxY"></param>
+        /// <param name="minSizeX"></param>
+        /// <param name="minSizeY"></param>
+        /// <returns></returns>
         public bool IsValid(int maxX, int maxY, int minSizeX = 1, int minSizeY = 1)
         {
             if (IsEmpty || SizeX < minSizeX || SizeY < minSizeY ||
