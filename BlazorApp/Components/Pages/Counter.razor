@@ -35,6 +35,7 @@
             { "クリア", Clear },
             { "消す", Clear },
 
+        // ※asyncの場合はラムダで
             // { "喋れ", () => _ = Speak() },
             // { "しゃべれ", () => _ = Speak() },
 
@@ -86,17 +87,6 @@
             }
         }
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    // private readonly Dictionary<string, Action> CommandMap = new()
-    // {
-    //     { "スタート", () => StartAction() },
-    //     // { "ストップ", () => StopAction() },
-    //     // { "喋れ", () => Speak() },
-    //     // { "赤", () => ChangeBackgroundRed() }
-    // };
 
     // TestCode
     private void StartAction()
