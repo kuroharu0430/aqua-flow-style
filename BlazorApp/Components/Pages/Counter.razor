@@ -1,8 +1,6 @@
 ﻿@page "/counter"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
-@* @inject MyAIClient AI
- *@
 
 <PageTitle>Speaker</PageTitle>
 
@@ -24,6 +22,28 @@
 
     private string RecognizedText = "";
     private string AdjustRecognizedText = "";
+
+    private Dictionary<string, Action> CommandMap;
+
+    protected override void OnInitialized()
+    {
+        CommandMap = new()
+        {
+            { "スタート", StartAction },
+            { "すたーと", StartAction },
+
+            { "クリア", Clear },
+            { "消す", Clear },
+
+        // ※asyncの場合はラムダで
+            // { "喋れ", () => _ = Speak() },
+            // { "しゃべれ", () => _ = Speak() },
+
+            // { "赤", ChangeBackgroundRed },
+            // { "あか", ChangeBackgroundRed }
+        };
+    }
+
 
     private async Task StartRecognition()
     {
@@ -48,45 +68,34 @@
         // 元の認識結果をログに追記
         RecognizedText += $"{text}\n";
 
-        // AI に補正させる
-        // var fixedText = await FixTextWithAI(text);
-
         AdjustRecognizedText += $"[fixed] {text}\n";
 
-        // 補正後のテキストでコマンド判定
-        // HandleVoiceCommand(fixedText);
+        // コマンド実行
+        HandleVoiceCommand(text);
 
         StateHasChanged();
     }
 
-    [JSInvokable]
-    public async Task OnAudioCaptured(byte[] audioData)
-    {
-        // TODO ここで Whisper(AI) に渡せる
-    }
-
-
-
     private void HandleVoiceCommand(string text)
     {
-        var cmd = text.ToLower();
+        foreach (var kv in CommandMap)
+        {
+            if (text.Contains(kv.Key, StringComparison.OrdinalIgnoreCase))
+            {
+                kv.Value.Invoke();
+                break;
+            }
+        }
+    }
 
-        if (cmd.Contains("スタート"))
-        {
-            // 例：スタート処理
-            RecognizedText += "[cmd] スタート実行\n";
-        }
-        else if (cmd.Contains("ストップ"))
-        {
-            RecognizedText += "[cmd] ストップ実行\n";
-        }
-        else if (cmd.Contains("喋れ"))
-        {
-            _ = Speak();
-        }
-        else if (cmd.Contains("赤"))
-        {
-            RecognizedText += "[cmd] 背景を赤にする（例）\n";
-        }
+    // TestCode
+    private void StartAction()
+    {
+        RecognizedText += "[cmd] スタート実行\n";
+    }
+    private void Clear()
+    {
+        RecognizedText = string.Empty;
+        AdjustRecognizedText = string.Empty;
     }
 }
