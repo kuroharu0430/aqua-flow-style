@@ -59,31 +59,13 @@
         StateHasChanged();
     }
 
+    [JSInvokable]
+    public async Task OnAudioCaptured(byte[] audioData)
+    {
+        // TODO ここで Whisper(AI) に渡せる
+    }
 
-    // private async Task<string> FixTextWithAI(string input)
-    // {
-    //     try
-    //     {
-    //         var prompt = $"以下の文章を正しい日本語に補正してください:\n{input}";
-    //         return await AI.FixTextAsync(prompt);
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         AdjustRecognizedText += "[error] 例外発生\n";
-    //         AdjustRecognizedText += $"Message: {ex.Message}\n";
-    //         AdjustRecognizedText += $"Type: {ex.GetType().Name}\n";
 
-    //         if (ex.InnerException != null)
-    //         {
-    //             AdjustRecognizedText += $"Inner: {ex.InnerException.Message}\n";
-    //         }
-
-    //         // スタックトレースも出す（原因特定に最強）
-    //         AdjustRecognizedText += $"StackTrace:\n{ex.StackTrace}\n";
-
-    //         return input;
-    //     }
-    // }
 
     private void HandleVoiceCommand(string text)
     {

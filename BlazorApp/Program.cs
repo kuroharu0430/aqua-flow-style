@@ -24,24 +24,10 @@ builder.Services.AddTransient<UndoManager>();
 builder.Services.AddTransient<DragService>();
 builder.Services.AddTransient<ResizeService>();
 builder.Services.AddTransient<SelectionService>();
-
-//builder.Services.AddHttpClient<MyAIClient>();
-//builder.Services.AddSingleton(sp =>
-//{
-//    var config = sp.GetRequiredService<IConfiguration>();
-//    var apiKey = config["OpenAI:ApiKey"];
-//    var http = sp.GetRequiredService<HttpClient>();
-//    return new MyAIClient(http, apiKey);
-//});
-
-
-
-//builder.Services.AddDbContext<LayoutDbContext>(options =>
-//    options.UseSqlite("Data Source=layout.db"));
+builder.Services.AddHttpClient();
 
 builder.Services.AddDbContextFactory<LayoutDbContext>(options =>
     options.UseSqlite("Data Source=layout.db"));
-
 
 var app = builder.Build();
 
@@ -61,5 +47,43 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// ‰¹ºFile upload
+app.MapPost("/upload-audio", async (HttpRequest req) =>
+{
+    var form = await req.ReadFormAsync();
+    var file = form.Files["file"];
+
+    if (file is null)
+        return Results.BadRequest("file ‚ª‚ ‚è‚Ü‚¹‚ñ");
+
+    var savePath = Path.Combine("wwwroot", "recorded.webm");
+
+    using (var fs = new FileStream(savePath, FileMode.Create))
+    {
+        await file.CopyToAsync(fs);
+    }
+
+    return Results.Ok();
+});
+
+// API whisper ¦YOUR_API_KEYŽæ“¾‚ª•K—v
+//app.MapPost("/whisper-transcribe", async () =>
+//{
+//    var filePath = Path.Combine("wwwroot", "recorded.webm");
+
+//    using var http = new HttpClient();
+//    http.DefaultRequestHeaders.Authorization =
+//        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "YOUR_API_KEY");
+
+//    using var form = new MultipartFormDataContent();
+//    form.Add(new StreamContent(File.OpenRead(filePath)), "file", "audio.webm");
+//    form.Add(new StringContent("whisper-1"), "model");
+
+//    var response = await http.PostAsync("https://api.openai.com/v1/audio/transcriptions", form);
+//    var json = await response.Content.ReadAsStringAsync();
+
+//    return Results.Text(json, "application/json");
+//});
 
 app.Run();

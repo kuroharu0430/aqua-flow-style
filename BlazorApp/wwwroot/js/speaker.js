@@ -17,6 +17,13 @@
             recog.start();
         };
 
+        // 音声ファイル化
+        recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'audio/wav' });
+            // ここで Blazor に blob を渡す
+            dotnetObj.invokeMethodAsync("OnAudioCaptured", blob);
+        };
+
         recog.onerror = function (event) {
             dotnetObj.invokeMethodAsync("OnRecognized", "エラー: " + event.error);
         };

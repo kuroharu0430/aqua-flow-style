@@ -1,0 +1,61 @@
+﻿@page "/Recorder"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject HttpClient Http
+@using System.Text.Json
+
+<h3>🎤 Audio Recorder Test</h3>
+
+<button @onclick="StartRecording">録音開始</button>
+<button @onclick="StopRecording">録音停止</button>
+
+<p>@status</p>
+
+
+@if (audioReady)
+{
+    <audio controls src="recorded.webm?cache=@DateTime.Now.Ticks"></audio>
+}
+
+@* 文字起こし
+ *@
+
+<p>@result</p>
+
+@code {
+    private string status = "待機中";
+    private string result = "待機中";
+    private bool audioReady = false;
+
+    private async Task StartRecording()
+    {
+        status = "録音中…";
+        await JS.InvokeVoidAsync("audioRecorder.start",
+            DotNetObjectReference.Create(this));
+    }
+
+    private async Task StopRecording()
+    {
+        status = "録音停止 → 保存中…";
+        await JS.InvokeVoidAsync("audioRecorder.stop");
+    }
+
+    [JSInvokable]
+    public async Task OnAudioUploaded()
+    {
+        status = "音声アップロード完了 → Whisper解析中…";
+        StateHasChanged();
+
+        // Whisper API を叩く（サーバー側のエンドポイント）
+        // var response = await Http.PostAsync("/whisper-transcribe", null);
+        // var json = await response.Content.ReadAsStringAsync();
+
+        // // JSON から text を取り出す
+        // using var doc = JsonDocument.Parse(json);
+        // var text = doc.RootElement.GetProperty("text").GetString();
+
+        // status = $"文字起こし結果: {text}";
+        audioReady = true;
+        StateHasChanged();
+    }
+}
