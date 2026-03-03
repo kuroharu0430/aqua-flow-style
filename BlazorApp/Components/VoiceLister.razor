@@ -1,0 +1,44 @@
+﻿@using BlazorApp.Core.Service;
+@inject IJSRuntime JS
+@inject VoiceCommandService VoiceCommand
+
+<h3>VoiceLister</h3>
+<div style="display:none"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync(
+                "speech.startContinuousRecognition",
+                DotNetObjectReference.Create(this)
+            );
+        }
+    }
+
+    [JSInvokable]
+    public Task OnRecognized(string text)
+    {
+        HandleVoiceCommand(text);
+        return Task.CompletedTask;
+    }
+
+    private void HandleVoiceCommand(string text)
+    {
+        if (text.Contains("取り消し") || text.Contains("アンドゥ"))
+            VoiceCommand.Undo?.Invoke();
+
+        if (text.Contains("やり直し") || text.Contains("リドゥ"))
+            VoiceCommand.Redo?.Invoke();
+
+        if (text.Contains("保存") || text.Contains("セーブ"))
+            VoiceCommand.Save?.Invoke();
+
+        if (text.Contains("決定") || text.Contains("オーケー"))
+            VoiceCommand.Ok?.Invoke();
+
+        if (text.Contains("キャンセル") || text.Contains("やめる"))
+            VoiceCommand.Cancel?.Invoke();
+    }
+}

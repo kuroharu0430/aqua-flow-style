@@ -12,19 +12,21 @@ using BlazorApp.Service;
 using BlazorApp.Core.Enum;
 using BlazorApp.Core.Model.SnapShots;
 using BlazorApp.EntityFramework.Models;
-using System.Reflection.Metadata.Ecma335;
-using System;
 
 namespace BlazorApp.Components
 {
     public partial class InteractionSurface : ComponentBase
     {
+        #region Inject
         [Inject] private IJSRuntime JS { get; set; } = null!;
         [Inject] private InteractionState State { get; set; } = null!;
         [Inject] private UndoManager UndoManager { get; set; } = null!;
         [Inject] private DragService DragService { get; set; } = null!;
         [Inject] private ResizeService ResizeService { get; set; } = null!;
         [Inject] private SelectionService SelectionService { get; set; } = null!;
+        [Inject] private VoiceCommandService VoiceCommand { get; set; } = null!;
+        #endregion
+
         public InteractionMode Mode => State.CurrentMode;
 
         public ElementReference SurfaceRef;
@@ -53,6 +55,10 @@ namespace BlazorApp.Components
         public RectBounds? SelectionRect { get; set; } = null;
         public readonly record struct TrailCell(int gridX, int gridY);
 
+        //　音声命令の実行許可書
+        public bool CanExecuteVoiceCommand() => State.CurrentMode == InteractionMode.StandBy;
+
+
         protected override void OnInitialized()
         {
             State.ModeChanged += OnInteractionModeChanged;
@@ -60,7 +66,24 @@ namespace BlazorApp.Components
             ResizeService.SetState(State);
             DragService.SetState(State);
             SelectionService.SetState(State);
+
+            // 音声命令
+            VoiceCommand.Undo = () => UndoManager.Undo();
+            VoiceCommand.Redo = () => UndoManager.Redo();
         }
+
+        /// <summary>
+        /// インスタンス破棄時の処理
+        /// </summary>
+        public void Dispose()
+        {
+            VoiceCommand.Undo = null;
+            VoiceCommand.Redo = null;
+
+            State.ModeChanged -= OnInteractionModeChanged;
+            _dotNetRef?.Dispose();
+        }
+
 
         protected override Task OnParametersSetAsync()
         {
@@ -435,12 +458,6 @@ namespace BlazorApp.Components
                 case InteractionMode.ContextMenu:
                     break;
             }
-        }
-
-        public void Dispose()
-        {
-            State.ModeChanged -= OnInteractionModeChanged;
-            _dotNetRef?.Dispose();
         }
 
         /// <summary>

@@ -25,6 +25,7 @@ builder.Services.AddTransient<DragService>();
 builder.Services.AddTransient<ResizeService>();
 builder.Services.AddTransient<SelectionService>();
 builder.Services.AddHttpClient();
+builder.Services.AddSingleton<VoiceCommandService>();
 
 builder.Services.AddDbContextFactory<LayoutDbContext>(options =>
     options.UseSqlite("Data Source=layout.db"));
