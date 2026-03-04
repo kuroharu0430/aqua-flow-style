@@ -4,18 +4,35 @@
         const recog = new SpeechRecognition();
 
         recog.lang = "ja-JP";
-        recog.interimResults = false;
+        recog.interimResults = true;
         recog.maxAlternatives = 1;
         recog.continuous = true;
 
+        let lastText = "";
+        let silenceTimer = null;
+        let silenceMs = 400; // ★ ここを 300〜700 で調整
+
         recog.onresult = function (event) {
             const text = event.results[event.results.length - 1][0].transcript;
-            dotnetObj.invokeMethodAsync("OnRecognized", text);
+            lastText = text; // ★ 常に最新を保持（isFinal 無視）
+
+            // 無音タイマーをリセット
+            if (silenceTimer) clearTimeout(silenceTimer);
+
+            // 無音が続いたら確定送信
+            silenceTimer = setTimeout(() => {
+                if (lastText.trim() !== "") {
+                    dotnetObj.invokeMethodAsync("OnRecognized", lastText);
+                }
+                lastText = "";
+            }, silenceMs);
         };
 
         recog.onend = function () {
-            recog.start();
+            // Chrome のバグ対策：少し遅らせて再起動
+            setTimeout(() => recog.start(), 200);
         };
+
 
         recog.onerror = function (event) {
             dotnetObj.invokeMethodAsync("OnRecognized", "エラー: " + event.error);

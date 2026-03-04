@@ -18,11 +18,12 @@
     }
 
     [JSInvokable]
-    public Task OnRecognized(string text)
+    public async Task OnRecognized(string text)
     {
         HandleVoiceCommand(text);
-        return Task.CompletedTask;
+        await InvokeAsync(StateHasChanged); // ★ UI を即更新
     }
+
 
     private void HandleVoiceCommand(string text)
     {
