@@ -68,8 +68,19 @@ namespace BlazorApp.Components
             SelectionService.SetState(State);
 
             // 音声命令
-            VoiceCommand.Undo = () => UndoManager.Undo();
-            VoiceCommand.Redo = () => UndoManager.Redo();
+            // HACK:音声命令はコンポーネントのStateを変化させてるだけなので
+            // InvokeAsync(StateHasChanged);が必要
+            VoiceCommand.Register(VoiceIntent.Undo, () =>
+            {
+                UndoManager.Undo();
+                InvokeAsync(StateHasChanged); // ★ UI 更新
+            });
+
+            VoiceCommand.Register(VoiceIntent.Redo, () =>
+            {
+                UndoManager.Redo();
+                InvokeAsync(StateHasChanged); // ★ UI 更新
+            });
         }
 
         /// <summary>
@@ -77,13 +88,9 @@ namespace BlazorApp.Components
         /// </summary>
         public void Dispose()
         {
-            VoiceCommand.Undo = null;
-            VoiceCommand.Redo = null;
-
             State.ModeChanged -= OnInteractionModeChanged;
             _dotNetRef?.Dispose();
         }
-
 
         protected override Task OnParametersSetAsync()
         {

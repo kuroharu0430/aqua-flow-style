@@ -2,62 +2,62 @@
 {
     public class VoiceCommandService
     {
-        // --- 基本コマンド ---
-        public Action? Undo { get; set; }
-        public Action? Redo { get; set; }
-        public Action? Save { get; set; }
-        public Action? Cancel { get; set; }
-        public Action? Ok { get; set; }
+        private readonly Dictionary<VoiceIntent, Action> _commands = new();
 
-        // --- 拡張コマンド（後で使う） ---
-        public Action<string>? RawTextReceived { get; set; }
+        public void Register(VoiceIntent intent, Action action)
+            => _commands[intent] = action;
 
-        // --- Move / Resize / Select などの自然言語コマンド ---
-        public Action<int, int>? Move { get; set; }
-        public Action<int, int>? Resize { get; set; }
-        public Action<string>? Select { get; set; }
-        public Action? Delete { get; set; }
+        public void Execute(VoiceIntent intent)
+        {
+            if (_commands.TryGetValue(intent, out var action))
+                action?.Invoke();
+        }
 
-        // --- テキストを受け取ってパースする入口 ---
-        //public void Execute(string text)
-        //{
-        //    RawTextReceived?.Invoke(text);
-
-        //    // ここは後で自然言語パーサーを入れる場所
-        //    // 今は Listener 側で処理してるので空でOK
-        //}
-
+        /// <summary>
+        /// 受け取った音声TextをIntentに変換
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         public VoiceIntent ParseIntent(string text)
         {
-            if (text.Contains("取り消し") || text.Contains("Undo"))
-                return VoiceIntent.Undo;
+            text = text.ToLower();
 
-            if (text.Contains("やり直し") || text.Contains("Redo"))
-                return VoiceIntent.Redo;
-
-            if (text.Contains("保存") || text.Contains("Save"))
-                return VoiceIntent.Save;
-
-            if (text.Contains("キャンセル") || text.Contains("Cancel"))
-                return VoiceIntent.Cancel;
-
-            if (text.Contains("OK") || text.Contains("オーケー"))
-                return VoiceIntent.Ok;
+            foreach (var kv in map)
+            {
+                if (text.Contains(kv.Key))
+                    return kv.Value;
+            }
 
             return VoiceIntent.None;
         }
 
-        // TODO _surfacesをもたすのは危険
-        //public void Execute(string text)
-        //{
-        //    RawTextReceived?.Invoke(text);
+        /// <summary>
+        /// 音声命令辞書
+        /// </summary>
+        private static readonly Dictionary<string, VoiceIntent> map = new()
+        {
+            // ※英語の命令は小文字で丸める
+            { "undo", VoiceIntent.Undo },
+            { "とりけし", VoiceIntent.Undo },
+            { "取り消し", VoiceIntent.Undo },
+            { "あんどぅ", VoiceIntent.Undo },
 
-        //    var intent = ParseIntent(text);
+            { "redo", VoiceIntent.Redo },
+            { "やり直し", VoiceIntent.Redo },
+            { "やりなおし", VoiceIntent.Redo },
 
-        //    foreach (var surface in _surfaces)
-        //        surface.ExecuteVoiceCommand(intent);
-        //}
+            { "save", VoiceIntent.Save },
+            { "保存", VoiceIntent.Save },
+            { "ほぞん", VoiceIntent.Save },
 
+            { "ok", VoiceIntent.Ok },
+            { "おーけー", VoiceIntent.Ok },
+            { "決定", VoiceIntent.Ok },
+
+            { "cancel", VoiceIntent.Cancel },
+            { "キャンセル", VoiceIntent.Cancel },
+            { "きゃんせる", VoiceIntent.Cancel },
+        };
     }
 
     public enum VoiceIntent

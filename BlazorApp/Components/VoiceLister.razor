@@ -18,28 +18,11 @@
     }
 
     [JSInvokable]
-    public async Task OnRecognized(string text)
+    public Task OnRecognized(string text)
     {
-        HandleVoiceCommand(text);
-        await InvokeAsync(StateHasChanged); // ★ UI を即更新
+        var intent = VoiceCommand.ParseIntent(text);
+        VoiceCommand.Execute(intent);
+        return Task.CompletedTask;
     }
 
-
-    private void HandleVoiceCommand(string text)
-    {
-        if (text.Contains("取り消し") || text.Contains("アンドゥ"))
-            VoiceCommand.Undo?.Invoke();
-
-        if (text.Contains("やり直し") || text.Contains("リドゥ"))
-            VoiceCommand.Redo?.Invoke();
-
-        if (text.Contains("保存") || text.Contains("セーブ"))
-            VoiceCommand.Save?.Invoke();
-
-        if (text.Contains("決定") || text.Contains("オーケー"))
-            VoiceCommand.Ok?.Invoke();
-
-        if (text.Contains("キャンセル") || text.Contains("やめる"))
-            VoiceCommand.Cancel?.Invoke();
-    }
 }
