@@ -1,7 +1,6 @@
-﻿using BlazorApp.Core.State;
-using BlazorApp.Core.Model;
+﻿using BlazorApp.Core.Model;
 
-namespace BlazorApp.Core.Service
+namespace BlazorApp.Service
 {
     public class ResizeService : InteractionService
     {

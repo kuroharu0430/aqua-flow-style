@@ -1,9 +1,9 @@
 ﻿using BlazorApp.Core.Model;
 using BlazorApp.Core.Enum;
-using BlazorApp.Core.Service;
 using BlazorApp.Core.Model.SnapShots;
+using BlazorApp.Service;
 
-namespace BlazorApp.Core.State
+namespace BlazorApp.State
 {
     public class InteractionState
     {

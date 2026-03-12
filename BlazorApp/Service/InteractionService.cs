@@ -1,7 +1,7 @@
 ﻿using BlazorApp.Core.Model;
-using BlazorApp.Core.State;
+using BlazorApp.State;
 
-namespace BlazorApp.Core.Service
+namespace BlazorApp.Service
 {
     public abstract class InteractionService
     {

@@ -1,8 +1,6 @@
 ﻿using BlazorApp.Core.Model;
-using BlazorApp.Core.State;
-using System.Diagnostics;
 
-namespace BlazorApp.Core.Service
+namespace BlazorApp.Service
 {
     public class DragService : InteractionService
     {

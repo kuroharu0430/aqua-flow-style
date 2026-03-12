@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
-using BlazorApp.Core.State;
 using BlazorApp.Core.Model;
-using BlazorApp.Core.Service;
 using BlazorApp.ViewModel;
 using static BlazorApp.Components.ShapeTemplatPanel;
 using BlazorApp.Components.Dialog;
@@ -12,8 +10,7 @@ using BlazorApp.Service;
 using BlazorApp.Core.Enum;
 using BlazorApp.Core.Model.SnapShots;
 using BlazorApp.EntityFramework.Models;
-using System.Reflection.Metadata.Ecma335;
-using System;
+using BlazorApp.State;
 
 namespace BlazorApp.Components
 {
