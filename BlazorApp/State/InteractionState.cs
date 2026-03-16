@@ -2,25 +2,45 @@
 using BlazorApp.Core.Enum;
 using BlazorApp.Core.Model.SnapShots;
 using BlazorApp.Service;
+using BlazorApp.ViewModel;
+using static BlazorApp.Components.ShapeTemplatPanel;
 
 namespace BlazorApp.State
 {
     public class InteractionState
     {
+        #region Layouts
+        public List<UILayoutModelBase> Layouts { get; set; } = new();
+
+        public IEnumerable<UILayoutModelBase> VisibleLayouts =>
+            Layouts.Where(layout => layout.LayoutStatus != LayoutStatus.Deleted);
+
+        public ShapeTemplate? PendingTemplate { get; set; } = null;
+        #endregion
+
+
         public InteractionMode CurrentMode { get; private set; } = InteractionMode.StandBy;
 
         public event Action<InteractionMode>? ModeChanged;
 
         public SurfaceInteractionMode CurrentSurfaceInteractionMode { get; set; }
 
+        #region ScrollSate
         public ScrollState ScrollState { get; set; } = new();
+
+        public MousePosition? BaseScrollArea { get; set; }
+
+        public MousePosition SurfaceBase { get; set; }
+        #endregion
 
         public MoveSession? Session { get; set; } = null;
 
         public SelectingSession? SelectingSession { get; private set; } = null;
 
         public DisplayOption DisplayOption { get; set; } = null!;
+        public RectBounds? SelectionRect { get; set; } = null;
 
+        #region MousePosition
         public MousePosition PageMousePosition { get; set; }
 
         public MousePosition? PageMouseDownPosition { get; set; } = null;
@@ -31,7 +51,11 @@ namespace BlazorApp.State
                 RelativeMousePosition.Y + ScrollState.ScrollTop
             );
 
-        public MousePosition SurfaceBase { get; set; }
+        /// <summary>
+        /// ContextMenuの表示場所
+        /// </summary>
+        public MousePosition? ContextMenuPosition { get; set; } = null;
+        #endregion
 
         /// <summary>
         /// マウスダウンからMoveしたかの判定　Drag or Clickの判定につかう
@@ -50,6 +74,7 @@ namespace BlazorApp.State
                 return dx > DragThreshold || dy > DragThreshold;
             }
         }
+
         public void SetMode(InteractionMode mode)
         {
             CurrentMode = mode;
@@ -122,11 +147,11 @@ namespace BlazorApp.State
 
         public CompositeSnapshot CommitStyleEdit(List<IReversible> snapshotList)
         {
-            foreach(var snapshot in snapshotList)
+            foreach (var snapshot in snapshotList)
             {
                 if (snapshot is FieldValueSnapShot fieldValueSnap)
                 {
-                    if(fieldValueSnap.target.LayoutStatus ==  LayoutStatus.Pending)
+                    if (fieldValueSnap.target.LayoutStatus ==  LayoutStatus.Pending)
                     {
                         fieldValueSnap.target.LayoutStatus = LayoutStatus.Added;
                     }

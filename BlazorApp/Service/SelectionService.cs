@@ -1,8 +1,12 @@
 ﻿using BlazorApp.Core.Model;
 using BlazorApp.State;
+using BlazorApp.ViewModel;
 
 namespace BlazorApp.Service
 {
+    /// <summary>
+    /// Layouts選択を行う。範囲選択のロジックも持つ
+    /// </summary>
     public class SelectionService
     {
         protected InteractionState State { get; private set; } = null!;
@@ -73,7 +77,66 @@ namespace BlazorApp.Service
             return rawBounds.Clamp(maxRectBounds);
             //return rawBounds;
         }
+
+        #region Layouts選択
+        /// <summary>
+        /// MousePositionと重なったLayoutを取得する
+        /// Layoutがない場合はnullを返す
+        /// </summary>
+        /// <returns></returns>
+        public UILayoutModelBase? GetTargetLayoutAtCusor()
+        {
+            // 表示されていないLayoutは選択しない
+            if (!State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y)
+                .Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
+            {
+                return null;
+            }
+
+            return State.VisibleLayouts.FirstOrDefault(layout =>
+                layout.RectBounds.Contains(State.AbsoluteMousePosition.X, State.AbsoluteMousePosition.Y));
+        }
+
+        /// <summary>
+        /// Layoutsを選択状態にする
+        /// </summary>
+        /// <param name="target"></param>
+        public void SetSelectingLayout(UILayoutModelBase? target)
+        {
+            if (target != null && target.SelectionState != SelectionState.Selected)
+            {
+                // targetが選択状態でない場合
+                foreach (var layout in State.VisibleLayouts)
+                    layout.SelectionState = SelectionState.None;
+                target.SelectionState = SelectionState.Selected;
+            }
+        }
+
+        /// <summary>
+        /// Layoutsをすべて非選択状態にする
+        /// </summary>
+        public void CancelLayoutSelectionAll()
+        {
+            foreach (var layout in State.VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected))
+            {
+                layout.SelectionState = SelectionState.None;
+            }
+        }
+
+        /// <summary>
+        /// Layoutsを全て選択状態にする
+        /// </summary>
+        public void SelectLayoutAll()
+        {
+            foreach (var layout in State.VisibleLayouts.Where(l => l.SelectionState == SelectionState.None))
+            {
+                layout.SelectionState = SelectionState.Selected;
+            }
+        }
+
+        #endregion
     }
+
 
     public class SelectingSession
     {

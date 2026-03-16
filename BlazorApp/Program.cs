@@ -23,6 +23,7 @@ builder.Services.AddTransient<UndoManager>();
 builder.Services.AddTransient<DragService>();
 builder.Services.AddTransient<ResizeService>();
 builder.Services.AddTransient<SelectionService>();
+builder.Services.AddTransient<EffectService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddDbContextFactory<LayoutDbContext>(options =>

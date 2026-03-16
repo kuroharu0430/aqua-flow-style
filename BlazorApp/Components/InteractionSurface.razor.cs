@@ -22,6 +22,7 @@ namespace BlazorApp.Components
         [Inject] private DragService DragService { get; set; } = null!;
         [Inject] private ResizeService ResizeService { get; set; } = null!;
         [Inject] private SelectionService SelectionService { get; set; } = null!;
+        [Inject] private EffectService EffectService { get; set; } = null!;
         public InteractionMode Mode => State.CurrentMode;
 
         public ElementReference SurfaceRef;
@@ -31,8 +32,7 @@ namespace BlazorApp.Components
         [Parameter] public List<UILayoutModelBase> Layouts { get; set; } = [];
         [Parameter] public LayoutSection CurrentSection { get; set; } = new();
 
-        private IEnumerable<UILayoutModelBase> VisibleLayouts =>
-            Layouts.Where(layout => layout.LayoutStatus != LayoutStatus.Deleted);
+        private IEnumerable<UILayoutModelBase> VisibleLayouts => State.VisibleLayouts;
 
         [Parameter] public List<FieldTypeDefinition> FieldTypeDefinitions { get; set; } = [];
         [Parameter] public List<FieldEditDefinition> FieldEditDefinitions { get; set; } = [];
@@ -43,12 +43,8 @@ namespace BlazorApp.Components
 
         [Parameter] public OverlapMode OverlapMode { get; set; }
 
-        private ShapeTemplate? pendingTemplate { get; set; } = null;
 
-        public MousePosition? BaseScrollArea { get; set; }
-
-        public RectBounds? SelectionRect { get; set; } = null;
-        public readonly record struct TrailCell(int gridX, int gridY);
+        //public readonly record struct TrailCell(int gridX, int gridY);
 
         protected override void OnInitialized()
         {
@@ -70,6 +66,7 @@ namespace BlazorApp.Components
                 ScreenWidth = CurrentSection.ScreenWidth,
                 ScreenHeight = CurrentSection.ScreenHeight,
             };
+            State.Layouts = Layouts;
             return base.OnParametersSetAsync();
         }
 
@@ -97,26 +94,13 @@ namespace BlazorApp.Components
         private void HandleShapeSelected(ShapeTemplate template)
         {
             // 仮オブジェクトを生成
-            pendingTemplate = template;
+            State.PendingTemplate = template;
             CurrentDragMode = LayoutDragMode.Registering;
             // 選択解除
-            CancelLayoutSelectionAll();
+            SelectionService.CancelLayoutSelectionAll();
         }
 
-        protected MousePosition? RipplePosition { get; set; } = null;
-
-        protected List<TrailCell> TrailCells { get; set; } = new();
-
-        private void FireRipple()
-        {
-            RipplePosition = State.RelativeMousePosition;
-
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(500);
-                RipplePosition = null;
-            });
-        }
+        //protected List<TrailCell> TrailCells { get; set; } = new();
 
         protected async Task OnMouseDown(MouseEventArgs e)
         {
@@ -126,7 +110,7 @@ namespace BlazorApp.Components
             var (top, left) = await GetScrollOffsetAsync();
             State.ScrollState.UpdateScroll(top, left);
             State.ScrollState.UpdateBounds(await GetScrollAreaBoundsAsync());
-            BaseScrollArea = await JS.InvokeAsync<MousePosition>("getRelativePositionFromManager", SurfaceRef);
+            State.BaseScrollArea = await JS.InvokeAsync<MousePosition>("getRelativePositionFromManager", SurfaceRef);
 
             // 右クリック or メニュー表示中ならスキップ
             if (e.Button == (long)MouseButton.Right)
@@ -140,7 +124,7 @@ namespace BlazorApp.Components
             }
 
             // RippleEffect
-            FireRipple();
+            EffectService.FireRipple(State.RelativeMousePosition);
 
             // ShiftキーによるSurfaceInteractionModeの反転処理
             var interactionMode = SurfaceInteractionMode;
@@ -194,18 +178,18 @@ namespace BlazorApp.Components
             }
             // Grid位置取得
 
-            var dragTarget = GetTargetLayoutAtCusor();
+            var dragTarget = SelectionService.GetTargetLayoutAtCusor();
 
             if (CurrentDragMode == LayoutDragMode.Registering)
             {
                 // 登録処理
                 (int gridX, int gridY)  = GetPositionInGrid();
 
-                dragTarget = new UILayoutModelBase(pendingTemplate!.Title, gridX, gridY, pendingTemplate.Type, CurrentSection.Id);
+                dragTarget = new UILayoutModelBase(State.PendingTemplate!.Title, gridX, gridY, State.PendingTemplate.Type, CurrentSection.Id);
                 dragTarget.LayoutStatus = LayoutStatus.Pending;
                 dragTarget.SelectionState = SelectionState.Selected;
                 // TemplateGost release
-                pendingTemplate = null;
+                State.PendingTemplate = null;
                 OnLayoutAdded.InvokeAsync(dragTarget);
             }
             else
@@ -214,7 +198,7 @@ namespace BlazorApp.Components
                 {
                     return;
                 }
-                SetSelectingLayout(dragTarget);
+                SelectionService.SetSelectingLayout(dragTarget);
             }
 
             State.SetMode(InteractionMode.Dragging);
@@ -242,16 +226,8 @@ namespace BlazorApp.Components
 
             (int gridX, int gridY)  = GetPositionInGrid();
 
-            // traileffect
-            if (TrailCells.LastOrDefault() != new TrailCell(gridX, gridY))
-            {
-                TrailCells.Add(new TrailCell(gridX, gridY));
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(1000);
-                    TrailCells.Remove(new TrailCell(gridX, gridY));
-                });
-            }
+            // TrailEffect
+            EffectService.AddTrail(gridX, gridY);
 
             // DragService or ResizeService
             switch (CurrentDragMode)
@@ -300,7 +276,7 @@ namespace BlazorApp.Components
         private (int gridX, int gridY) GetPositionInGrid()
         {
             // ScrollArea の左上を原点とする
-            var AbsoluteMouseposition = State.AbsoluteMousePosition - BaseScrollArea;
+            var AbsoluteMouseposition = State.AbsoluteMousePosition - State.BaseScrollArea;
 
             // Scroll補正を加えた座標に変換
             var rect = State.ScrollState.AbsoluteRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
@@ -329,7 +305,7 @@ namespace BlazorApp.Components
             if (Mode != InteractionMode.Selecting) return;
 
             SelectionService.UpdateTempSelection();
-            SelectionRect = SelectionService.GetViewRectBounds();
+            State.SelectionRect = SelectionService.GetViewRectBounds();
         }
 
         protected void OnMouseUp(MouseEventArgs e)
@@ -363,7 +339,7 @@ namespace BlazorApp.Components
         /// <param name="e"></param>
         private void HandleClick(MouseEventArgs e)
         {
-            var target = GetTargetLayoutAtCusor();
+            var target = SelectionService.GetTargetLayoutAtCusor();
             if (target == null) return;
 
             // Ctrlキーが押されていない場合は他を解除
@@ -414,8 +390,8 @@ namespace BlazorApp.Components
                 case InteractionMode.StandBy:
                     // Selecting以外のZeroPoint
                     CurrentDragMode = LayoutDragMode.Move;
-                    pendingTemplate = null;
-                    ContextMenuPosition = null;
+                    State.PendingTemplate = null;
+                    State.ContextMenuPosition = null;
                     // 仮登録状態のLayoutの始末
                     Layouts = [.. Layouts.Where(l => l.LayoutStatus != LayoutStatus.Pending)];
                     foreach (var layout in Layouts)
@@ -440,26 +416,21 @@ namespace BlazorApp.Components
             _dotNetRef?.Dispose();
         }
 
-        /// <summary>
-        /// ContextMenuの表示場所
-        /// </summary>
-        public MousePosition? ContextMenuPosition { get; set; } = null;
-
         private void OnTextContextMenu(MouseEventArgs e)
         {
-            var target = GetTargetLayoutAtCusor();
+            var target = SelectionService.GetTargetLayoutAtCusor();
             if (target == null) return;
 
-            SetSelectingLayout(target);
+            SelectionService.SetSelectingLayout(target);
             // メニュー表示 ＋ Mode移行
-            ContextMenuPosition = State.RelativeMousePosition;
+            State.ContextMenuPosition = State.RelativeMousePosition;
             State.SetMode(InteractionMode.ContextMenu);
         }
 
         private async Task EditStyle()
         {
             // ContextMenu非表示
-            ContextMenuPosition = null;
+            State.ContextMenuPosition = null;
 
             var selectedLayouts = VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected).ToList();
             // Dialog開く前にSnapshot取る
@@ -504,7 +475,7 @@ namespace BlazorApp.Components
         private void DeleteLayouts()
         {
             // ContextMenu非表示
-            ContextMenuPosition = null;
+            State.ContextMenuPosition = null;
 
             var targets = VisibleLayouts
                 .Where(layout => layout.SelectionState == SelectionState.Selected).ToList();
@@ -528,61 +499,6 @@ namespace BlazorApp.Components
             UndoManager.Push(new CompositeSnapshot(snapshots, UndoActionType.Deleted));
 
             State.SetMode(InteractionMode.StandBy);
-        }
-
-        /// <summary>
-        /// MousePositionと重なったLayoutを取得する
-        /// Layoutがない場合はnullを返す
-        /// </summary>
-        /// <returns></returns>
-        private UILayoutModelBase? GetTargetLayoutAtCusor()
-        {
-            // 表示されていないLayoutは選択しない
-            if (!State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y)
-                .Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
-            {
-                return null;
-            }
-
-            return VisibleLayouts.FirstOrDefault(layout =>
-                layout.RectBounds.Contains(State.AbsoluteMousePosition.X, State.AbsoluteMousePosition.Y));
-        }
-
-        /// <summary>
-        /// Layoutsを選択状態にする
-        /// </summary>
-        /// <param name="target"></param>
-        private void SetSelectingLayout(UILayoutModelBase? target)
-        {
-            if (target != null && target.SelectionState != SelectionState.Selected)
-            {
-                // targetが選択状態でない場合
-                foreach (var layout in VisibleLayouts)
-                    layout.SelectionState = SelectionState.None;
-                target.SelectionState = SelectionState.Selected;
-            }
-        }
-
-        /// <summary>
-        /// Layoutsをすべて非選択状態にする
-        /// </summary>
-        private void CancelLayoutSelectionAll()
-        {
-            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected))
-            {
-                layout.SelectionState = SelectionState.None;
-            }
-        }
-
-        /// <summary>
-        /// Layoutsを全て選択状態にする
-        /// </summary>
-        private void SelectLayoutAll()
-        {
-            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.None))
-            {
-                layout.SelectionState = SelectionState.Selected;
-            }
         }
     }
 

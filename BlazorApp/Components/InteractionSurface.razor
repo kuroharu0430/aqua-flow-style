@@ -34,7 +34,7 @@
                 @onmousedown="() => UndoManager.Redo()" disabled="@(!UndoManager.CanRedo)">
             <i class="fas fa-redo"></i>
         </button>
-        <button class="button" @onclick="() => CancelLayoutSelectionAll()">
+        <button class="button" @onclick="() => SelectionService.CancelLayoutSelectionAll()">
             選択解除
         </button>
         <button class="button" @onclick="() => OnSave.InvokeAsync()">
@@ -69,7 +69,7 @@
                               })" />
         }
 
-        @foreach (var cell in TrailCells.ToList())
+        @foreach (var cell in EffectService.TrailCells.ToList())
         {
             <div class="trail-effect"
                  style="left:@($"{cell.gridX * CurrentSection.WidthPerCell}px");
@@ -81,34 +81,35 @@
         }
     </ScrollArea>
 
-    @if (SelectionRect != null && Mode == InteractionMode.Selecting)
+    @if (State.SelectionRect != null && Mode == InteractionMode.Selecting)
     {
         <div style="position: absolute;
-                    border: 2px dashed blue;
-                    background-color: rgba(0, 0, 255, 0.1);
-                    left: @(SelectionRect.XMin)px;
-                    top: @(SelectionRect.YMin)px;
-                    width: @(SelectionRect.Width)px;
-                    height: @(SelectionRect.Height)px;
-                    pointer-events: none;">
+                border: 2px dashed blue;
+                background-color: rgba(0, 0, 255, 0.1);
+                left: @(State.SelectionRect.XMin)px;
+                top: @(State.SelectionRect.YMin)px;
+                width: @(State.SelectionRect.Width)px;
+                height: @(State.SelectionRect.Height)px;
+                pointer-events: none;">
         </div>
     }
 
-    @if (RipplePosition is not null)
+    @if (EffectService.RipplePosition is not null)
     {
         <div class="ripple"
-             style="left:@($"{RipplePosition.X}px"); top:@($"{RipplePosition.Y}px");"
-             @key="RipplePosition">
+             style="left:@($"{EffectService.RipplePosition.X}px");
+                top:@($"{EffectService.RipplePosition.Y}px");"
+             @key="EffectService.RipplePosition">
         </div>
     }
 
-    @if (ContextMenuPosition is not null && Mode == InteractionMode.ContextMenu)
+    @if (State.ContextMenuPosition is not null && Mode == InteractionMode.ContextMenu)
     {
 
         <div class="context-menu"
              @onmousedown:stopPropagation="true"
-             style="left:@($"{ContextMenuPosition.X}px");
-                    top:@($"{ContextMenuPosition.Y}px")">
+             style="left:@($"{State.ContextMenuPosition.X}px");
+                    top:@($"{State.ContextMenuPosition.Y}px")">
             <ul>
                 <li @onclick="EditStyle">スタイル編集</li>
                 <li @onclick="DeleteLayouts">削除</li>
@@ -117,7 +118,7 @@
         </div>
     }
 
-    @if (pendingTemplate is not null && CurrentDragMode == LayoutDragMode.Registering)
+    @if (State.PendingTemplate is not null && CurrentDragMode == LayoutDragMode.Registering)
     {
         <div class="ghost-shape"
              style="position:absolute;
@@ -127,7 +128,7 @@
                 height:@($"{CurrentSection.HeightPerCell}px");
                 opacity:0.5;
                 pointer-events:none;">
-            <i class="@pendingTemplate.IconClass"></i>
+            <i class="@State.PendingTemplate.IconClass"></i>
         </div>
     }
 </div>
