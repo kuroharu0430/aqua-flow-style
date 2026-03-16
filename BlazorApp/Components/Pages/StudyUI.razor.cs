@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components;
-using BlazorApp.Core.Service;
 using BlazorApp.ViewModel;
 using BlazorApp.Core.Enum;
-using BlazorApp.Core.State;
 using BlazorApp.EntityFramework.Context;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.EntityFramework.Models;
 using BlazorApp.Service;
 using BlazorApp.Components.Dialog;
+using BlazorApp.State;
 
 namespace BlazorApp3.Client.Pages
 {

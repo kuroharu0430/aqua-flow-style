@@ -1,4 +1,4 @@
-﻿namespace BlazorApp.Core.State
+﻿namespace BlazorApp.State
 {
     public class DisplayOption
     {

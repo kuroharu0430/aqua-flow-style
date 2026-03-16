@@ -1,6 +1,5 @@
 ﻿using BlazorApp.Core.Styling;
 using BlazorApp.Core.Enum;
-using BlazorApp.Core.State;
 
 namespace BlazorApp.Core.Model
 {

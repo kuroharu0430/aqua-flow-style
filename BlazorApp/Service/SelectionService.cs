@@ -1,12 +1,17 @@
 ﻿using BlazorApp.Core.Model;
 <<<<<<< HEAD:BlazorApp.Core/Service/SelectionService.cs
+<<<<<<< HEAD:BlazorApp.Core/Service/SelectionService.cs
 using BlazorApp.Core.State;
 =======
 using BlazorApp.State;
 using BlazorApp.ViewModel;
 >>>>>>> d26a47a (SelectionService EffectService作成):BlazorApp/Service/SelectionService.cs
+=======
+using BlazorApp.State;
+using BlazorApp.ViewModel;
+>>>>>>> feature/State、Surface責務分離:BlazorApp/Service/SelectionService.cs
 
-namespace BlazorApp.Core.Service
+namespace BlazorApp.Service
 {
     /// <summary>
     /// Layouts選択を行う。範囲選択のロジックも持つ
