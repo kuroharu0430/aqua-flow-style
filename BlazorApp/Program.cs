@@ -3,6 +3,7 @@ using BlazorApp.EntityFramework.Context;
 using BlazorApp.Service;
 using Microsoft.EntityFrameworkCore;
 using BlazorApp.State;
+using BlazorApp.Core.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 

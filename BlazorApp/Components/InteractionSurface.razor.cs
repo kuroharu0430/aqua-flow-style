@@ -8,12 +8,11 @@ using static BlazorApp.Components.ShapeTemplatPanel;
 using BlazorApp.Components.Dialog;
 using BlazorApp.Service;
 using BlazorApp.Core.Enum;
+using BlazorApp.Core.Service;
 using BlazorApp.Core.Model.SnapShots;
 using BlazorApp.EntityFramework.Models;
-<<<<<<< HEAD
-=======
 using BlazorApp.State;
->>>>>>> feature/State、Surface責務分離
+
 
 namespace BlazorApp.Components
 {
@@ -26,17 +25,10 @@ namespace BlazorApp.Components
         [Inject] private DragService DragService { get; set; } = null!;
         [Inject] private ResizeService ResizeService { get; set; } = null!;
         [Inject] private SelectionService SelectionService { get; set; } = null!;
-<<<<<<< HEAD
-<<<<<<< HEAD
+        [Inject] private EffectService EffectService { get; set; } = null!;
         [Inject] private VoiceCommandService VoiceCommand { get; set; } = null!;
         #endregion
 
-=======
-        [Inject] private EffectService EffectService { get; set; } = null!;
->>>>>>> d26a47a (SelectionService EffectService作成)
-=======
-        [Inject] private EffectService EffectService { get; set; } = null!;
->>>>>>> feature/State、Surface責務分離
         public InteractionMode Mode => State.CurrentMode;
 
         public ElementReference SurfaceRef;
@@ -57,15 +49,8 @@ namespace BlazorApp.Components
 
         [Parameter] public OverlapMode OverlapMode { get; set; }
 
-
-        //public readonly record struct TrailCell(int gridX, int gridY);
-<<<<<<< HEAD
-
         //　音声命令の実行許可書
         public bool CanExecuteVoiceCommand() => State.CurrentMode == InteractionMode.StandBy;
-
-=======
->>>>>>> feature/State、Surface責務分離
 
         protected override void OnInitialized()
         {
@@ -455,21 +440,10 @@ namespace BlazorApp.Components
             }
         }
 
-<<<<<<< HEAD
-        /// <summary>
-        /// ContextMenuの表示場所
-        /// </summary>
-        public MousePosition? ContextMenuPosition { get; set; } = null;
-=======
-        public void Dispose()
-        {
-            State.ModeChanged -= OnInteractionModeChanged;
-            _dotNetRef?.Dispose();
-        }
-<<<<<<< HEAD
->>>>>>> d26a47a (SelectionService EffectService作成)
-=======
->>>>>>> feature/State、Surface責務分離
+        ///// <summary>
+        ///// ContextMenuの表示場所
+        ///// </summary>
+        //public MousePosition? ContextMenuPosition { get; set; } = null;
 
         private void OnTextContextMenu(MouseEventArgs e)
         {

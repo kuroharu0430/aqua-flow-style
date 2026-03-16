@@ -1,18 +1,9 @@
 ﻿using BlazorApp.Core.Model;
 using BlazorApp.Core.Enum;
 using BlazorApp.Core.Model.SnapShots;
-<<<<<<< HEAD:BlazorApp.Core/State/InteractionState.cs
-<<<<<<< HEAD:BlazorApp.Core/State/InteractionState.cs
-=======
 using BlazorApp.Service;
 using BlazorApp.ViewModel;
 using static BlazorApp.Components.ShapeTemplatPanel;
->>>>>>> d26a47a (SelectionService EffectService作成):BlazorApp/State/InteractionState.cs
-=======
-using BlazorApp.Service;
-using BlazorApp.ViewModel;
-using static BlazorApp.Components.ShapeTemplatPanel;
->>>>>>> feature/State、Surface責務分離:BlazorApp/State/InteractionState.cs
 
 namespace BlazorApp.State
 {
