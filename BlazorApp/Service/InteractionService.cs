@@ -1,5 +1,5 @@
 ﻿using BlazorApp.Core.Model;
-using BlazorApp.State;
+using BlazorApp._state;
 
 namespace BlazorApp.Service
 {
@@ -17,7 +17,7 @@ namespace BlazorApp.Service
         protected int ColumnNumber => State.DisplayOption.ColumnNumber;
         protected int RowNumber => State.DisplayOption.RowNumber;
 
-        protected MoveSession Session => State.Session;
+        //protected MoveSession Session => State.Session;
 
         protected IDraggable dragTarget
         {  

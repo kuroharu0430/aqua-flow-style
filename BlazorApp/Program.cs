@@ -2,8 +2,9 @@ using BlazorApp.Components;
 using BlazorApp.EntityFramework.Context;
 using BlazorApp.Service;
 using Microsoft.EntityFrameworkCore;
-using BlazorApp.State;
+using BlazorApp._state;
 using BlazorApp.Core.Service;
+using BlazorApp.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddTransient<InteractionState>();
+builder.Services.AddTransient<InteractionController>();
 builder.Services.AddTransient<UndoManager>();
 builder.Services.AddTransient<DragService>();
 builder.Services.AddTransient<ResizeService>();

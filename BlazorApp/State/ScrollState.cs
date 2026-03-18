@@ -1,7 +1,7 @@
 ﻿using BlazorApp.Core.Model;
 using System.Drawing;
 
-namespace BlazorApp.State
+namespace BlazorApp._state
 {
     public class ScrollState
     {

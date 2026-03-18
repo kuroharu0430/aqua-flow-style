@@ -1,5 +1,5 @@
 ﻿using BlazorApp.Core.Model;
-using BlazorApp.State;
+using BlazorApp._state;
 using BlazorApp.ViewModel;
 
 namespace BlazorApp.Service
@@ -39,6 +39,9 @@ namespace BlazorApp.Service
             return RectBounds.FromTwoPoints(start, current).Normalize();
         }
 
+        /// <summary>
+        /// 一時選択状態(矩形確定前)のLayoutsの状態を変更
+        /// </summary>
         public void UpdateTempSelection()
         {
             // Layout選択状態のUpdate
