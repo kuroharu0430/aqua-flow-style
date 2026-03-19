@@ -57,7 +57,7 @@
         </div>
 
 
-        @foreach (var layout in VisibleLayouts)
+        @foreach (var layout in State.VisibleLayouts)
         {
             <DynamicComponent Type="layout.GetViewComponentType()"
                               Parameters="@(new Dictionary<string, object>
@@ -118,7 +118,7 @@
         </div>
     }
 
-    @if (State.PendingTemplate is not null && CurrentDragMode == LayoutDragMode.Registering)
+    @if (State.PendingTemplate is not null && State.CurrentDragMode == LayoutDragMode.Registering)
     {
         <div class="ghost-shape"
              style="position:absolute;

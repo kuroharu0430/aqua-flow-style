@@ -1,6 +1,7 @@
 ﻿using BlazorApp.Core.Model;
 using BlazorApp._state;
 using BlazorApp.ViewModel;
+using BlazorApp.Session;
 
 namespace BlazorApp.Service
 {
@@ -138,28 +139,5 @@ namespace BlazorApp.Service
         }
 
         #endregion
-    }
-
-
-    public class SelectingSession
-    {
-        public (int left, int top) InitialScrollPosition { get; }
-
-        public MousePosition InitialMousePosition { get; set; }
-
-        public List<IDraggableOnMouse> VisibleLayouts { get; set; }
-
-        public (int left, int top) GetOffset((int left, int top) currentScrollPosition)
-        {
-            return (currentScrollPosition.left - InitialScrollPosition.left,
-                    currentScrollPosition.top - InitialScrollPosition.top);
-        }
-
-        public SelectingSession(List<IDraggableOnMouse> visibleLayouts, (int left, int top) ScrollPosition, MousePosition mousePosition)
-        {
-            VisibleLayouts = visibleLayouts;
-            InitialScrollPosition = ScrollPosition;
-            InitialMousePosition = mousePosition;
-        }
     }
 }

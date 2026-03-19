@@ -1,10 +1,11 @@
 ﻿using BlazorApp.Core.Model;
 using BlazorApp.Core.Enum;
-using BlazorApp.Core.Model.SnapShots;
+using BlazorApp.Session;
 using BlazorApp.Service;
 using BlazorApp.ViewModel;
 using static BlazorApp.Components.ShapeTemplatPanel;
 using BlazorApp3.Client.Pages;
+using BlazorApp.EntityFramework.Models;
 
 namespace BlazorApp._state
 {
@@ -19,10 +20,12 @@ namespace BlazorApp._state
         public ShapeTemplate? PendingTemplate { get; set; } = null;
         #endregion
 
-
         public InteractionMode CurrentMode { get; private set; } = InteractionMode.StandBy;
 
         public LayoutDragMode CurrentDragMode { get; set; } = LayoutDragMode.Move;
+
+        public OverlapMode OverlapMode { get; set; } = OverlapMode.Push;
+        public LayoutSection CurrentSection { get; set; } = new();
 
         public event Action<InteractionMode>? ModeChanged;
 
@@ -35,10 +38,6 @@ namespace BlazorApp._state
 
         public MousePosition SurfaceBase { get; set; }
         #endregion
-
-        //public MoveSession? Session { get; set; } = null;
-
-        public SelectingSession? SelectingSession { get; private set; } = null;
 
         public DisplayOption DisplayOption { get; set; } = null!;
         public RectBounds? SelectionRect { get; set; } = null;
@@ -89,71 +88,6 @@ namespace BlazorApp._state
                 PageMouseDownPosition = PageMousePosition;
             }
         }
-
-        public void StartSelectingSession(List<IDraggableOnMouse> visibleLayouts)
-        {
-            SelectingSession = new SelectingSession(
-                visibleLayouts,
-                (ScrollState.ScrollLeft, ScrollState.ScrollTop),
-                RelativeMousePosition
-                );
-            SetMode(InteractionMode.Selecting);
-        }
-
-        // TODO
-//        public CompositeSnapshot? CommitDrag()
-//        {
-//            if (Session == null) return null;
-
-//            var snapshotList = new List<IReversible>();
-
-//            foreach (var snapshot in Session.OldRecord)
-//            {
-//                var target = snapshot.target;
-
-//                if (target.InteractionPhase == InteractionPhase.Confirmed)
-//                {
-//                    // 仮登録から配置済状態へ移行
-//                    if (target.LayoutStatus == LayoutStatus.Pending)
-//                    {
-//                        target.LayoutStatus = LayoutStatus.Added;
-//                        // Undo用　deleted履歴の作成
-//                        var deletedSnapshot = snapshot with { LayoutStatus = LayoutStatus.Deleted };
-//                        snapshotList.Add(deletedSnapshot);
-//                    }
-//                    else
-//                    {
-//                        // 変更分のsnap追加
-//                        snapshotList.Add(snapshot);
-//                    }
-//                }
-//                else if (target.InteractionPhase == InteractionPhase.Floating)
-//                {
-//                    target.GridBounds = snapshot.Bounds.DeepCopy();
-//                    target.NeedsRectUpdate = true;
-//                }
-//                // Idle や Restoring は無視
-//            }
-//            // TODO Dispose()の方が適切
-//            Session = null;
-
-//            return new CompositeSnapshot(snapshotList, UndoActionType.Dragged);
-//        }
-
-//        public CompositeSnapshot CommitStyleEdit(List<IReversible> snapshotList)
-//        {
-//            foreach (var snapshot in snapshotList)
-//            {
-//                if (snapshot is FieldValueSnapShot fieldValueSnap)
-//                {
-//                    if (fieldValueSnap.target.LayoutStatus ==  LayoutStatus.Pending)
-//                    {
-//                        fieldValueSnap.target.LayoutStatus = LayoutStatus.Added;
-//                    }
-//                }
-//            }
-//            return new CompositeSnapshot(snapshotList, UndoActionType.StyleEdited);
-//        }
     }
 }
 

@@ -6,6 +6,8 @@ using BlazorApp.ViewModel;
 using BlazorApp.Core.Enum;
 using BlazorApp3.Client.Pages;
 using BlazorApp.Session;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazorApp.Controllers
 {
@@ -17,10 +19,11 @@ namespace BlazorApp.Controllers
         private readonly DragService _dragService;
         private readonly ResizeService _resizeService;
         private readonly EffectService _effectService;
+        private readonly UndoManager _undoManager;
 
         #region Session
         private MoveSession? _moveSession;
-
+        private SelectingSession? _selectingSession;
         #endregion
 
         private readonly Action<UILayoutModelBase> _onLayoutAdded;
@@ -31,6 +34,7 @@ namespace BlazorApp.Controllers
             DragService dragService,
             ResizeService resizeService,
             EffectService effectService,
+            UndoManager undoManager,
             Action<UILayoutModelBase> onLayoutAdded)
         {
             _state = state;
@@ -38,11 +42,12 @@ namespace BlazorApp.Controllers
             _dragService = dragService;
             _resizeService = resizeService;
             _effectService = effectService;
+            _undoManager = undoManager;
             _onLayoutAdded = onLayoutAdded;
         }
 
         // --- Surface から呼ばれるイベント群 ---
-
+        #region MouseEvent
         public void OnMouseDown(bool shiftKey)
         {
             // RippleEffect
@@ -80,12 +85,38 @@ namespace BlazorApp.Controllers
             return false;
         }
 
+        public void OnMouseUp()
+        {
+            switch (Mode)
+            {
+                case InteractionMode.Dragging:
+                case InteractionMode.Registering:
+                    _undoManager.Push(CommitDrag());
+                    break;
 
+                case InteractionMode.Selecting:
+                    ConfirmSelection();
+                    break;
+            }
+
+            _state.SetMode(InteractionMode.StandBy);
+        }
+        #endregion
 
         // 範囲選択モード関係
         protected void StartSelection()
         {
-            _state.StartSelectingSession(_state.VisibleLayouts.Cast<IDraggableOnMouse>().ToList());
+            StartSelectingSession(_state.VisibleLayouts.Cast<IDraggableOnMouse>().ToList());
+        }
+
+        public void StartSelectingSession(List<IDraggableOnMouse> visibleLayouts)
+        {
+            _selectingSession = new SelectingSession(
+                visibleLayouts,
+                (_state.ScrollState.ScrollLeft, _state.ScrollState.ScrollTop),
+                _state.RelativeMousePosition
+                );
+            _state.SetMode(InteractionMode.Selecting);
         }
 
         protected void StartDrag()
@@ -104,7 +135,8 @@ namespace BlazorApp.Controllers
                 // 登録処理
                 (int gridX, int gridY)  = GetPositionInGrid();
 
-                dragTarget = new UILayoutModelBase(_state.PendingTemplate!.Title, gridX, gridY, _state.PendingTemplate.Type, CurrentSection.Id);
+                dragTarget = new UILayoutModelBase(_state.PendingTemplate!.Title, gridX, gridY,
+                    _state.PendingTemplate.Type, _state.CurrentSection.Id);
                 dragTarget.LayoutStatus = LayoutStatus.Pending;
                 dragTarget.SelectionState = SelectionState.Selected;
                 // TemplateGost release
@@ -135,8 +167,68 @@ namespace BlazorApp.Controllers
                 _state.CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
             }
             StartMoveSession(dragTarget, _state.VisibleLayouts.Cast<IDraggable>().ToList());
+            // Surfaceにパス
             //_= RunDragLoop();
         }
+
+        /// <summary>
+        /// 範囲選択の確定
+        /// </summary>
+        private void ConfirmSelection()
+        {
+            foreach (var layout in _state.VisibleLayouts.Where(l => l.SelectionState == SelectionState.TempSelected))
+                layout.SelectionState = SelectionState.Selected;
+        }
+
+        #region Update
+        public async Task UpdateDragFrame()
+        {
+            switch (Mode)
+            {
+                case InteractionMode.Selecting:
+                    await UpdateSelection();
+                    break;
+
+                case InteractionMode.Dragging:
+                case InteractionMode.Registering:
+                    UpdateDragPosition();
+                    break;
+            }
+        }
+        protected async Task UpdateSelection()
+        {
+            if (Mode != InteractionMode.Selecting) return;
+
+            _selectionService.UpdateTempSelection();
+            _state.SelectionRect = _selectionService.GetViewRectBounds();
+        }
+
+        protected void UpdateDragPosition()
+        {
+            if (Mode != InteractionMode.Dragging)
+                return;
+
+            (int gridX, int gridY)  = GetPositionInGrid();
+
+            // TrailEffect
+            _effectService.AddTrail(gridX, gridY);
+
+            // DragService or ResizeService
+            switch (_state.CurrentDragMode)
+            {
+                case LayoutDragMode.Move:
+                case LayoutDragMode.Registering:
+                    _dragService.TryDrag(gridX, gridY, _state.OverlapMode);
+                    break;
+                case LayoutDragMode.Resize:
+                    _resizeService.TryResize(gridX, gridY, _state.OverlapMode);
+                    break;
+                default:
+                    // 何もしない
+                    break;
+            }
+        }
+        #endregion
 
         public void StartMoveSession(IDraggable dragTarget, List<IDraggable> visibleLayouts)
         {
@@ -147,32 +239,63 @@ namespace BlazorApp.Controllers
             };
         }
 
-        /// <summary>
-        /// Drag中にLoop更新する　※AutoScroll対応
-        /// </summary>
-        //private async Task RunDragLoop()
-        //{
-        //    while (Mode == InteractionMode.Dragging || Mode ==InteractionMode.Registering || Mode ==InteractionMode.Selecting)
-        //    {
-        //        // Scroll更新
-        //        var (top, left) = await GetScrollOffsetAsync();
-        //        State.ScrollState.UpdateScroll(top, left);
+        #region Commit
+        public CompositeSnapshot? CommitDrag()
+        {
+            if (_moveSession == null) return null;
 
-        //        switch (Mode)
-        //        {
-        //            case InteractionMode.Selecting:
-        //                await UpdateSelection();
-        //                break;
+            var snapshotList = new List<IReversible>();
 
-        //            case InteractionMode.Dragging:
-        //            case InteractionMode.Registering:
-        //                UpdateDragPosition();
-        //                break;
-        //        }
-        //        _= InvokeAsync(StateHasChanged);
-        //        await Task.Delay(16); // 60fps相当
-        //    }
-        //}
+            foreach (var snapshot in _moveSession.OldRecord)
+            {
+                var target = snapshot.target;
+
+                if (target.InteractionPhase == InteractionPhase.Confirmed)
+                {
+                    // 仮登録から配置済状態へ移行
+                    if (target.LayoutStatus == LayoutStatus.Pending)
+                    {
+                        target.LayoutStatus = LayoutStatus.Added;
+                        // Undo用　deleted履歴の作成
+                        var deletedSnapshot = snapshot with { LayoutStatus = LayoutStatus.Deleted };
+                        snapshotList.Add(deletedSnapshot);
+                    }
+                    else
+                    {
+                        // 変更分のsnap追加
+                        snapshotList.Add(snapshot);
+                    }
+                }
+                else if (target.InteractionPhase == InteractionPhase.Floating)
+                {
+                    target.GridBounds = snapshot.Bounds.DeepCopy();
+                    target.NeedsRectUpdate = true;
+                }
+                // Idle や Restoring は無視
+            }
+            // TODO Dispose()の方が適切
+            _moveSession = null;
+
+            return new CompositeSnapshot(snapshotList, UndoActionType.Dragged);
+        }
+
+        public CompositeSnapshot CommitStyleEdit(List<IReversible> snapshotList)
+        {
+            foreach (var snapshot in snapshotList)
+            {
+                if (snapshot is FieldValueSnapShot fieldValueSnap)
+                {
+                    if (fieldValueSnap.target.LayoutStatus ==  LayoutStatus.Pending)
+                    {
+                        fieldValueSnap.target.LayoutStatus = LayoutStatus.Added;
+                    }
+                }
+            }
+            return new CompositeSnapshot(snapshotList, UndoActionType.StyleEdited);
+        }
+
+        #endregion
+
 
         private (int gridX, int gridY) GetPositionInGrid()
         {

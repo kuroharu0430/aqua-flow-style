@@ -41,17 +41,12 @@ namespace BlazorApp.Components
 
         [Parameter] public List<UILayoutModelBase> Layouts { get; set; } = [];
         [Parameter] public LayoutSection CurrentSection { get; set; } = new();
-
-        private IEnumerable<UILayoutModelBase> VisibleLayouts => State.VisibleLayouts;
-
         [Parameter] public List<FieldTypeDefinition> FieldTypeDefinitions { get; set; } = [];
         [Parameter] public List<FieldEditDefinition> FieldEditDefinitions { get; set; } = [];
         [Parameter] public SurfaceInteractionMode SurfaceInteractionMode { get; set; }
         [Parameter] public EventCallback<UILayoutModelBase> OnLayoutAdded { get; set; }
         [Parameter] public EventCallback OnSave { get; set; }
-
         [Parameter] public OverlapMode OverlapMode { get; set; }
-
         //　音声命令の実行許可書
         public bool CanExecuteVoiceCommand() => State.CurrentMode == InteractionMode.StandBy;
 
@@ -67,7 +62,8 @@ namespace BlazorApp.Components
                 DragService,
                 ResizeService,
                 EffectService,
-                OnLayoutAdded 
+                UndoManager,
+                layout => OnLayoutAdded.InvokeAsync(layout)
 
             );
 
@@ -109,8 +105,11 @@ namespace BlazorApp.Components
                 ScreenWidth = CurrentSection.ScreenWidth,
                 ScreenHeight = CurrentSection.ScreenHeight,
             };
+            // StateへParameterの受け渡し
             State.Layouts = Layouts;
             State.CurrentSurfaceInteractionMode = SurfaceInteractionMode;
+            State.OverlapMode = OverlapMode;
+            State.CurrentSection = CurrentSection;
             return base.OnParametersSetAsync();
         }
 
@@ -165,26 +164,7 @@ namespace BlazorApp.Components
                 return;
             }
 
-            // ここからコントローラー
             Controller.OnMouseDown(e.ShiftKey);
-            // RippleEffect
-            //EffectService.FireRipple(State.RelativeMousePosition);
-
-            //// ShiftキーによるSurfaceInteractionModeの反転処理
-            //var interactionMode = SurfaceInteractionMode;
-            //if (e.ShiftKey)
-            //{
-            //    interactionMode = SurfaceInteractionMode switch
-            //    {
-            //        SurfaceInteractionMode.Selecting => SurfaceInteractionMode.Dragging,
-            //        SurfaceInteractionMode.Dragging => SurfaceInteractionMode.Selecting,
-            //        _ => SurfaceInteractionMode
-            //    };
-            //}
-
-            //// 意図だけをStateに保存（確定はMoveで）
-            //State.CurrentSurfaceInteractionMode = interactionMode;
-            //State.SetMode(InteractionMode.Idle);
         }
 
         protected async Task OnMouseMove(MouseEventArgs e)
@@ -205,34 +185,6 @@ namespace BlazorApp.Components
                 {
                     _ = RunDragLoop();
                 }
-
-            }
-        }
-
-
-        protected void UpdateDragPosition()
-        {
-            if (Mode != InteractionMode.Dragging)
-                return;
-
-            (int gridX, int gridY)  = GetPositionInGrid();
-
-            // TrailEffect
-            EffectService.AddTrail(gridX, gridY);
-
-            // DragService or ResizeService
-            switch (State.CurrentDragMode)
-            {
-                case LayoutDragMode.Move:
-                case LayoutDragMode.Registering:
-                    DragService.TryDrag(gridX, gridY, OverlapMode);
-                    break;
-                case LayoutDragMode.Resize:
-                    ResizeService.TryResize(gridX, gridY, OverlapMode);
-                    break;
-                default:
-                    // 何もしない
-                    break;
             }
         }
 
@@ -247,51 +199,12 @@ namespace BlazorApp.Components
                 var (top, left) = await GetScrollOffsetAsync();
                 State.ScrollState.UpdateScroll(top, left);
 
-                switch (Mode)
-                {
-                    case InteractionMode.Selecting:
-                        await UpdateSelection();
-                        break;
+                // DragによるFrame処理
+                await Controller.UpdateDragFrame();
 
-                    case InteractionMode.Dragging:
-                    case InteractionMode.Registering:
-                        UpdateDragPosition();
-                        break;
-                }
                 _= InvokeAsync(StateHasChanged);
                 await Task.Delay(16); // 60fps相当
             }
-        }
-
-
-        private (int gridX, int gridY) GetPositionInGrid()
-        {
-            // ScrollArea の左上を原点とする
-            var AbsoluteMouseposition = State.AbsoluteMousePosition - State.BaseScrollArea;
-
-            // Scroll補正を加えた座標に変換
-            var rect = State.ScrollState.AbsoluteRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
-
-            // スクロールエリアの最大に
-            int clampedX = Math.Clamp(AbsoluteMouseposition.X, rect.XMin, rect.XMax - 1);
-            int clampedY = Math.Clamp(AbsoluteMouseposition.Y, rect.YMin, rect.YMax - 1);
-
-            int gridX = clampedX / State.DisplayOption.WidthPerCell;
-            int gridY = clampedY / State.DisplayOption.HeightPerCell;
-
-            // 最大カラム数を超えないように制御
-            return (gridX: Math.Min(gridX, State.DisplayOption.ColumnNumber-1),
-                    gridY: Math.Min(gridY, State.DisplayOption.RowNumber-1));
-        }
-
-
-
-        protected async Task UpdateSelection()
-        {
-            if (Mode != InteractionMode.Selecting) return;
-
-            SelectionService.UpdateTempSelection();
-            State.SelectionRect = SelectionService.GetViewRectBounds();
         }
 
         protected void OnMouseUp(MouseEventArgs e)
@@ -300,23 +213,13 @@ namespace BlazorApp.Components
             if (e.Button == 2 || Mode == InteractionMode.ContextMenu)
                 return;
 
-            switch (Mode)
+            if (Mode == InteractionMode.Idle)
             {
-                case InteractionMode.Idle:
-                    HandleClick(e);
-                    break;
-
-                case InteractionMode.Dragging:
-                case InteractionMode.Registering:
-                    UndoManager.Push(State.CommitDrag());
-                    break;
-
-                case InteractionMode.Selecting:
-                    ConfirmSelection();
-                    break;
+                HandleClick(e);
+                return;
             }
 
-            State.SetMode(InteractionMode.StandBy);
+            Controller.OnMouseUp();
         }
 
         /// <summary>
@@ -338,7 +241,7 @@ namespace BlazorApp.Components
             }
             else
             {
-                foreach (var layout in VisibleLayouts)
+                foreach (var layout in State.VisibleLayouts)
                 {
                     layout.SelectionState = SelectionState.None;
 
@@ -346,16 +249,6 @@ namespace BlazorApp.Components
                 target.SelectionState = SelectionState.Selected;
             }
         }
-
-        /// <summary>
-        /// 範囲選択の確定
-        /// </summary>
-        private void ConfirmSelection()
-        {
-            foreach (var layout in VisibleLayouts.Where(l => l.SelectionState == SelectionState.TempSelected))
-                layout.SelectionState = SelectionState.Selected;
-        }
-
 
         private async Task<(int Top, int Left)> GetScrollOffsetAsync()
         {
@@ -412,57 +305,57 @@ namespace BlazorApp.Components
             State.SetMode(InteractionMode.ContextMenu);
         }
 
-        //private async Task EditStyle()
-        //{
-        //    // ContextMenu非表示
-        //    State.ContextMenuPosition = null;
+        private async Task EditStyle()
+        {
+            // ContextMenu非表示
+            State.ContextMenuPosition = null;
 
-        //    var selectedLayouts = VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected).ToList();
-        //    // Dialog開く前にSnapshot取る
-        //    var snapshots = new List<IReversible>();
-        //    snapshots.AddRange(selectedLayouts.Select(l => new StyleSnapshot(l, l.Style.DeepCopy(), l.WrapperStyle.DeepCopy(), l.LayoutStatus))
-        //        .Cast<IReversible>());
+            var selectedLayouts = State.VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected).ToList();
+            // Dialog開く前にSnapshot取る
+            var snapshots = new List<IReversible>();
+            snapshots.AddRange(selectedLayouts.Select(l => new StyleSnapshot(l, l.Style.DeepCopy(), l.WrapperStyle.DeepCopy(), l.LayoutStatus))
+                .Cast<IReversible>());
 
-        //    snapshots.AddRange(
-        //        selectedLayouts
-        //            .SelectMany(layout => layout.FieldValues)
-        //            .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, f.LayoutStatus))
-        //    );
+            snapshots.AddRange(
+                selectedLayouts
+                    .SelectMany(layout => layout.FieldValues)
+                    .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, f.LayoutStatus))
+            );
 
-        //    // Dialog開く
-        //    var result = await DialogService.OpenAsync<LayoutEditDialog>(
-        //        "レイアウト編集",
-        //        new Dictionary<string, object>
-        //        {
-        //            { nameof(LayoutEditDialog.Layouts), selectedLayouts },
-        //            { nameof(LayoutEditDialog.FieldEditDefinitions), FieldEditDefinitions }
-        //        },
-        //        new DialogOptions { }
-        //    );
+            // Dialog開く
+            var result = await DialogService.OpenAsync<LayoutEditDialog>(
+                "レイアウト編集",
+                new Dictionary<string, object>
+                {
+                    { nameof(LayoutEditDialog.Layouts), selectedLayouts },
+                    { nameof(LayoutEditDialog.FieldEditDefinitions), FieldEditDefinitions }
+                },
+                new DialogOptions { }
+            );
 
-        //    // 編集が確定したら履歴に積む
-        //    if (result is true)
-        //    {
-        //        // 新規のFieldValueはDeletedのsnapを積む
-        //        var addedFieldValues = selectedLayouts
-        //            .SelectMany(layout => layout.FieldValues)
-        //            .Where(f => f.LayoutStatus == LayoutStatus.Pending)
-        //            .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, LayoutStatus.Deleted));
+            // 編集が確定したら履歴に積む
+            if (result is true)
+            {
+                // 新規のFieldValueはDeletedのsnapを積む
+                var addedFieldValues = selectedLayouts
+                    .SelectMany(layout => layout.FieldValues)
+                    .Where(f => f.LayoutStatus == LayoutStatus.Pending)
+                    .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, LayoutStatus.Deleted));
 
-        //        snapshots.AddRange(addedFieldValues);
-        //        // commit && UndoPush
-        //        UndoManager.Push(State.CommitStyleEdit(snapshots));
+                snapshots.AddRange(addedFieldValues);
+                // commit && UndoPush
+                UndoManager.Push(Controller.CommitStyleEdit(snapshots));
 
-        //        State.SetMode(InteractionMode.StandBy);
-        //    }
-        //}
+                State.SetMode(InteractionMode.StandBy);
+            }
+        }
 
         private void DeleteLayouts()
         {
             // ContextMenu非表示
             State.ContextMenuPosition = null;
 
-            var targets = VisibleLayouts
+            var targets = State.VisibleLayouts
                 .Where(layout => layout.SelectionState == SelectionState.Selected).ToList();
 
             var snapshots = new List<IReversible>();
