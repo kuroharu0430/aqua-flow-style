@@ -1,0 +1,16 @@
+services:
+  blazor:
+    image: mcr.microsoft.com/dotnet/aspnet:9.0
+    container_name: blazor-app
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+# Development にするとスタックトレースが表示される
+#      ASPNETCORE_ENVIRONMENT: Development
+    volumes:
+# Publish したディレクトリ
+      - ../BlazorApp/bin/Release/net9.0/publish:/app
+    working_dir: /app
+# dotnet コマンドに自分のアプリを指定する
+    command: ["dotnet", "BlazorApp.dll"]
