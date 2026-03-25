@@ -52,10 +52,6 @@ namespace BlazorApp.Components
 
         protected override void OnInitialized()
         {
-            ResizeService.SetState(State);
-            DragService.SetState(State);
-            SelectionService.SetState(State);
-
             Controller = new InteractionController(
                 State,
                 SelectionService,
@@ -140,7 +136,7 @@ namespace BlazorApp.Components
             State.PendingTemplate = template;
             State.CurrentDragMode = LayoutDragMode.Registering;
             // 選択解除
-            SelectionService.CancelLayoutSelectionAll();
+            Controller.CancelLayoutSelectionAll();
         }
 
         protected async Task OnMouseDown(MouseEventArgs e)
@@ -228,7 +224,7 @@ namespace BlazorApp.Components
         /// <param name="e"></param>
         private void HandleClick(MouseEventArgs e)
         {
-            var target = SelectionService.GetTargetLayoutAtCusor();
+            var target = Controller.GetTargetLayoutAtCusor();
             if (target == null) return;
 
             // Ctrlキーが押されていない場合は他を解除
@@ -296,10 +292,10 @@ namespace BlazorApp.Components
 
         private void OnTextContextMenu(MouseEventArgs e)
         {
-            var target = SelectionService.GetTargetLayoutAtCusor();
+            var target = Controller.GetTargetLayoutAtCusor();
             if (target == null) return;
 
-            SelectionService.SetSelectingLayout(target);
+            Controller.SetSelectingLayout(target);
             // メニュー表示 ＋ Mode移行
             State.ContextMenuPosition = State.RelativeMousePosition;
             State.SetMode(InteractionMode.ContextMenu);

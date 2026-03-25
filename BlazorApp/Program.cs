@@ -21,7 +21,6 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddTransient<InteractionState>();
-builder.Services.AddTransient<InteractionController>();
 builder.Services.AddTransient<UndoManager>();
 builder.Services.AddTransient<DragService>();
 builder.Services.AddTransient<ResizeService>();

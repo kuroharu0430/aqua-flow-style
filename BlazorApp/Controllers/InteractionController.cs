@@ -128,7 +128,7 @@ namespace BlazorApp.Controllers
                 return;
             }
             // Grid位置取得
-            var dragTarget = _selectionService.GetTargetLayoutAtCusor();
+            var dragTarget = GetTargetLayoutAtCusor();
 
             if (_state.CurrentDragMode == LayoutDragMode.Registering)
             {
@@ -149,7 +149,7 @@ namespace BlazorApp.Controllers
                 {
                     return;
                 }
-                _selectionService.SetSelectingLayout(dragTarget);
+                SetSelectingLayout(dragTarget);
             }
 
             _state.SetMode(InteractionMode.Dragging);
@@ -199,8 +199,20 @@ namespace BlazorApp.Controllers
         {
             if (Mode != InteractionMode.Selecting) return;
 
-            _selectionService.UpdateTempSelection();
-            _state.SelectionRect = _selectionService.GetViewRectBounds();
+            //_selectionService.UpdateTempSelection();
+            //_state.SelectionRect = _selectionService.GetViewRectBounds();
+            _selectionService.UpdateTempSelection(
+            _state.RelativeMousePosition,
+            (_state.ScrollState.ScrollLeft, _state.ScrollState.ScrollTop)
+);
+
+            _state.SelectionRect = _selectionService.GetViewRectBounds(
+                _state.RelativeMousePosition,
+                (_state.ScrollState.ScrollLeft, _state.ScrollState.ScrollTop),
+                _state.SurfaceBase,
+                _state.ScrollState.RelativeRectBounds
+            );
+
         }
 
         protected void UpdateDragPosition()
@@ -237,6 +249,21 @@ namespace BlazorApp.Controllers
                 DragTarget = dragTarget,
                 AllButtons = visibleLayouts,
             };
+
+            // ★ Drag / Resize は MoveSession を必要とする
+            _dragService.SetSession(_moveSession);
+            _resizeService.SetSession(_moveSession);
+
+            // ★ InteractionService が必要とするのは Column / Row のみ
+            _dragService.SetGridInfo(
+                _state.DisplayOption.ColumnNumber,
+                _state.DisplayOption.RowNumber
+            );
+
+            _resizeService.SetGridInfo(
+                _state.DisplayOption.ColumnNumber,
+                _state.DisplayOption.RowNumber
+            );
         }
 
         #region Commit
@@ -315,5 +342,57 @@ namespace BlazorApp.Controllers
                 Math.Min(gridY, _state.DisplayOption.RowNumber - 1)
             );
         }
+
+        #region Layouts選択
+        /// <summary>
+        /// MousePositionと重なったLayoutを取得する
+        /// Layoutがない場合はnullを返す
+        /// </summary>
+        public UILayoutModelBase? GetTargetLayoutAtCusor()
+        {
+            // 表示されていないLayoutは選択しない
+            if (!_state.ScrollState.RelativeRectBounds
+                .Offset(_state.SurfaceBase.X, _state.SurfaceBase.Y)
+                .Contains(_state.RelativeMousePosition.X, _state.RelativeMousePosition.Y))
+            {
+                return null;
+            }
+
+            return _state.VisibleLayouts.FirstOrDefault(layout =>
+                layout.RectBounds.Contains(_state.AbsoluteMousePosition.X, _state.AbsoluteMousePosition.Y));
+        }
+
+        /// <summary>
+        /// Layoutsを選択状態にする
+        /// </summary>
+        public void SetSelectingLayout(UILayoutModelBase? target)
+        {
+            if (target != null && target.SelectionState != SelectionState.Selected)
+            {
+                foreach (var layout in _state.VisibleLayouts)
+                    layout.SelectionState = SelectionState.None;
+
+                target.SelectionState = SelectionState.Selected;
+            }
+        }
+
+        /// <summary>
+        /// Layoutsをすべて非選択状態にする
+        /// </summary>
+        public void CancelLayoutSelectionAll()
+        {
+            foreach (var layout in _state.VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected))
+                layout.SelectionState = SelectionState.None;
+        }
+
+        /// <summary>
+        /// Layoutsを全て選択状態にする
+        /// </summary>
+        public void SelectLayoutAll()
+        {
+            foreach (var layout in _state.VisibleLayouts.Where(l => l.SelectionState == SelectionState.None))
+                layout.SelectionState = SelectionState.Selected;
+        }
+        #endregion
     }
 }

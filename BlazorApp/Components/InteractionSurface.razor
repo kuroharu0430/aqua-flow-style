@@ -34,7 +34,7 @@
                 @onmousedown="() => UndoManager.Redo()" disabled="@(!UndoManager.CanRedo)">
             <i class="fas fa-redo"></i>
         </button>
-        <button class="button" @onclick="() => SelectionService.CancelLayoutSelectionAll()">
+        <button class="button" @onclick="() => Controller.CancelLayoutSelectionAll()">
             選択解除
         </button>
         <button class="button" @onclick="() => OnSave.InvokeAsync()">
