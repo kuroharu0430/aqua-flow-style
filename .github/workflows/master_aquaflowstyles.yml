@@ -59,7 +59,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'AquaFlowStyles'
+          app-name: 'AquaFlowStyles-d0dqc4c4gscvcrb8'
           slot-name: 'Production'
           package: .
           
