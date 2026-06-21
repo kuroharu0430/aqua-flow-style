@@ -224,7 +224,13 @@ namespace BlazorApp.Components
             // Grid位置取得
 
             var dragTarget = GetTargetLayoutAtCusor();
-
+            
+            // dragTarget が未初期化の場合
+            if (dragTarget == null || dragTarget.RectBounds == null)
+            {
+                Console.WriteLine("[StartDrag] dragTarget or RectBounds null");
+                return;
+            
             if (CurrentDragMode == LayoutDragMode.Registering)
             {
                 // 登録処理
