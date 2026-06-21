@@ -30,9 +30,14 @@ var cs = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContextFactory<LayoutDbContext>(options =>
     options.UseSqlite(cs));
 
-
-
 var app = builder.Build();
+
+// ★ Azure で DB を自動生成する（必須）
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LayoutDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
