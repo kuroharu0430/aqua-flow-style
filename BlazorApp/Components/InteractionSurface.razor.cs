@@ -196,6 +196,14 @@ namespace BlazorApp.Components
 
         protected void StartDrag()
         {
+            if (State.SurfaceBase == null ||
+                State.RelativeMousePosition == null ||
+                State.AbsoluteMousePosition == null ||
+                BaseScrollArea == null)
+            {
+                Console.WriteLine($"[StartDrag] Skip: SurfaceBase={State.SurfaceBase != null}, Relative={State.RelativeMousePosition != null}, Absolute={State.AbsoluteMousePosition != null}, BaseScrollArea={BaseScrollArea != null}");
+                return;
+            }
             // GridにMouseがない場合はDragを開始しない
             var rect = State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
             if (!rect.Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
