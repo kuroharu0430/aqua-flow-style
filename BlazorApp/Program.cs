@@ -25,11 +25,11 @@ builder.Services.AddTransient<DragService>();
 builder.Services.AddTransient<ResizeService>();
 builder.Services.AddTransient<SelectionService>();
 
-//builder.Services.AddDbContext<LayoutDbContext>(options =>
-//    options.UseSqlite("Data Source=layout.db"));
+var cs = builder.Configuration.GetConnectionString("Default");
 
 builder.Services.AddDbContextFactory<LayoutDbContext>(options =>
-    options.UseSqlite("Data Source=layout.db"));
+    options.UseSqlite(cs));
+
 
 
 var app = builder.Build();
