@@ -230,6 +230,7 @@ namespace BlazorApp.Components
             {
                 Console.WriteLine("[StartDrag] dragTarget or RectBounds null");
                 return;
+            }
             
             if (CurrentDragMode == LayoutDragMode.Registering)
             {
