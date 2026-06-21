@@ -199,11 +199,22 @@ namespace BlazorApp.Components
             if (State.SurfaceBase == null ||
                 State.RelativeMousePosition == null ||
                 State.AbsoluteMousePosition == null ||
-                BaseScrollArea == null)
+                BaseScrollArea == null ||
+                State.ScrollState == null ||
+                State.ScrollState.RelativeRectBounds == null)
             {
-                Console.WriteLine($"[StartDrag] Skip: SurfaceBase={State.SurfaceBase != null}, Relative={State.RelativeMousePosition != null}, Absolute={State.AbsoluteMousePosition != null}, BaseScrollArea={BaseScrollArea != null}");
+                Console.WriteLine(
+                    $"[StartDrag] Skip: " +
+                    $"SurfaceBase={State.SurfaceBase != null}, " +
+                    $"Relative={State.RelativeMousePosition != null}, " +
+                    $"Absolute={State.AbsoluteMousePosition != null}, " +
+                    $"BaseScrollArea={BaseScrollArea != null}, " +
+                    $"ScrollState={State.ScrollState != null}, " +
+                    $"RectBounds={State.ScrollState?.RelativeRectBounds != null}"
+                );
                 return;
             }
+            
             // GridにMouseがない場合はDragを開始しない
             var rect = State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
             if (!rect.Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
