@@ -324,7 +324,7 @@ namespace BlazorApp.Controllers
         #endregion
 
 
-        private (int gridX, int gridY) GetPositionInGrid()
+        public (int gridX, int gridY) GetPositionInGrid()
         {
             var absoluteMouse = _state.AbsoluteMousePosition - _state.BaseScrollArea;
 

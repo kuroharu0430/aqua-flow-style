@@ -195,18 +195,18 @@ namespace BlazorApp.Components
             }
             // Grid位置取得
 
-            var dragTarget = GetTargetLayoutAtCusor();
+            var dragTarget = Controller.GetTargetLayoutAtCusor();
                        
-            if (CurrentDragMode == LayoutDragMode.Registering)
+            if (State.CurrentDragMode == LayoutDragMode.Registering)
             {
                 // 登録処理
-                (int gridX, int gridY)  = GetPositionInGrid();
+                (int gridX, int gridY)  = Controller.GetPositionInGrid();
 
-                dragTarget = new UILayoutModelBase(pendingTemplate!.Title, gridX, gridY, pendingTemplate.Type, CurrentSection.Id);
+                dragTarget = new UILayoutModelBase(State.PendingTemplate!.Title, gridX, gridY, State.PendingTemplate.Type, CurrentSection.Id);
                 dragTarget.LayoutStatus = LayoutStatus.Pending;
                 dragTarget.SelectionState = SelectionState.Selected;
                 // TemplateGost release
-                pendingTemplate = null;
+                State.PendingTemplate = null;
                 OnLayoutAdded.InvokeAsync(dragTarget);
             }
             else
@@ -215,12 +215,12 @@ namespace BlazorApp.Components
                 {
                     return;
                 }
-                SetSelectingLayout(dragTarget);
+                Controller.SetSelectingLayout(dragTarget);
             }
 
             State.SetMode(InteractionMode.Dragging);
 
-            if (CurrentDragMode != LayoutDragMode.Registering)
+            if (State.CurrentDragMode != LayoutDragMode.Registering)
             {
                 // Target内の相対位置を取得
                 int relativeX = State.AbsoluteMousePosition.X - dragTarget.RectBounds.XMin;
@@ -230,9 +230,9 @@ namespace BlazorApp.Components
                 bool isResizeArea = relativeX >= dragTarget.RectBounds.Width - ResizeHandleSize &&
                                     relativeY >= dragTarget.RectBounds.Height - ResizeHandleSize;
 
-                CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
+                State.CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
             }
-            State.StartMoveSession(dragTarget, VisibleLayouts.Cast<IDraggable>().ToList());
+            Controller.StartMoveSession(dragTarget, State.VisibleLayouts.Cast<IDraggable>().ToList());
             _= RunDragLoop();
         }
 
@@ -241,21 +241,21 @@ namespace BlazorApp.Components
             if (Mode != InteractionMode.Dragging)
                 return;
 
-            (int gridX, int gridY)  = GetPositionInGrid();
+            (int gridX, int gridY)  = Controller.GetPositionInGrid();
 
-            // traileffect
-            if (TrailCells.LastOrDefault() != new TrailCell(gridX, gridY))
-            {
-                TrailCells.Add(new TrailCell(gridX, gridY));
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(1000);
-                    TrailCells.Remove(new TrailCell(gridX, gridY));
-                });
-            }
+            //// traileffect
+            //if (TrailCells.LastOrDefault() != new TrailCell(gridX, gridY))
+            //{
+            //    TrailCells.Add(new TrailCell(gridX, gridY));
+            //    _ = Task.Run(async () =>
+            //    {
+            //        await Task.Delay(1000);
+            //        TrailCells.Remove(new TrailCell(gridX, gridY));
+            //    });
+            //}
 
             // DragService or ResizeService
-            switch (CurrentDragMode)
+            switch (State.CurrentDragMode)
             {
                 case LayoutDragMode.Move:
                 case LayoutDragMode.Registering:
