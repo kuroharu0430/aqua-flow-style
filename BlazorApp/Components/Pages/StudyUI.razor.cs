@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using BlazorApp.EntityFramework.Models;
 using BlazorApp.Service;
 using BlazorApp.Components.Dialog;
-using BlazorApp.State;
+using BlazorApp._state;
 
 namespace BlazorApp3.Client.Pages
 {

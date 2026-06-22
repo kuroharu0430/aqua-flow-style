@@ -1,23 +1,26 @@
 ﻿using BlazorApp.Core.Model;
-using BlazorApp.State;
+using BlazorApp.Session;
 
 namespace BlazorApp.Service
 {
     public abstract class InteractionService
     {
-        protected InteractionState State { get; private set; } = null!;
+        protected MoveSession Session { get; private set; } = null!;
+        private int _column;
+        private int _row;
 
-        public void SetState(InteractionState state)
+        public void SetSession(MoveSession session)
         {
-            if (State != null)
-                throw new InvalidOperationException("State has already been set.");
-            State = state;
+            Session = session;
         }
 
-        protected int ColumnNumber => State.DisplayOption.ColumnNumber;
-        protected int RowNumber => State.DisplayOption.RowNumber;
-
-        protected MoveSession Session => State.Session;
+        public void SetGridInfo(int column, int row)
+        {
+            _column = column;
+            _row = row;
+        }
+        protected int ColumnNumber => _column;
+        protected int RowNumber => _row;
 
         protected IDraggable dragTarget
         {  

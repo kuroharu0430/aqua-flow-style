@@ -1,4 +1,5 @@
 ﻿using BlazorApp.Core.Model;
+using BlazorApp.Session;
 
 namespace BlazorApp.Service
 {
@@ -160,81 +161,6 @@ namespace BlazorApp.Service
             }
             return true;
         }
-
-        // TODO 多分難易度が激高なので実装しない方向で
-        //public bool? TryReorder(IDraggable hitButton, int gridX, int gridY, List<IDraggable> allButtons)
-        //{
-        //    // 現在の順序を構築（Y優先 → X）
-        //    var ordered = allButtons
-        //        .OrderBy(btn => btn.GridBounds.Y)
-        //        .ThenBy(btn => btn.GridBounds.X)
-        //        .ToList();
-
-        //    // 対象ボタンを一旦除外
-        //    ordered.Remove(hitButton);
-
-        //    // 目標インデックスを計算（サイズは無視して順序のみ）
-        //    int targetIndex = gridY * ColumnNumber + gridX;
-        //    targetIndex = Math.Clamp(targetIndex, 0, ordered.Count);
-
-        //    // 新しい順序に挿入
-        //    ordered.Insert(targetIndex, hitButton);
-
-        //    // 配置カーソルと行の高さ
-        //    int cursorX = 0;
-        //    int cursorY = 0;
-        //    int currentRowHeight = 1;
-
-        //    foreach (var btn in ordered)
-        //    {
-        //        // 改行処理（横幅オーバー）
-        //        if (cursorX + btn.GridBounds.SizeX > ColumnNumber)
-        //        {
-        //            cursorX = 0;
-        //            cursorY += currentRowHeight;
-        //            currentRowHeight = 1;
-        //        }
-
-        //        // 範囲チェック（縦オーバー）
-        //        if (cursorY + btn.GridBounds.SizeY > RowNumber)
-        //        {
-        //            Session.Restore();
-        //            return false;
-        //        }
-
-        //        Session.Record(btn);
-
-        //        btn.GridBounds.X = cursorX;
-        //        btn.GridBounds.Y = cursorY;
-        //        btn.NeedsRectUpdate = true;
-
-        //        cursorX += btn.GridBounds.SizeX;
-
-        //        // 行の高さを更新（最大SizeY）
-        //        currentRowHeight = Math.Max(currentRowHeight, btn.GridBounds.SizeY);
-        //    }
-        //    return true;
-        //}
-
-        //private bool TryMove(IDraggable hitButton, int directionX, int directionY)
-        //{
-        //    // 変更前に記録
-        //    Session.Record(hitButton);
-
-        //    // 通常移動
-        //    hitButton.GridBounds.X += directionX;
-        //    hitButton.GridBounds.Y += directionY;
-        //    hitButton.NeedsRectUpdate = true;
-
-        //    // 妥当性チェック
-        //    if (!hitButton.GridBounds.IsValid(ColumnNumber, RowNumber))
-        //    {
-        //        Session.Revert();
-        //        return false;
-        //    }
-
-        //    return true;
-        //}
     }
 
     public enum OverlapMode

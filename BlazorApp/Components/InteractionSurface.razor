@@ -1,7 +1,7 @@
-﻿@using BlazorApp.State;
-@using BlazorApp.ViewModel;
-@using BlazorApp.Core.Model;
+﻿@using BlazorApp.Core.Model;
 @using BlazorApp.Service;
+@using BlazorApp.ViewModel;
+@using BlazorApp._state
 @using BlazorApp3.Client.Pages;
 @inject DialogService DialogService;
 
@@ -34,7 +34,7 @@
                 @onmousedown="() => UndoManager.Redo()" disabled="@(!UndoManager.CanRedo)">
             <i class="fas fa-redo"></i>
         </button>
-        <button class="button" @onclick="() => SelectionService.CancelLayoutSelectionAll()">
+        <button class="button" @onclick="() => Controller.CancelLayoutSelectionAll()">
             選択解除
         </button>
         <button class="button" @onclick="() => OnSave.InvokeAsync()">
@@ -57,7 +57,7 @@
         </div>
 
 
-        @foreach (var layout in VisibleLayouts)
+        @foreach (var layout in State.VisibleLayouts)
         {
             <DynamicComponent Type="layout.GetViewComponentType()"
                               Parameters="@(new Dictionary<string, object>
@@ -118,7 +118,7 @@
         </div>
     }
 
-    @if (State.PendingTemplate is not null && CurrentDragMode == LayoutDragMode.Registering)
+    @if (State.PendingTemplate is not null && State.CurrentDragMode == LayoutDragMode.Registering)
     {
         <div class="ghost-shape"
              style="position:absolute;
