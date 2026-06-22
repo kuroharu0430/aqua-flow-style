@@ -17,7 +17,7 @@ namespace BlazorApp.Components
                 (new[] { "Ctrl", "Shift", "KeyZ" }, () => UndoManager.Redo()),
                 (new[] { "Ctrl", "KeyZ" }, () => UndoManager.Undo()),
                 (new[] { "Escape" }, () => Controller.CancelLayoutSelectionAll()),
-                (new[] { "Delete" }, () => DeleteLayouts()),
+                (new[] { "Delete" }, () => Controller.DeleteLayouts()),
                 (new[] { "Ctrl", "KeyA" }, () => Controller.SelectLayoutAll()),
                 (new[] { "Ctrl", "KeyS" }, () => OnSave.InvokeAsync())
             };

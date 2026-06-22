@@ -8,6 +8,9 @@ using BlazorApp3.Client.Pages;
 using BlazorApp.Session;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Components;
+using BlazorApp.Components.Dialog;
+using BlazorApp.EntityFramework.Models;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorApp.Controllers
 {
@@ -19,8 +22,9 @@ namespace BlazorApp.Controllers
         private readonly DragService _dragService;
         private readonly ResizeService _resizeService;
         private readonly EffectService _effectService;
+        private readonly DialogService _dialogService;
         private readonly UndoManager _undoManager;
-
+        private readonly List<FieldEditDefinition> _fieldEditDefinitions;
         #region Session
         private MoveSession? _moveSession;
         private SelectingSession? _selectingSession;
@@ -28,13 +32,16 @@ namespace BlazorApp.Controllers
 
         private readonly Action<UILayoutModelBase> _onLayoutAdded;
 
+        #region Constructor
         public InteractionController(
             InteractionState state,
             SelectionService selectionService,
             DragService dragService,
             ResizeService resizeService,
             EffectService effectService,
+            DialogService dialogService,
             UndoManager undoManager,
+            List<FieldEditDefinition> fieldEditDefinitions,
             Action<UILayoutModelBase> onLayoutAdded)
         {
             _state = state;
@@ -42,9 +49,12 @@ namespace BlazorApp.Controllers
             _dragService = dragService;
             _resizeService = resizeService;
             _effectService = effectService;
+            _dialogService = dialogService;
             _undoManager = undoManager;
+            _fieldEditDefinitions = fieldEditDefinitions;
             _onLayoutAdded = onLayoutAdded;
         }
+        #endregion
 
         // --- Surface から呼ばれるイベント群 ---
         #region MouseEvent
@@ -214,7 +224,6 @@ namespace BlazorApp.Controllers
             );
 
         }
-
         protected void UpdateDragPosition()
         {
             if (Mode != InteractionMode.Dragging)
@@ -323,7 +332,6 @@ namespace BlazorApp.Controllers
 
         #endregion
 
-
         public (int gridX, int gridY) GetPositionInGrid()
         {
             var absoluteMouse = _state.AbsoluteMousePosition - _state.BaseScrollArea;
@@ -394,5 +402,92 @@ namespace BlazorApp.Controllers
                 layout.SelectionState = SelectionState.Selected;
         }
         #endregion
+
+        #region ContextMenu
+        public void OpenContextMenu()
+        {
+            var target = GetTargetLayoutAtCusor();
+            if (target == null) return;
+
+            SetSelectingLayout(target);
+            _state.ContextMenuPosition = _state.RelativeMousePosition;
+            _state.SetMode(InteractionMode.ContextMenu);
+        }
+        #endregion
+
+        public async Task EditStyle()
+        {
+            // ContextMenu非表示
+            _state.ContextMenuPosition = null;
+
+            var selectedLayouts = _state.VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected).ToList();
+            // Dialog開く前にSnapshot取る
+            var snapshots = new List<IReversible>();
+            snapshots.AddRange(selectedLayouts.Select(l => new StyleSnapshot(l, l.Style.DeepCopy(), l.WrapperStyle.DeepCopy(), l.LayoutStatus))
+                .Cast<IReversible>());
+
+            snapshots.AddRange(
+                selectedLayouts
+                    .SelectMany(layout => layout.FieldValues)
+                    .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, f.LayoutStatus))
+            );
+
+            // Dialog開く
+            var result = await _dialogService.OpenAsync<LayoutEditDialog>(
+                "レイアウト編集",
+                new Dictionary<string, object>
+                {
+                    { nameof(LayoutEditDialog.Layouts), selectedLayouts },
+                    { nameof(LayoutEditDialog.FieldEditDefinitions), _fieldEditDefinitions }
+                },
+                new DialogOptions { }
+            );
+
+            // 編集が確定したら履歴に積む
+            if (result is true)
+            {
+                // 新規のFieldValueはDeletedのsnapを積む
+                var addedFieldValues = selectedLayouts
+                    .SelectMany(layout => layout.FieldValues)
+                    .Where(f => f.LayoutStatus == LayoutStatus.Pending)
+                    .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, LayoutStatus.Deleted));
+
+                snapshots.AddRange(addedFieldValues);
+                // commit && UndoPush
+                _undoManager.Push(CommitStyleEdit(snapshots));
+
+                _state.SetMode(InteractionMode.StandBy);
+            }
+        }
+
+        public void DeleteLayouts()
+        {
+            // ContextMenu非表示
+            _state.ContextMenuPosition = null;
+
+            var targets = _state.VisibleLayouts
+                .Where(layout => layout.SelectionState == SelectionState.Selected).ToList();
+
+            var snapshots = new List<IReversible>();
+
+            foreach (var layout in targets)
+            {
+                // Undo用に削除前の状態を記録
+                snapshots.Add(new LayoutSnapshot(
+                    layout,
+                    layout.GridBounds.DeepCopy(),
+                    layout.LayoutStatus
+                ));
+
+                // 削除状態に変更
+                layout.LayoutStatus = LayoutStatus.Deleted;
+                layout.NeedsRectUpdate = true;
+            }
+            // Undo履歴に積む
+            _undoManager.Push(new CompositeSnapshot(snapshots, UndoActionType.Deleted));
+
+            _state.SetMode(InteractionMode.StandBy);
+        }
+
     }
 }

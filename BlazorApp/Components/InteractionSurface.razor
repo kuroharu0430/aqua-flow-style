@@ -111,8 +111,8 @@
              style="left:@($"{State.ContextMenuPosition.X}px");
                     top:@($"{State.ContextMenuPosition.Y}px")">
             <ul>
-                <li @onclick="EditStyle">スタイル編集</li>
-                <li @onclick="DeleteLayouts">削除</li>
+                <li @onclick="() => Controller.EditStyle()">スタイル編集</li>
+                <li @onclick="() => Controller.DeleteLayouts()">削除</li>
                 @*                 <li @onclick="DeleteLayout">複写</li>
  *@            </ul>
         </div>

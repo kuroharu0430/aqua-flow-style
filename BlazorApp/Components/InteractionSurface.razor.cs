@@ -5,7 +5,6 @@ using Microsoft.JSInterop;
 using BlazorApp.Core.Model;
 using BlazorApp.ViewModel;
 using static BlazorApp.Components.ShapeTemplatPanel;
-using BlazorApp.Components.Dialog;
 using BlazorApp.Service;
 using BlazorApp.Core.Enum;
 using BlazorApp.Core.Service;
@@ -58,9 +57,10 @@ namespace BlazorApp.Components
                 DragService,
                 ResizeService,
                 EffectService,
+                DialogService,
                 UndoManager,
+                FieldEditDefinitions,
                 layout => OnLayoutAdded.InvokeAsync(layout)
-
             );
 
             State.ModeChanged += OnInteractionModeChanged;
@@ -184,92 +184,6 @@ namespace BlazorApp.Components
             }
         }
 
-        protected void StartDrag()
-        {
-            
-            // GridにMouseがない場合はDragを開始しない
-            var rect = State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
-            if (!rect.Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
-            {
-                return;
-            }
-            // Grid位置取得
-
-            var dragTarget = Controller.GetTargetLayoutAtCusor();
-                       
-            if (State.CurrentDragMode == LayoutDragMode.Registering)
-            {
-                // 登録処理
-                (int gridX, int gridY)  = Controller.GetPositionInGrid();
-
-                dragTarget = new UILayoutModelBase(State.PendingTemplate!.Title, gridX, gridY, State.PendingTemplate.Type, CurrentSection.Id);
-                dragTarget.LayoutStatus = LayoutStatus.Pending;
-                dragTarget.SelectionState = SelectionState.Selected;
-                // TemplateGost release
-                State.PendingTemplate = null;
-                OnLayoutAdded.InvokeAsync(dragTarget);
-            }
-            else
-            {
-                if (dragTarget == null)
-                {
-                    return;
-                }
-                Controller.SetSelectingLayout(dragTarget);
-            }
-
-            State.SetMode(InteractionMode.Dragging);
-
-            if (State.CurrentDragMode != LayoutDragMode.Registering)
-            {
-                // Target内の相対位置を取得
-                int relativeX = State.AbsoluteMousePosition.X - dragTarget.RectBounds.XMin;
-                int relativeY = State.AbsoluteMousePosition.Y - dragTarget.RectBounds.YMin;
-
-                const int ResizeHandleSize = 12;
-                bool isResizeArea = relativeX >= dragTarget.RectBounds.Width - ResizeHandleSize &&
-                                    relativeY >= dragTarget.RectBounds.Height - ResizeHandleSize;
-
-                State.CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
-            }
-            Controller.StartMoveSession(dragTarget, State.VisibleLayouts.Cast<IDraggable>().ToList());
-            _= RunDragLoop();
-        }
-
-        protected void UpdateDragPosition()
-        {
-            if (Mode != InteractionMode.Dragging)
-                return;
-
-            (int gridX, int gridY)  = Controller.GetPositionInGrid();
-
-            //// traileffect
-            //if (TrailCells.LastOrDefault() != new TrailCell(gridX, gridY))
-            //{
-            //    TrailCells.Add(new TrailCell(gridX, gridY));
-            //    _ = Task.Run(async () =>
-            //    {
-            //        await Task.Delay(1000);
-            //        TrailCells.Remove(new TrailCell(gridX, gridY));
-            //    });
-            //}
-
-            // DragService or ResizeService
-            switch (State.CurrentDragMode)
-            {
-                case LayoutDragMode.Move:
-                case LayoutDragMode.Registering:
-                    DragService.TryDrag(gridX, gridY, OverlapMode);
-                    break;
-                case LayoutDragMode.Resize:
-                    ResizeService.TryResize(gridX, gridY, OverlapMode);
-                    break;
-                default:
-                    // 何もしない
-                    break;
-            }
-        }
-
         /// <summary>
         /// Drag中にLoop更新する　※AutoScroll対応
         /// </summary>
@@ -332,6 +246,11 @@ namespace BlazorApp.Components
             }
         }
 
+        private void OnTextContextMenu()
+        {
+            Controller.OpenContextMenu();
+        }
+
         private async Task<(int Top, int Left)> GetScrollOffsetAsync()
         {
             // scrollAreaElement を JS に渡すには ElementReference を使う
@@ -369,96 +288,6 @@ namespace BlazorApp.Components
                 case InteractionMode.ContextMenu:
                     break;
             }
-        }
-
-        ///// <summary>
-        ///// ContextMenuの表示場所
-        ///// </summary>
-        //public MousePosition? ContextMenuPosition { get; set; } = null;
-
-        private void OnTextContextMenu(MouseEventArgs e)
-        {
-            var target = Controller.GetTargetLayoutAtCusor();
-            if (target == null) return;
-
-            Controller.SetSelectingLayout(target);
-            // メニュー表示 ＋ Mode移行
-            State.ContextMenuPosition = State.RelativeMousePosition;
-            State.SetMode(InteractionMode.ContextMenu);
-        }
-
-        private async Task EditStyle()
-        {
-            // ContextMenu非表示
-            State.ContextMenuPosition = null;
-
-            var selectedLayouts = State.VisibleLayouts.Where(l => l.SelectionState == SelectionState.Selected).ToList();
-            // Dialog開く前にSnapshot取る
-            var snapshots = new List<IReversible>();
-            snapshots.AddRange(selectedLayouts.Select(l => new StyleSnapshot(l, l.Style.DeepCopy(), l.WrapperStyle.DeepCopy(), l.LayoutStatus))
-                .Cast<IReversible>());
-
-            snapshots.AddRange(
-                selectedLayouts
-                    .SelectMany(layout => layout.FieldValues)
-                    .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, f.LayoutStatus))
-            );
-
-            // Dialog開く
-            var result = await DialogService.OpenAsync<LayoutEditDialog>(
-                "レイアウト編集",
-                new Dictionary<string, object>
-                {
-                    { nameof(LayoutEditDialog.Layouts), selectedLayouts },
-                    { nameof(LayoutEditDialog.FieldEditDefinitions), FieldEditDefinitions }
-                },
-                new DialogOptions { }
-            );
-
-            // 編集が確定したら履歴に積む
-            if (result is true)
-            {
-                // 新規のFieldValueはDeletedのsnapを積む
-                var addedFieldValues = selectedLayouts
-                    .SelectMany(layout => layout.FieldValues)
-                    .Where(f => f.LayoutStatus == LayoutStatus.Pending)
-                    .Select(f => (IReversible)new FieldValueSnapShot((IFieldValuable)f, f.Value, LayoutStatus.Deleted));
-
-                snapshots.AddRange(addedFieldValues);
-                // commit && UndoPush
-                UndoManager.Push(Controller.CommitStyleEdit(snapshots));
-
-                State.SetMode(InteractionMode.StandBy);
-            }
-        }
-
-        private void DeleteLayouts()
-        {
-            // ContextMenu非表示
-            State.ContextMenuPosition = null;
-
-            var targets = State.VisibleLayouts
-                .Where(layout => layout.SelectionState == SelectionState.Selected).ToList();
-
-            var snapshots = new List<IReversible>();
-
-            foreach (var layout in targets)
-            {
-                // Undo用に削除前の状態を記録
-                snapshots.Add(new LayoutSnapshot(
-                    layout,
-                    layout.GridBounds.DeepCopy(),
-                    layout.LayoutStatus
-                ));
-
-                // 削除状態に変更
-                layout.LayoutStatus = LayoutStatus.Deleted;
-                layout.NeedsRectUpdate = true;
-            }
-            // Undo履歴に積む
-            UndoManager.Push(new CompositeSnapshot(snapshots, UndoActionType.Deleted));
-
-            State.SetMode(InteractionMode.StandBy);
         }
     }
 
