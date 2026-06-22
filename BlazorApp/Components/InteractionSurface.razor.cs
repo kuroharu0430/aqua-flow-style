@@ -184,6 +184,92 @@ namespace BlazorApp.Components
             }
         }
 
+        protected void StartDrag()
+        {
+            
+            // GridにMouseがない場合はDragを開始しない
+            var rect = State.ScrollState.RelativeRectBounds.Offset(State.SurfaceBase.X, State.SurfaceBase.Y);
+            if (!rect.Contains(State.RelativeMousePosition.X, State.RelativeMousePosition.Y))
+            {
+                return;
+            }
+            // Grid位置取得
+
+            var dragTarget = GetTargetLayoutAtCusor();
+                       
+            if (CurrentDragMode == LayoutDragMode.Registering)
+            {
+                // 登録処理
+                (int gridX, int gridY)  = GetPositionInGrid();
+
+                dragTarget = new UILayoutModelBase(pendingTemplate!.Title, gridX, gridY, pendingTemplate.Type, CurrentSection.Id);
+                dragTarget.LayoutStatus = LayoutStatus.Pending;
+                dragTarget.SelectionState = SelectionState.Selected;
+                // TemplateGost release
+                pendingTemplate = null;
+                OnLayoutAdded.InvokeAsync(dragTarget);
+            }
+            else
+            {
+                if (dragTarget == null)
+                {
+                    return;
+                }
+                SetSelectingLayout(dragTarget);
+            }
+
+            State.SetMode(InteractionMode.Dragging);
+
+            if (CurrentDragMode != LayoutDragMode.Registering)
+            {
+                // Target内の相対位置を取得
+                int relativeX = State.AbsoluteMousePosition.X - dragTarget.RectBounds.XMin;
+                int relativeY = State.AbsoluteMousePosition.Y - dragTarget.RectBounds.YMin;
+
+                const int ResizeHandleSize = 12;
+                bool isResizeArea = relativeX >= dragTarget.RectBounds.Width - ResizeHandleSize &&
+                                    relativeY >= dragTarget.RectBounds.Height - ResizeHandleSize;
+
+                CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
+            }
+            State.StartMoveSession(dragTarget, VisibleLayouts.Cast<IDraggable>().ToList());
+            _= RunDragLoop();
+        }
+
+        protected void UpdateDragPosition()
+        {
+            if (Mode != InteractionMode.Dragging)
+                return;
+
+            (int gridX, int gridY)  = GetPositionInGrid();
+
+            // traileffect
+            if (TrailCells.LastOrDefault() != new TrailCell(gridX, gridY))
+            {
+                TrailCells.Add(new TrailCell(gridX, gridY));
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    TrailCells.Remove(new TrailCell(gridX, gridY));
+                });
+            }
+
+            // DragService or ResizeService
+            switch (CurrentDragMode)
+            {
+                case LayoutDragMode.Move:
+                case LayoutDragMode.Registering:
+                    DragService.TryDrag(gridX, gridY, OverlapMode);
+                    break;
+                case LayoutDragMode.Resize:
+                    ResizeService.TryResize(gridX, gridY, OverlapMode);
+                    break;
+                default:
+                    // 何もしない
+                    break;
+            }
+        }
+
         /// <summary>
         /// Drag中にLoop更新する　※AutoScroll対応
         /// </summary>

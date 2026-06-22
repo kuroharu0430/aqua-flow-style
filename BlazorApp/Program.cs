@@ -29,10 +29,18 @@ builder.Services.AddTransient<EffectService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<VoiceCommandService>();
 
+var cs = builder.Configuration.GetConnectionString("Default");
+
 builder.Services.AddDbContextFactory<LayoutDbContext>(options =>
-    options.UseSqlite("Data Source=layout.db"));
+    options.UseSqlite(cs));
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LayoutDbContext>();
+    db.Database.EnsureCreated();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
