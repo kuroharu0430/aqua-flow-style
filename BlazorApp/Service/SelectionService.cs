@@ -10,8 +10,6 @@ namespace BlazorApp.Service
     /// </summary>
     public class SelectionService
     {
-        //protected InteractionState State { get; private set; } = null!;
-
         protected SelectingSession Session { get; private set; } = null!;
 
         public void setSession(SelectingSession session)

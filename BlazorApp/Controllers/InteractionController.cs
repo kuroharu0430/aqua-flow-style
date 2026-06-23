@@ -109,7 +109,44 @@ namespace BlazorApp.Controllers
                     break;
             }
 
+            // Sessionを破棄する
+            _moveSession = null;
+            _selectingSession = null;
+
+            // TODO ViewのSurfaceInteractionModeを代入
+            //_state.CurrentSurfaceInteractionMode = SurfaceInteractionMode.Idle;
             _state.SetMode(InteractionMode.StandBy);
+        }
+
+        /// <summary>
+        /// Click処理
+        /// </summary>
+        /// <param name="e"></param>
+        public void OnClick(MouseEventArgs e)
+        {
+            // Clickで確定したのでStanByに戻す
+            _state.SetMode(InteractionMode.StandBy);
+
+            var target = GetTargetLayoutAtCusor();
+            if (target == null) return;
+
+            // Ctrlキーが押されていない場合は他を解除
+            if (e.CtrlKey)
+            {
+                target.SelectionState =
+                    target.SelectionState == SelectionState.Selected
+                    ? SelectionState.None
+                    : SelectionState.Selected;
+            }
+            else
+            {
+                foreach (var layout in _state.VisibleLayouts)
+                {
+                    layout.SelectionState = SelectionState.None;
+
+                }
+                target.SelectionState = SelectionState.Selected;
+            }
         }
         #endregion
 
@@ -125,7 +162,9 @@ namespace BlazorApp.Controllers
                 visibleLayouts,
                 (_state.ScrollState.ScrollLeft, _state.ScrollState.ScrollTop),
                 _state.RelativeMousePosition
-                );
+            );
+
+            _selectionService.setSession(_selectingSession);
             _state.SetMode(InteractionMode.Selecting);
         }
 
@@ -177,8 +216,6 @@ namespace BlazorApp.Controllers
                 _state.CurrentDragMode = isResizeArea ? LayoutDragMode.Resize : LayoutDragMode.Move;
             }
             StartMoveSession(dragTarget, _state.VisibleLayouts.Cast<IDraggable>().ToList());
-            // Surfaceにパス
-            //_= RunDragLoop();
         }
 
         /// <summary>
@@ -190,7 +227,7 @@ namespace BlazorApp.Controllers
                 layout.SelectionState = SelectionState.Selected;
         }
 
-        #region Update
+        #region UpdateView
         public async Task UpdateDragFrame()
         {
             switch (Mode)
@@ -209,8 +246,6 @@ namespace BlazorApp.Controllers
         {
             if (Mode != InteractionMode.Selecting) return;
 
-            //_selectionService.UpdateTempSelection();
-            //_state.SelectionRect = _selectionService.GetViewRectBounds();
             _selectionService.UpdateTempSelection(
             _state.RelativeMousePosition,
             (_state.ScrollState.ScrollLeft, _state.ScrollState.ScrollTop)
@@ -224,6 +259,7 @@ namespace BlazorApp.Controllers
             );
 
         }
+
         protected void UpdateDragPosition()
         {
             if (Mode != InteractionMode.Dragging)
@@ -309,8 +345,6 @@ namespace BlazorApp.Controllers
                 }
                 // Idle や Restoring は無視
             }
-            // TODO Dispose()の方が適切
-            _moveSession = null;
 
             return new CompositeSnapshot(snapshotList, UndoActionType.Dragged);
         }

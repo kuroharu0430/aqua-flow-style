@@ -68,17 +68,17 @@ namespace BlazorApp.Components
             // 音声命令
             // HACK:音声命令はコンポーネントのStateを変化させてるだけなので
             // InvokeAsync(StateHasChanged);が必要
-            VoiceCommand.Register(VoiceIntent.Undo, () =>
-            {
-                UndoManager.Undo();
-                InvokeAsync(StateHasChanged); // ★ UI 更新
-            });
+            //VoiceCommand.Register(VoiceIntent.Undo, () =>
+            //{
+            //    UndoManager.Undo();
+            //    InvokeAsync(StateHasChanged); // ★ UI 更新
+            //});
 
-            VoiceCommand.Register(VoiceIntent.Redo, () =>
-            {
-                UndoManager.Redo();
-                InvokeAsync(StateHasChanged); // ★ UI 更新
-            });
+            //VoiceCommand.Register(VoiceIntent.Redo, () =>
+            //{
+            //    UndoManager.Redo();
+            //    InvokeAsync(StateHasChanged); // ★ UI 更新
+            //});
         }
 
         /// <summary>
@@ -207,44 +207,18 @@ namespace BlazorApp.Components
         {
             // 右クリック or メニュー表示中ならスキップ
             if (e.Button == 2 || Mode == InteractionMode.ContextMenu)
+                // TODO Mode戻す
                 return;
 
             if (Mode == InteractionMode.Idle)
             {
-                HandleClick(e);
+                Controller.OnClick(e);
                 return;
             }
 
             Controller.OnMouseUp();
         }
 
-        /// <summary>
-        /// Click処理
-        /// </summary>
-        /// <param name="e"></param>
-        private void HandleClick(MouseEventArgs e)
-        {
-            var target = Controller.GetTargetLayoutAtCusor();
-            if (target == null) return;
-
-            // Ctrlキーが押されていない場合は他を解除
-            if (e.CtrlKey)
-            {
-                target.SelectionState =
-                    target.SelectionState == SelectionState.Selected
-                    ? SelectionState.None
-                    : SelectionState.Selected;
-            }
-            else
-            {
-                foreach (var layout in State.VisibleLayouts)
-                {
-                    layout.SelectionState = SelectionState.None;
-
-                }
-                target.SelectionState = SelectionState.Selected;
-            }
-        }
 
         private void OnTextContextMenu()
         {
