@@ -170,6 +170,9 @@ namespace BlazorApp.Controllers
 
         protected void StartDrag()
         {
+            if (!_state.IsReadyForDrag)
+                return;
+
             // GridにMouseがない場合はDragを開始しない
             var rect = _state.ScrollState.RelativeRectBounds.Offset(_state.SurfaceBase.X, _state.SurfaceBase.Y);
             if (!rect.Contains(_state.RelativeMousePosition.X, _state.RelativeMousePosition.Y))
@@ -186,10 +189,13 @@ namespace BlazorApp.Controllers
 
                 dragTarget = new UILayoutModelBase(_state.PendingTemplate!.Title, gridX, gridY,
                     _state.PendingTemplate.Type, _state.CurrentSection.Id);
+
                 dragTarget.LayoutStatus = LayoutStatus.Pending;
                 dragTarget.SelectionState = SelectionState.Selected;
                 // TemplateGost release
                 _state.PendingTemplate = null;
+
+                // Layout追加をSurfaceに通知
                 _onLayoutAdded?.Invoke(dragTarget);
             }
             else

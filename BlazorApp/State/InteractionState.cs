@@ -31,6 +31,13 @@ namespace BlazorApp._state
 
         public SurfaceInteractionMode CurrentSurfaceInteractionMode { get; set; }
 
+        public bool IsReadyForDrag =>
+            SurfaceBase != null &&
+            BaseScrollArea != null &&
+            ScrollState.RelativeRectBounds != null &&
+            VisibleLayouts.All(l => !l.NeedsRectUpdate);
+
+
         #region ScrollSate
         public ScrollState ScrollState { get; set; } = new();
 

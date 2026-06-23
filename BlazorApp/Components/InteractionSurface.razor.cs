@@ -263,6 +263,20 @@ namespace BlazorApp.Components
                     break;
             }
         }
+
+        /// <summary>
+        /// Drag可能かをLoopで監視
+        /// </summary>
+        /// <returns></returns>
+        private async Task ReadyLoop()
+        {
+            while (!State.IsReadyForDrag)
+            {
+                await Task.Delay(16); // 60fps
+            }
+
+            Console.WriteLine("🔥 Drag Ready!");
+        }
     }
 
     public class ScrollPosition
