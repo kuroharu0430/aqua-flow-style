@@ -36,11 +36,11 @@ namespace BlazorApp.Service
         public bool? TryPush(IDraggable hitLayout, int directionX, int directionY, List<IDraggable> allButtons)
         {
             // 変更前に記録
-            Session.Record(hitLayout); 
+            Session.Record(hitLayout);
 
             // size変更
-            hitLayout.GridBounds.SizeX = Math.Abs(hitLayout.GridBounds.SizeX + directionX);
-            hitLayout.GridBounds.SizeY = Math.Abs(hitLayout.GridBounds.SizeY + directionY);
+            hitLayout.GridBounds.SizeX += directionX;
+            hitLayout.GridBounds.SizeY += directionY;
             hitLayout.NeedsRectUpdate = true;
 
             // validate
