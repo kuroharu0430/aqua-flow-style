@@ -12,7 +12,6 @@ a, .btn-link {
     color: #006bb7;
 }
 
-
 .button {
     position: relative;
     display: inline-block;
@@ -496,5 +495,3 @@ input:checked + .slider {
         font-size: 2em; /* 親フォントサイズの2倍に */
         color: #000;
     }
-
-

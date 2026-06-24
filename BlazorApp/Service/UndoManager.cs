@@ -13,7 +13,13 @@ namespace BlazorApp.Service
         public bool CanUndo => UndoStack.Any();
         public bool CanRedo => RedoStack.Any();
 
-        public void Push(CompositeSnapshot snapList) => UndoStack.Push(snapList);
+        public void Push(CompositeSnapshot snapList)
+        {
+            UndoStack.Push(snapList);
+
+            // ★ 新しい操作が来た瞬間に未来を破棄
+            RedoStack.Clear();
+        }
 
         public void Undo()
         {
