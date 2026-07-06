@@ -103,7 +103,7 @@ namespace BlazorApp.Components
             };
             // StateへParameterの受け渡し
             State.Layouts = Layouts;
-            State.CurrentSurfaceInteractionMode = SurfaceInteractionMode;
+            State.ViewtSurfaceInteractionMode = SurfaceInteractionMode;
             State.OverlapMode = OverlapMode;
             State.CurrentSection = CurrentSection;
             return base.OnParametersSetAsync();

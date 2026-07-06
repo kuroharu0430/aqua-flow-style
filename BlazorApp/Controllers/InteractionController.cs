@@ -64,7 +64,7 @@ namespace BlazorApp.Controllers
             _effectService.FireRipple(_state.RelativeMousePosition);
 
             // Shift によるモード反転
-            var mode = _state.CurrentSurfaceInteractionMode;
+            var mode = _state.ViewtSurfaceInteractionMode;
             if (shiftKey)
             {
                 mode = mode switch
@@ -113,8 +113,8 @@ namespace BlazorApp.Controllers
             _moveSession = null;
             _selectingSession = null;
 
-            // TODO ViewのSurfaceInteractionModeを代入
-            //_state.CurrentSurfaceInteractionMode = SurfaceInteractionMode.Idle;
+            // ViewのSurfaceInteractionModeに戻す
+            _state.CurrentSurfaceInteractionMode = _state.ViewtSurfaceInteractionMode;
             _state.SetMode(InteractionMode.StandBy);
         }
 
@@ -161,7 +161,7 @@ namespace BlazorApp.Controllers
             _selectingSession = new SelectingSession(
                 visibleLayouts,
                 (_state.ScrollState.ScrollLeft, _state.ScrollState.ScrollTop),
-                _state.RelativeMousePosition
+                _state.RelativeMouseDownPosition
             );
 
             _selectionService.setSession(_selectingSession);
@@ -212,8 +212,8 @@ namespace BlazorApp.Controllers
             if (_state.CurrentDragMode != LayoutDragMode.Registering)
             {
                 // Target内の相対位置を取得
-                int relativeX = _state.AbsoluteMousePosition.X - dragTarget.RectBounds.XMin;
-                int relativeY = _state.AbsoluteMousePosition.Y - dragTarget.RectBounds.YMin;
+                int relativeX = _state.AbsoluteMouseDownPosition.X - dragTarget.RectBounds.XMin;
+                int relativeY = _state.AbsoluteMouseDownPosition.Y - dragTarget.RectBounds.YMin;
 
                 const int ResizeHandleSize = 12;
                 bool isResizeArea = relativeX >= dragTarget.RectBounds.Width - ResizeHandleSize &&

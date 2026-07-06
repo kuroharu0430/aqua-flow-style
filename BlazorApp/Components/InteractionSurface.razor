@@ -23,12 +23,12 @@
     <div class="interactive-buttons">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />
         <button class="button small undo" title="巻き戻しctrl+Z"
-                @onclick="() => UndoManager.Undo()" disabled="@(!UndoManager.CanUndo)">
+                @onmousedown="() => UndoManager.Undo()" disabled="@(!UndoManager.CanUndo)">
             <i class="fas fa-undo"></i>
         </button>
 
         <button class="button small redo" title="やり直しctrl+shift+Z"
-                @onclick="() => UndoManager.Redo()" disabled="@(!UndoManager.CanRedo)">
+                @onmousedown="() => UndoManager.Redo()" disabled="@(!UndoManager.CanRedo)">
             <i class="fas fa-redo"></i>
         </button>
         <button class="button" @onclick="() => Controller.CancelLayoutSelectionAll()">

@@ -31,6 +31,7 @@ namespace BlazorApp._state
 
         public SurfaceInteractionMode CurrentSurfaceInteractionMode { get; set; }
 
+        public SurfaceInteractionMode ViewtSurfaceInteractionMode { get; set; }
         public bool IsReadyForDrag =>
             SurfaceBase != null &&
             BaseScrollArea != null &&
@@ -50,15 +51,23 @@ namespace BlazorApp._state
         public RectBounds? SelectionRect { get; set; } = null;
 
         #region MousePosition
+        #region CurrntMousePosition
         public MousePosition PageMousePosition { get; set; }
-
-        public MousePosition? PageMouseDownPosition { get; set; } = null;
-
         public MousePosition RelativeMousePosition => (MousePosition)(PageMousePosition - SurfaceBase);
         public MousePosition AbsoluteMousePosition => new MousePosition(
                 RelativeMousePosition.X + ScrollState.ScrollLeft,
                 RelativeMousePosition.Y + ScrollState.ScrollTop
             );
+        #endregion
+        #region MouseDown時のMousePosition
+        public MousePosition? PageMouseDownPosition { get; set; }
+        public MousePosition RelativeMouseDownPosition => (MousePosition)(PageMousePosition - SurfaceBase);
+        public MousePosition AbsoluteMouseDownPosition =>
+                new MousePosition(
+                    RelativeMouseDownPosition.X + ScrollState.ScrollLeft,
+                    RelativeMouseDownPosition.Y + ScrollState.ScrollTop
+                );
+        #endregion
 
         /// <summary>
         /// ContextMenuの表示場所
