@@ -19,7 +19,6 @@
      @onmouseup="OnMouseUp"
      @oncontextmenu="OnTextContextMenu"
      @oncontextmenu:preventDefault="true">
-    <DisplayOptionEditor Section="CurrentSection" />
 
     <div class="interactive-buttons">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />
@@ -35,9 +34,6 @@
         <button class="button" @onclick="() => Controller.CancelLayoutSelectionAll()">
             選択解除
         </button>
-@*         <button class="button" @onclick="() => OnSave.InvokeAsync()">
-            Save
-        </button> *@
     </div>
 
     <ScrollArea SurfaceRef="SurfaceRef" CssClass="grid-frame">

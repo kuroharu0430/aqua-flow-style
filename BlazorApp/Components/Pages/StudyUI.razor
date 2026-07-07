@@ -55,6 +55,7 @@
     </HeaderContent>
 
     <MainContent>
+        <DisplayOptionEditor Section="CurrentSection" />
         <div class="section-wrapper" @key="CurrentSection.Id">
             <div class="water-curtain"></div> <!-- 水のカーテン -->
             <InteractionSurface Layouts="@LayoutsBySection[CurrentSection.Id]"
@@ -64,9 +65,7 @@
                                 FieldEditDefinitions="FieldEditDefinitions"
                                 FieldTypeDefinitions="@FieldTypeDefinitions"
                                 OnLayoutAdded="HandleLayoutAdded"
-                                OnSave="Save"/>
-@*                 <DisplayOptionEditor Section="CurrentSection" />
-            </InteractionSurface> *@
+                                OnSave="Save" />
 
         </div>
     </MainContent>
