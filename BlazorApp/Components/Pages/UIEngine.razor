@@ -1,5 +1,5 @@
 ﻿@namespace BlazorApp3.Client.Pages
-@page "/StudyUI"
+@page "/UIEngine"
 @rendermode InteractiveServer
 @using BlazorApp.Components
 @using BlazorApp.Service
@@ -19,45 +19,43 @@
                 </select>
             </label>
             <button class="button small" @onclick="CreateNewTheme">＋</button>
-            <DisplayOptionEditor Section="CurrentSection" />
-        </div>
-    </HeaderContent>
-
-    <MainContent>
-        <div style="display:flex;">
-            <div class="theme-selector">
-                <label class="sticky-label" for="themeSelect">Section:</label>
-                <select class="select" id="sectionSelect" @bind="CurrentSectionNumber">
-                    @foreach (var layoutSection in Themes.First(t => t.Id == SelectedThemeId).LayoutSections)
-                    {
-                        <option value="@layoutSection.Number">@layoutSection.Number</option>
-                    }
-                </select>
-                <button class="button small" @onclick="CreateNewSelction">＋</button>
-            </div>
-
-            <div class="theme-selector">
+            <div style="display:flex;">
                 <div class="theme-selector">
-                    <label class="sticky-label" for="overlapModeSelect">重なりモード:</label>
-                    <select class="select" id="overlapModeSelect" @bind="OverlapMode">
-                        @foreach (var mode in OverlapModes)
+                    <label class="sticky-label" for="themeSelect">Section:</label>
+                    <select class="select" id="sectionSelect" @bind="CurrentSectionNumber">
+                        @foreach (var layoutSection in Themes.First(t => t.Id == SelectedThemeId).LayoutSections)
                         {
-                            <option value="@mode">@mode</option>
+                            <option value="@layoutSection.Number">@layoutSection.Number</option>
                         }
                     </select>
+                    <button class="button small" @onclick="CreateNewSelction">＋</button>
+                </div>
+
+                <div class="theme-selector">
+                    <div class="theme-selector">
+                        <label class="sticky-label" for="overlapModeSelect">重なりモード:</label>
+                        <select class="select" id="overlapModeSelect" @bind="OverlapMode">
+                            @foreach (var mode in OverlapModes)
+                            {
+                                <option value="@mode">@mode</option>
+                            }
+                        </select>
+                    </div>
                 </div>
             </div>
-
+            <button class="button" @onclick="Save">Save</button>
             <span class="sticky-label">@(IsSelectingMode ? "Selecting" : "Dragging")</span>
             <div class="toggle-switch" style="display:flex;">
                 <label>
                     <input type="checkbox" @bind="IsSelectingMode" />
                     <span class="slider"></span>
                 </label>
-
             </div>
         </div>
+    </HeaderContent>
 
+    <MainContent>
+        <DisplayOptionEditor Section="CurrentSection" />
         <div class="section-wrapper" @key="CurrentSection.Id">
             <div class="water-curtain"></div> <!-- 水のカーテン -->
             <InteractionSurface Layouts="@LayoutsBySection[CurrentSection.Id]"
@@ -68,6 +66,7 @@
                                 FieldTypeDefinitions="@FieldTypeDefinitions"
                                 OnLayoutAdded="HandleLayoutAdded"
                                 OnSave="Save" />
+
         </div>
     </MainContent>
 </MainLayout>

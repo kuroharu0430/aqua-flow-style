@@ -10,7 +10,7 @@ using BlazorApp._state;
 
 namespace BlazorApp3.Client.Pages
 {
-    public partial class StudyUI
+    public partial class UIEngine
     {
         [Inject] public required LayoutDbContext DbContext { get; set; }
         [Inject] public required IDbContextFactory<LayoutDbContext> DbContextFactory { get; set; }

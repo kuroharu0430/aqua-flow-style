@@ -314,6 +314,7 @@ window.getClientPosition = (element) => {
     };
 };
 
+
 const DirectionX = {
     None: 'none',
     LEFT: 'left',
