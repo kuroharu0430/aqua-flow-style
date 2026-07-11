@@ -61,7 +61,7 @@ namespace BlazorApp._state
         #endregion
         #region MouseDown時のMousePosition
         public MousePosition? PageMouseDownPosition { get; set; }
-        public MousePosition RelativeMouseDownPosition => (MousePosition)(PageMousePosition - SurfaceBase);
+        public MousePosition RelativeMouseDownPosition => (MousePosition)(PageMouseDownPosition  - SurfaceBase);
         public MousePosition AbsoluteMouseDownPosition =>
                 new MousePosition(
                     RelativeMouseDownPosition.X + ScrollState.ScrollLeft,

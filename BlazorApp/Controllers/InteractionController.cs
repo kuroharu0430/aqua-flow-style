@@ -127,7 +127,7 @@ namespace BlazorApp.Controllers
             // Clickで確定したのでStanByに戻す
             _state.SetMode(InteractionMode.StandBy);
 
-            var target = GetTargetLayoutAtCusor();
+            var target = GetTargetLayoutAtMouseDown();
             if (target == null) return;
 
             // Ctrlキーが押されていない場合は他を解除
@@ -168,6 +168,9 @@ namespace BlazorApp.Controllers
             _state.SetMode(InteractionMode.Selecting);
         }
 
+        /// <summary>
+        /// Drag(Resize)開始
+        /// </summary>
         protected void StartDrag()
         {
             if (!_state.IsReadyForDrag)
@@ -175,12 +178,13 @@ namespace BlazorApp.Controllers
 
             // GridにMouseがない場合はDragを開始しない
             var rect = _state.ScrollState.RelativeRectBounds.Offset(_state.SurfaceBase.X, _state.SurfaceBase.Y);
-            if (!rect.Contains(_state.RelativeMousePosition.X, _state.RelativeMousePosition.Y))
+            if (!rect.Contains(_state.RelativeMouseDownPosition.X, _state.RelativeMouseDownPosition.Y))
             {
                 return;
             }
+
             // Grid位置取得
-            var dragTarget = GetTargetLayoutAtCusor();
+            var dragTarget = GetTargetLayoutAtMouseDown();
 
             if (_state.CurrentDragMode == LayoutDragMode.Registering)
             {
@@ -393,22 +397,29 @@ namespace BlazorApp.Controllers
 
         #region Layouts選択
         /// <summary>
-        /// MousePositionと重なったLayoutを取得する
-        /// Layoutがない場合はnullを返す
+        /// MouseDown 時点の座標を使って、
+        /// どの Layout を掴んだか（DragTarget）を判定する。
+        /// Layout が存在しない場合は null を返す。
         /// </summary>
-        public UILayoutModelBase? GetTargetLayoutAtCusor()
+        public UILayoutModelBase? GetTargetLayoutAtMouseDown()
         {
-            // 表示されていないLayoutは選択しない
+            // MouseDown 時点の相対座標
+            var relativeDown = _state.RelativeMouseDownPosition;
+            var absoluteDown = _state.AbsoluteMouseDownPosition;
+
+            // Grid 内かチェック
             if (!_state.ScrollState.RelativeRectBounds
                 .Offset(_state.SurfaceBase.X, _state.SurfaceBase.Y)
-                .Contains(_state.RelativeMousePosition.X, _state.RelativeMousePosition.Y))
+                .Contains(relativeDown.X, relativeDown.Y))
             {
                 return null;
             }
 
+            // MouseDown 時点でどの Layout を掴んだか
             return _state.VisibleLayouts.FirstOrDefault(layout =>
-                layout.RectBounds.Contains(_state.AbsoluteMousePosition.X, _state.AbsoluteMousePosition.Y));
+                layout.RectBounds.Contains(absoluteDown.X, absoluteDown.Y));
         }
+
 
         /// <summary>
         /// Layoutsを選択状態にする
@@ -446,7 +457,7 @@ namespace BlazorApp.Controllers
         #region ContextMenu
         public void OpenContextMenu()
         {
-            var target = GetTargetLayoutAtCusor();
+            var target = GetTargetLayoutAtMouseDown();
             if (target == null) return;
 
             SetSelectingLayout(target);
