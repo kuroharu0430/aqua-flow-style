@@ -20,6 +20,8 @@
      @oncontextmenu="OnTextContextMenu"
      @oncontextmenu:preventDefault="true">
 
+    <DisplayOptionEditor Section="CurrentSection" />
+
     <div class="interactive-buttons">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />
         <button class="button small undo" title="巻き戻しctrl+Z"

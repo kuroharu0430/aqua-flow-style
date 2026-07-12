@@ -381,7 +381,7 @@ namespace BlazorApp.Controllers
             var absoluteMouse = _state.AbsoluteMousePosition - _state.BaseScrollArea;
 
             var rect = _state.ScrollState.AbsoluteRectBounds
-                .Offset(_state.SurfaceBase.X, _state.SurfaceBase.Y);
+                .Offset(_state.SurfaceBase.X + _state.BaseScrollArea.X, _state.SurfaceBase.Y+_state.BaseScrollArea.Y);
 
             int clampedX = Math.Clamp(absoluteMouse.X, rect.XMin, rect.XMax - 1);
             int clampedY = Math.Clamp(absoluteMouse.Y, rect.YMin, rect.YMax - 1);
