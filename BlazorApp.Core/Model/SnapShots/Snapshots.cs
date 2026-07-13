@@ -93,4 +93,41 @@ namespace BlazorApp.Core.Model.SnapShots
             return new FieldValueSnapShot(target, target.Value, target.LayoutStatus);
         }
     }
+
+    public record DisplayOptionSnapshot(
+        IDisplayOptionEditable target,
+        LayoutStatus LayoutStatus,
+        int ColumnNumber,
+        int RowNumber,
+        int WidthPerCell,
+        int HeightPerCell
+    ) : IReversible
+    {
+        public UndoActionType Type => UndoActionType.DisplayChanged;
+
+        public void Restore()
+        {
+            target.IsRestoring = true;
+
+            target.ColumnNumber = ColumnNumber;
+            target.RowNumber = RowNumber;
+            target.WidthPerCell = WidthPerCell;
+            target.HeightPerCell = HeightPerCell;
+
+            target.IsRestoring = false;
+        }
+
+        public IReversible CloneCurrent()
+        {
+            return new DisplayOptionSnapshot(
+                target,
+                target.LayoutStatus,
+                target.ColumnNumber,
+                target.RowNumber,
+                target.WidthPerCell,
+                target.HeightPerCell
+            );
+        }
+    }
+
 }

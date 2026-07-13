@@ -14,8 +14,8 @@ namespace BlazorApp.Components
         {
             var shortcuts = new List<(string[] combo, Action action)>
             {
-                (new[] { "Ctrl", "Shift", "KeyZ" }, () => UndoManager.Redo()),
-                (new[] { "Ctrl", "KeyZ" }, () => UndoManager.Undo()),
+                (new[] { "Ctrl", "Shift", "KeyZ" }, () => Controller.Redo()),
+                (new[] { "Ctrl", "KeyZ" }, () => Controller.Undo()),
                 (new[] { "Escape" }, () => Controller.CancelLayoutSelectionAll()),
                 (new[] { "Delete" }, () => Controller.DeleteLayouts()),
                 (new[] { "Ctrl", "KeyA" }, () => Controller.SelectLayoutAll()),

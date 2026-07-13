@@ -71,12 +71,11 @@ namespace BlazorApp.Components
                 RowNumber = CurrentSection.RowNumber,
                 WidthPerCell = CurrentSection.WidthPerCell,
                 HeightPerCell = CurrentSection.HeightPerCell,
-                ScreenWidth = CurrentSection.ScreenWidth,
-                ScreenHeight = CurrentSection.ScreenHeight,
             };
 
             // Add Event
             State.ModeChanged += OnInteractionModeChanged;
+            State.DisplayOption.OnChanged += Controller.OnDisplayOptionChanged;
 
             // 音声命令
             // HACK:音声命令はコンポーネントのStateを変化させてるだけなので

@@ -540,5 +540,31 @@ namespace BlazorApp.Controllers
             _state.SetMode(InteractionMode.StandBy);
         }
 
+        #region Undo/Redo
+        public void Undo() => _undoManager.Undo();
+        public void Redo() => _undoManager.Redo();
+
+        public void OnDisplayOptionChanged(DisplayOption option)
+        {
+            // BeforeSnapshot を積むだけで OK
+            _undoManager.Push(
+                new CompositeSnapshot(
+                    new List<IReversible>
+                    {
+            new DisplayOptionSnapshot(
+                option,
+                option.LayoutStatus,
+                option.ColumnNumber,
+                option.RowNumber,
+                option.WidthPerCell,
+                option.HeightPerCell
+            )
+                    },
+                    UndoActionType.DisplayChanged
+                )
+            );
+
+            #endregion
+        }
     }
 }

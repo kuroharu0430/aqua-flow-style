@@ -6,52 +6,25 @@
         <label class="sticky-label">列数:</label>
         <input class="aqua-input"
                type="number"
-               @bind="DisplayOption.ColumnNumber"
-               @bind:event="oninput"
-               @onchange="OnChange" />
+               @bind="DisplayOption.ColumnNumber" />
 
         <label class="sticky-label">行数:</label>
         <input class="aqua-input"
                type="number"
-               @bind="DisplayOption.RowNumber"
-               @bind:event="oninput"
-               @onchange="OnChange" />
+               @bind="DisplayOption.RowNumber" />
 
         <label class="sticky-label">セル幅:</label>
         <input class="aqua-input"
                type="number"
-               @bind="DisplayOption.WidthPerCell"
-               @bind:event="oninput"
-               @onchange="OnChange" />
+               @bind="DisplayOption.WidthPerCell" />
 
         <label class="sticky-label">セル高さ:</label>
         <input class="aqua-input"
                type="number"
-               @bind="DisplayOption.HeightPerCell"
-               @bind:event="oninput"
-               @onchange="OnChange" />
+               @bind="DisplayOption.HeightPerCell" />
     </div>
 </div>
 
 @code {
     [Parameter] public DisplayOption DisplayOption { get; set; } = new();
-
-    [Parameter] public EventCallback<DisplayOption> DisplayOptionChanged { get; set; }
-
-    private async Task NotifyChange()
-    {
-        if (DisplayOptionChanged.HasDelegate)
-        {
-            await DisplayOptionChanged.InvokeAsync();
-        }
-    }
-
-    private void OnChange(ChangeEventArgs e)
-    {
-        // UndoStack に積む（確定操作だけ）
-        // UndoManager.PushDisplayOptionSnapshot(DisplayOption.Clone());
-
-        // // 親へ通知
-        // NotifyChange();
-    }
 }

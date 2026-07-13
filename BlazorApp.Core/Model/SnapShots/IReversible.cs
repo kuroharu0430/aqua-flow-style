@@ -33,5 +33,6 @@ namespace BlazorApp.Core.Model.SnapShots
         Dragged,
         Deleted,
         StyleEdited,
+        DisplayChanged
     }
 }

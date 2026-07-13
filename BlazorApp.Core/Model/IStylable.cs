@@ -15,5 +15,13 @@ namespace BlazorApp.Core.Model
         string Value { get; set; }
         LayoutStatus LayoutStatus { get; set; }
     }
-
+    public interface IDisplayOptionEditable
+    {
+        bool IsRestoring { get; set; }
+        int ColumnNumber { get; set; }
+        int RowNumber { get; set; }
+        int WidthPerCell { get; set; }
+        int HeightPerCell { get; set; }
+        LayoutStatus LayoutStatus { get; }
+    }
 }
