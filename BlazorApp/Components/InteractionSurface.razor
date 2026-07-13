@@ -9,10 +9,10 @@
      id="SurfaceId"
      class="interaction-surface"
      style="
-        --cell-width: @(CurrentSection.WidthPerCell)px;
-        --cell-height: @(CurrentSection.HeightPerCell)px;
-        --columns: @(CurrentSection.ColumnNumber);
-        --rows: @(CurrentSection.RowNumber);
+        --cell-width: @(State.DisplayOption.WidthPerCell)px;
+        --cell-height: @(State.DisplayOption.HeightPerCell)px;
+        --columns: @(State.DisplayOption.ColumnNumber);
+        --rows: @(State.DisplayOption.RowNumber);
         user-select:none;"
      @onmousedown="OnMouseDown"
      @onmousemove="OnMouseMove"
@@ -20,7 +20,7 @@
      @oncontextmenu="OnTextContextMenu"
      @oncontextmenu:preventDefault="true">
 
-    <DisplayOptionEditor Section="CurrentSection" />
+    <DisplayOptionEditor DisplayOption="State.DisplayOption" />
 
     <div class="interactive-buttons">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />
@@ -58,22 +58,23 @@
             <DynamicComponent Type="layout.GetViewComponentType()"
                               Parameters="@(new Dictionary<string, object>
                               {
-                                  ["Model"] = layout,
-                                  ["SurfaceId"] = "SurfaceId",
-                                  ["WidthPerGrid"] = CurrentSection.WidthPerCell,
-                                  ["HeightPerGrid"] = CurrentSection.HeightPerCell,
+                                ["Model"] = layout,
+                                ["SurfaceId"] = "SurfaceId",
+                                ["WidthPerGrid"] = State.DisplayOption.WidthPerCell,
+                                ["HeightPerGrid"] = State.DisplayOption.HeightPerCell,
                               })" />
         }
 
         @foreach (var cell in EffectService.TrailCells.ToList())
         {
             <div class="trail-effect"
-                 style="left:@($"{cell.gridX * CurrentSection.WidthPerCell}px");
-                    top:@($"{cell.gridY * CurrentSection.HeightPerCell}px");
-                    position: absolute;
-                    width:@($"{CurrentSection.WidthPerCell}px");
-                    height:@($"{CurrentSection.HeightPerCell}px");">
+                 style="left:@($"{cell.gridX * State.DisplayOption.WidthPerCell}px");
+                        top:@($"{cell.gridY * State.DisplayOption.HeightPerCell}px");
+                        position: absolute;
+                        width:@($"{State.DisplayOption.WidthPerCell}px");
+                        height:@($"{State.DisplayOption.HeightPerCell}px");">
             </div>
+
         }
     </ScrollArea>
 
@@ -120,8 +121,8 @@
              style="position:absolute;
                 left:@($"{State.RelativeMousePosition.X}px");
                 top:@($"{State.RelativeMousePosition.Y}px");
-                width:@($"{CurrentSection.WidthPerCell}px");
-                height:@($"{CurrentSection.HeightPerCell}px");
+                width:@($"{State.DisplayOption.WidthPerCell}px");
+                height:@($"{State.DisplayOption.HeightPerCell}px");
                 opacity:0.5;
                 pointer-events:none;">
             <i class="@State.PendingTemplate.IconClass"></i>

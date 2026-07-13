@@ -51,6 +51,7 @@ namespace BlazorApp.Components
 
         protected override void OnInitialized()
         {
+            // Contoroller
             Controller = new InteractionController(
                 State,
                 SelectionService,
@@ -63,6 +64,18 @@ namespace BlazorApp.Components
                 layout => OnLayoutAdded.InvokeAsync(layout)
             );
 
+            // DisplayOptionの設定
+            State.DisplayOption = new DisplayOption()
+            {
+                ColumnNumber = CurrentSection.ColumnNumber,
+                RowNumber = CurrentSection.RowNumber,
+                WidthPerCell = CurrentSection.WidthPerCell,
+                HeightPerCell = CurrentSection.HeightPerCell,
+                ScreenWidth = CurrentSection.ScreenWidth,
+                ScreenHeight = CurrentSection.ScreenHeight,
+            };
+
+            // Add Event
             State.ModeChanged += OnInteractionModeChanged;
 
             // 音声命令
@@ -92,15 +105,6 @@ namespace BlazorApp.Components
 
         protected override Task OnParametersSetAsync()
         {
-            State.DisplayOption = new DisplayOption()
-            {
-                ColumnNumber = CurrentSection.ColumnNumber,
-                RowNumber = CurrentSection.RowNumber,
-                WidthPerCell = CurrentSection.WidthPerCell,
-                HeightPerCell = CurrentSection.HeightPerCell,
-                ScreenWidth = CurrentSection.ScreenWidth,
-                ScreenHeight = CurrentSection.ScreenHeight,
-            };
             // StateへParameterの受け渡し
             State.Layouts = Layouts;
             State.ViewtSurfaceInteractionMode = SurfaceInteractionMode;

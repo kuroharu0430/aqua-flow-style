@@ -4,37 +4,54 @@
 <div class="display-option-editor">
     <div class="option-row">
         <label class="sticky-label">列数:</label>
-        <input class="aqua-input" type="number" @bind="Section.ColumnNumber" maxlength="4" />
+        <input class="aqua-input"
+               type="number"
+               @bind="DisplayOption.ColumnNumber"
+               @bind:event="oninput"
+               @onchange="OnChange" />
 
-        <label class ="sticky-label">行数:</label>
-        <input class="aqua-input" type="number" @bind="Section.RowNumber" maxlength="4" />
+        <label class="sticky-label">行数:</label>
+        <input class="aqua-input"
+               type="number"
+               @bind="DisplayOption.RowNumber"
+               @bind:event="oninput"
+               @onchange="OnChange" />
 
         <label class="sticky-label">セル幅:</label>
-        <input class="aqua-input" type="number" @bind="Section.WidthPerCell" maxlength="4" />
+        <input class="aqua-input"
+               type="number"
+               @bind="DisplayOption.WidthPerCell"
+               @bind:event="oninput"
+               @onchange="OnChange" />
 
         <label class="sticky-label">セル高さ:</label>
-        <input class="aqua-input" type="number" @bind="Section.HeightPerCell" maxlength="4" />
-@* 
-        <label class="sticky-label">画面幅:</label>
-        <input class="aqua-input" type="number" @bind="Section.ScreenWidth" maxlength="4" />
-
-        <label class="sticky-label">画面高さ:</label>
-        <input class="aqua-input" type="number" @bind="Section.ScreenHeight" maxlength="4" /> *@
+        <input class="aqua-input"
+               type="number"
+               @bind="DisplayOption.HeightPerCell"
+               @bind:event="oninput"
+               @onchange="OnChange" />
     </div>
 </div>
 
 @code {
-    [Parameter] public LayoutSection Section { get; set; } = new();
+    [Parameter] public DisplayOption DisplayOption { get; set; } = new();
 
-    // 値が変わったことを親に通知するためのコールバック
-    [Parameter] public EventCallback<LayoutSection> DisplayParameterChanged { get; set; }
+    [Parameter] public EventCallback<DisplayOption> DisplayOptionChanged { get; set; }
 
     private async Task NotifyChange()
     {
-        if (DisplayParameterChanged.HasDelegate)
+        if (DisplayOptionChanged.HasDelegate)
         {
-            await DisplayParameterChanged.InvokeAsync(Section);
+            await DisplayOptionChanged.InvokeAsync();
         }
     }
 
+    private void OnChange(ChangeEventArgs e)
+    {
+        // UndoStack に積む（確定操作だけ）
+        // UndoManager.PushDisplayOptionSnapshot(DisplayOption.Clone());
+
+        // // 親へ通知
+        // NotifyChange();
+    }
 }
