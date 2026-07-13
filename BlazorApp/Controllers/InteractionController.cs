@@ -178,7 +178,7 @@ namespace BlazorApp.Controllers
 
             // GridにMouseがない場合はDragを開始しない
             var rect = _state.ScrollState.RelativeRectBounds.Offset(_state.SurfaceBase.X, _state.SurfaceBase.Y);
-            if (!rect.Contains(_state.RelativeMouseDownPosition.X, _state.RelativeMouseDownPosition.Y))
+            if (!rect.Contains(_state.RelativeMousePosition.X, _state.RelativeMousePosition.Y))
             {
                 return;
             }
