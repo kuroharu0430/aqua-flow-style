@@ -20,7 +20,15 @@
      @oncontextmenu="OnTextContextMenu"
      @oncontextmenu:preventDefault="true">
 
-    <DisplayOptionEditor DisplayOption="State.DisplayOption" />
+    <DisplayOptionEditor DisplayOption="State.DisplayOption"
+                         MinColumnNumber="@(State.VisibleLayouts
+                                            .Select(l => l.GridBounds.X + l.GridBounds.SizeX)
+                                            .DefaultIfEmpty(1)
+                                            .Max())"
+                         MinRowNumber="@(State.VisibleLayouts
+                                        .Select(l => l.GridBounds.Y + l.GridBounds.SizeY)
+                                        .DefaultIfEmpty(1)
+                                        .Max())" />
 
     <div class="interactive-buttons">
         <ShapeTemplatPanel OnSelected="HandleShapeSelected" />

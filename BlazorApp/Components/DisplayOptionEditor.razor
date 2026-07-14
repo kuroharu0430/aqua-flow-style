@@ -1,30 +1,96 @@
 ﻿@using BlazorApp.EntityFramework.Models
 @using BlazorApp._state
 
-<div class="display-option-editor">
-    <div class="option-row">
-        <label class="sticky-label">列数:</label>
-        <input class="aqua-input"
-               type="number"
-               @bind="DisplayOption.ColumnNumber" />
+<EditForm Model="DisplayOption">
+    <DataAnnotationsValidator />
+    <div class="display-option-editor">
+        <div class="option-row">
 
-        <label class="sticky-label">行数:</label>
-        <input class="aqua-input"
-               type="number"
-               @bind="DisplayOption.RowNumber" />
+            <label class="sticky-label">列数:</label>
+            <InputNumber class="aqua-input"
+            @bind-Value="ColumnNumber"
+            min="@MinColumnNumber"
+            @oniput="e =>HandleInput(e)"
+            max="100" />
+            <ValidationMessage For="@(() => DisplayOption.ColumnNumber)" />
+            @if (_columnMinNumberError)
+            {
+                <div class="error">列数は @MinColumnNumber 以上です</div>
+            }
 
-        <label class="sticky-label">セル幅:</label>
-        <input class="aqua-input"
-               type="number"
-               @bind="DisplayOption.WidthPerCell" />
+            <label class="sticky-label">行数:</label>
+            <InputNumber class="aqua-input"
+            @bind-Value="RowNumber"
+            min="@MinRowNumber"
+            max="100" />
+            <ValidationMessage For="@(() => DisplayOption.RowNumber)" />
+            @if (_rowMinNumberError)
+            {
+                <div class="error">行数は @MinRowNumber 以上です</div>
+            }
 
-        <label class="sticky-label">セル高さ:</label>
-        <input class="aqua-input"
-               type="number"
-               @bind="DisplayOption.HeightPerCell" />
+            <label class="sticky-label">セル幅:</label>
+            <InputNumber class="aqua-input"
+            @bind-Value="DisplayOption.WidthPerCell"
+            min="20"
+            max="200" />
+            <ValidationMessage For="@(() => DisplayOption.WidthPerCell)" />
+
+            <label class="sticky-label">セル高さ:</label>
+            <InputNumber class="aqua-input"
+            @bind-Value="DisplayOption.HeightPerCell"
+            min="20"
+            max="200" />
+            <ValidationMessage For="@(() => DisplayOption.HeightPerCell)" />
+
+        </div>
     </div>
-</div>
+</EditForm>
 
 @code {
     [Parameter] public DisplayOption DisplayOption { get; set; } = new();
+    [Parameter] public int MinColumnNumber { get; set; }
+    [Parameter] public int MinRowNumber { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _columnNumber = DisplayOption.ColumnNumber;
+        _rowNumber = DisplayOption.RowNumber;
+    }
+
+    private bool _columnMinNumberError { get; set; }
+    private int _columnNumber;
+    private int ColumnNumber
+    {
+        get => _columnNumber;
+        set
+        {
+            if (value < MinColumnNumber)
+            {
+                _columnMinNumberError = true;
+                return;
+            }
+            _columnMinNumberError = false;
+            _columnNumber = value;
+            DisplayOption.ColumnNumber = value;
+        }
+    }
+
+    private bool _rowMinNumberError { get; set; }
+    private int _rowNumber { get; set; }
+    private int RowNumber
+    {
+        get => _rowNumber;
+        set
+        {
+            if (value < MinRowNumber)
+            {
+                _rowMinNumberError = true;
+                return;
+            }
+            _rowMinNumberError = false;
+            _rowNumber = value;
+            DisplayOption.RowNumber = value;
+        }
+    }
 }

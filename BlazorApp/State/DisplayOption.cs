@@ -1,5 +1,6 @@
 ﻿using BlazorApp.Core.Enum;
 using BlazorApp.Core.Model;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlazorApp._state
 {
@@ -15,6 +16,8 @@ namespace BlazorApp._state
         public LayoutStatus LayoutStatus => LayoutStatus.Modified;
 
         private int _columnNumber;
+
+        [Range(1, 100)]
         public int ColumnNumber
         {
             get => _columnNumber;
@@ -31,6 +34,8 @@ namespace BlazorApp._state
         }
 
         private int _rowNumber;
+
+        [Range(1, 100)]
         public int RowNumber
         {
             get => _rowNumber;
@@ -47,6 +52,8 @@ namespace BlazorApp._state
         }
 
         private int _widthPerCell;
+
+        [Range(2, 200)]
         public int WidthPerCell
         {
             get => _widthPerCell;
@@ -63,6 +70,9 @@ namespace BlazorApp._state
         }
 
         private int _heightPerCell;
+
+        [Range(2, 200)]
+
         public int HeightPerCell
         {
             get => _heightPerCell;
@@ -77,5 +87,25 @@ namespace BlazorApp._state
                 }
             }
         }
+
+
+        public bool ValidateDynamic(int minColumn, int minRow, out string? error)
+        {
+            if (ColumnNumber < minColumn)
+            {
+                error = $"列数は {minColumn} 以上である必要があります。";
+                return false;
+            }
+
+            if (RowNumber < minRow)
+            {
+                error = $"行数は {minRow} 以上である必要があります。";
+                return false;
+            }
+
+            error = null;
+            return true;
+        }
+
     }
 }
