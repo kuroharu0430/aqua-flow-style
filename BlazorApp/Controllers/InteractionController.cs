@@ -457,7 +457,10 @@ namespace BlazorApp.Controllers
         #region ContextMenu
         public void OpenContextMenu()
         {
-            var target = GetTargetLayoutAtMouseDown();
+            // ★ MouseDown 座標ではなく現在のマウス座標を使う
+            var target = _state.VisibleLayouts.FirstOrDefault(layout =>
+                layout.RectBounds.Contains(_state.AbsoluteMousePosition.X, _state.AbsoluteMousePosition.Y)); 
+            
             if (target == null) return;
 
             SetSelectingLayout(target);
