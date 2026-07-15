@@ -180,9 +180,9 @@ namespace BlazorApp.Service
 
     public enum OverlapMode
     {
-        PlaceFree,
+        //PlaceFree,
         Push,
         Swap,
-        Reorder
+        //Reorder
     }
 }
