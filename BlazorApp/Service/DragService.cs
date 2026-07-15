@@ -45,7 +45,7 @@ namespace BlazorApp.Service
 
             var result = mode switch
             {
-                OverlapMode.PlaceFree => TryPlaceFree(directionX, directionY, allLayouts),
+                //OverlapMode.PlaceFree => TryPlaceFree(directionX, directionY, allLayouts),
                 OverlapMode.Push => TryPush(directionX, directionY, allLayouts, selectedLayouts),
                 OverlapMode.Swap => TrySwap(directionX, directionY, allLayouts, selectedLayouts),
                 //OverlapMode.Reorder => TryReorder(hitButton, directionX, directionY, allButtons),

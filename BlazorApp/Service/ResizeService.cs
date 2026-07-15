@@ -21,7 +21,7 @@ namespace BlazorApp.Service
 
             var result = mode switch
             {
-                OverlapMode.PlaceFree => TryPlaceFree(dragTarget, directionX, directionY, allLayouts),
+                //OverlapMode.PlaceFree => TryPlaceFree(dragTarget, directionX, directionY, allLayouts),
                 OverlapMode.Push => TryPush(dragTarget, directionX, directionY, allLayouts),
                 _ => null
             };
