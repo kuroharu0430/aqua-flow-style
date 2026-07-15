@@ -45,9 +45,9 @@ namespace BlazorApp.Service
 
             var result = mode switch
             {
-                OverlapMode.PlaceFree => TryPlaceFree(dragTarget, directionX, directionY, allLayouts),
-                OverlapMode.Push => TryPush(dragTarget, directionX, directionY, allLayouts, selectedLayouts),
-                OverlapMode.Swap => TrySwap(dragTarget, directionX, directionY, allLayouts, selectedLayouts),
+                OverlapMode.PlaceFree => TryPlaceFree(directionX, directionY, allLayouts),
+                OverlapMode.Push => TryPush(directionX, directionY, allLayouts, selectedLayouts),
+                OverlapMode.Swap => TrySwap(directionX, directionY, allLayouts, selectedLayouts),
                 //OverlapMode.Reorder => TryReorder(hitButton, directionX, directionY, allButtons),
                 _ => null
             };
@@ -60,32 +60,32 @@ namespace BlazorApp.Service
             return result;
         }
 
-        public bool? TryPlaceFree(IDraggable hitButton, int directionX, int directionY, List<IDraggable> allButtons)
+        public bool? TryPlaceFree(int directionX, int directionY, List<IDraggable> allButtons)
         {
             // 変更前に記録
-            Session.Record(hitButton);
+            //Session.Record(hitButton);
 
-            // 移動
-            hitButton.GridBounds.X += directionX;
-            hitButton.GridBounds.Y += directionY;
-            hitButton.NeedsRectUpdate = true;
+            //// 移動
+            //hitButton.GridBounds.X += directionX;
+            //hitButton.GridBounds.Y += directionY;
+            //hitButton.NeedsRectUpdate = true;
 
-            // 妥当性チェック
-            if (!hitButton.GridBounds.IsValid(ColumnNumber, RowNumber))
-            {
-                Session.Revert();
-                return false;
-            }
+            //// 妥当性チェック
+            //if (!hitButton.GridBounds.IsValid(ColumnNumber, RowNumber))
+            //{
+            //    Session.Revert();
+            //    return false;
+            //}
 
-            // 衝突判定
-            var targets = allButtons.Where(btn =>
-                btn != hitButton && btn.GridBounds.Intersects(hitButton.GridBounds));
+            //// 衝突判定
+            //var targets = allButtons.Where(btn =>
+            //    btn != hitButton && btn.GridBounds.Intersects(hitButton.GridBounds));
 
-            if (targets.Any())
-            {
-                Session.Revert();
-                return false;
-            }
+            //if (targets.Any())
+            //{
+            //    Session.Revert();
+            //    return false;
+            //}
             return true;
         }
 
@@ -93,7 +93,7 @@ namespace BlazorApp.Service
         /// 移動処理の結果を返す:
         /// true = 成功, false = 失敗, null = 移動なし
         /// </summary>
-        public bool? TryPush(IDraggable hitButton, int directionX, int directionY, List<IDraggable> allButtons, List<IDraggable> selectedButtons)
+        public bool? TryPush(int directionX, int directionY, List<IDraggable> allButtons, List<IDraggable> selectedButtons)
         {
             // 衝突判定（GridBoundsの Intersects を使う）
             foreach (var btn in selectedButtons)
@@ -115,7 +115,7 @@ namespace BlazorApp.Service
             return true;
         }
 
-        public bool? TrySwap(IDraggable hitButton, int directionX, int directionY, List<IDraggable> allButtons, List<IDraggable> selectedButtons)
+        public bool? TrySwap(int directionX, int directionY, List<IDraggable> allButtons, List<IDraggable> selectedButtons)
         {
             // 衝突判定（GridBoundsの Intersects を使う）
             foreach (var layout in selectedButtons)
@@ -126,31 +126,46 @@ namespace BlazorApp.Service
 
                 foreach (var target in targets)
                 {
-                    Session.Record(layout);
                     Session.Record(target);
 
-                    // 自分のサイズ分だけ相手を反対側にぶん投げ
-                    if (directionX != 0)
+                    if (directionX > 0)
                     {
-                        target.GridBounds.X = target.GridBounds.X +
-                            (directionX > 0 ? -layout.GridBounds.SizeX : layout.GridBounds.SizeX);
+                        // 右からぶつかった → 相手は自分の左側へ
+                        target.GridBounds.X = layout.GridBounds.X - target.GridBounds.SizeX;
+                    }
+                    else if (directionX < 0)
+                    {
+                        // 左からぶつかった → 相手は自分の右側へ
+                        target.GridBounds.X = layout.GridBounds.X + layout.GridBounds.SizeX;
+                    }
+                    else
+                    {
+                        // 0移動→何もしない
                     }
 
-                    if (directionY != 0)
+
+                    if (directionY > 0)
                     {
-                        target.GridBounds.Y = target.GridBounds.Y +
-                            (directionY > 0 ? -layout.GridBounds.SizeY : layout.GridBounds.SizeY);
+                        // 下からぶつかった → 相手は自分の上側へ
+                        target.GridBounds.Y = layout.GridBounds.Y - target.GridBounds.SizeY;
+                    }
+                    else if (directionY < 0)
+                    {
+                        // 上からぶつかった → 相手は自分の下側へ
+                        target.GridBounds.Y = layout.GridBounds.Y + layout.GridBounds.SizeY;
+                    }
+                    else
+                    {
+                        // Y方向に動いてない
                     }
 
                     // 妥当性チェック
-                    // はみ出してない？ + 当たってない？
                     var isHitting = allButtons.Any(other =>
-                        other != layout && other.GridBounds.Intersects(target.GridBounds));
-
-                    if (!target.GridBounds.IsValid(ColumnNumber, RowNumber) && isHitting)
+                        other != target && other.GridBounds.Intersects(target.GridBounds));
+                    // 当たってない？はみ出してない？
+                    if (!target.GridBounds.IsValid(ColumnNumber, RowNumber) || isHitting)
                     {
                         Session.Revert();
-
                         return false;
                     }
 
