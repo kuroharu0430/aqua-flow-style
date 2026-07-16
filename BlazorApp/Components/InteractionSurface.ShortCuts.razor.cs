@@ -9,25 +9,31 @@ namespace BlazorApp.Components
 
     public partial class InteractionSurface : ComponentBase
     {
+        private static readonly List<(string[] combo, Action<InteractionSurface> action)> Shortcuts
+            = new()
+            {
+                (new[] { "Ctrl", "Shift", "KeyZ" }, s => s.Controller.Redo()),
+                (new[] { "Ctrl", "KeyZ" }, s => s.Controller.Undo()),
+                (new[] { "Escape" }, s => s.Controller.CancelLayoutSelectionAll()),
+                (new[] { "Delete" }, s => s.Controller.DeleteLayouts()),
+                (new[] { "Ctrl", "KeyA" }, s => s.Controller.SelectLayoutAll()),
+                (new[] { "Ctrl", "KeyS" }, s => s.OnSave.InvokeAsync())
+            };
+
         [JSInvokable]
         public Task HandleShortcut(string[] keys)
         {
-            var shortcuts = new List<(string[] combo, Action action)>
+            if (Mode != InteractionMode.StandBy)
             {
-                (new[] { "Ctrl", "Shift", "KeyZ" }, () => Controller.Redo()),
-                (new[] { "Ctrl", "KeyZ" }, () => Controller.Undo()),
-                (new[] { "Escape" }, () => Controller.CancelLayoutSelectionAll()),
-                (new[] { "Delete" }, () => Controller.DeleteLayouts()),
-                (new[] { "Ctrl", "KeyA" }, () => Controller.SelectLayoutAll()),
-                (new[] { "Ctrl", "KeyS" }, () => OnSave.InvokeAsync())
-            };
+                return Task.CompletedTask;
+            }
 
-            foreach (var (combo, action) in shortcuts)
+            foreach (var (combo, action) in Shortcuts)
             {
                 // 順不同で比較（ソートしてから比較）
                 if (combo.OrderBy(k => k).SequenceEqual(keys.OrderBy(k => k)))
                 {
-                    action.Invoke();
+                    action(this);
                     break;
                 }
             }
