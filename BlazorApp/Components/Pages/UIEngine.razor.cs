@@ -85,14 +85,6 @@ namespace BlazorApp3.Client.Pages
                 .ToList();
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                // TODO READY実装
-            }
-        }
-
         /// <summary>
         /// Layout追加イベント
         /// </summary>

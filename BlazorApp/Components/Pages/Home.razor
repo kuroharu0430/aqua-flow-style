@@ -1,5 +1,6 @@
 ﻿@page "/"
-
+@inject IJSRuntime JS
+@rendermode InteractiveServer
 
 <PageTitle>Home - aqua-flow-style</PageTitle>
 
@@ -19,3 +20,13 @@
         </div>
     </MainContent>
 </MainLayout>
+
+@code{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("Home.Init");
+        }
+    }
+}

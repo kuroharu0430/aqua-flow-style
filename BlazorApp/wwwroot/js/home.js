@@ -1,6 +1,6 @@
-﻿if (window.location.pathname === "/") {
+﻿window.Home = {
+    Init: function () {
 
-    document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             const ripple1 = document.querySelector('.ripple1');
             if (!ripple1) return;
@@ -57,5 +57,5 @@
                 }
             }, 150);
         }, 4500);
-    });
-}
+    }
+};
