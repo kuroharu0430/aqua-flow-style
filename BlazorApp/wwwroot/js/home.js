@@ -22,7 +22,7 @@
         setTimeout(() => {
             const content = document.querySelector('.masked-content');
             if (!content) return;
-            content.classList.add('reveal');
+            /*            content.classList.add('reveal');*/
             content.style.clipPath = 'circle(150% at center)';
         }, 2500);
 
@@ -33,29 +33,48 @@
             content.style.opacity = '1';
         }, 4000);
 
+
+        // ★ スライダー開始（ここに入れる）
         setTimeout(() => {
-            const text = 'Aqua Flow Style';
-            const typed = document.querySelector('.typed');
-            const cursor = document.querySelector('.cursor');
+            Home.StartSlider();
+        }, 4200);
 
-            if (!typed || !cursor) return;
-
-            let index = 0;
-
-            const typeInterval = setInterval(() => {
-                if (!typed || !cursor) {
-                    clearInterval(typeInterval);
-                    return;
-                }
-
-                if (index < text.length) {
-                    typed.textContent += text.charAt(index);
-                    index++;
-                } else {
-                    clearInterval(typeInterval);
-                    setTimeout(() => cursor.classList.add('fade-out'), 500);
-                }
-            }, 150);
+        // タイピング
+        setTimeout(() => {
+            Home.StartTyping();
         }, 4500);
+    },
+
+    StartSlider: function () {
+        const slides = document.querySelectorAll(".slide");
+        if (!slides.length) return;
+
+        let index = 0;
+        slides[index].classList.add("active");
+
+        setInterval(() => {
+            slides[index].classList.remove("active");
+            index = (index + 1) % slides.length;
+            slides[index].classList.add("active");
+        }, 4000);
+    },
+
+    StartTyping: function () {
+        const text = 'Aqua Flow Style';
+        const typed = document.querySelector('.typed');
+        const cursor = document.querySelector('.cursor');
+        if (!typed || !cursor) return;
+
+        let index = 0;
+
+        const typeInterval = setInterval(() => {
+            if (index < text.length) {
+                typed.textContent += text.charAt(index);
+                index++;
+            } else {
+                clearInterval(typeInterval);
+                setTimeout(() => cursor.classList.add('fade-out'), 500);
+            }
+        }, 150);
     }
 };

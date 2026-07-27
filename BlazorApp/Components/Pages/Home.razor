@@ -15,13 +15,24 @@
                 <span class="typed"></span><span class="cursor"></span>
             </p>
             <div class="masked-content">
-                <img src="images/aqua.webp" alt="AquaFlowStyle ロゴ" />
+                <div class="water-curtain-wrapper"></div>
+                <img class="slide active" src="images/aqua.webp" />
+                <img class="slide" src="Images/aquaImage.jpg" />
+                <img class="slide" src="Images/aquaImage2.jpeg" />
+                <img class="slide" src="Images/dolet.png" />
             </div>
         </div>
+        @*         <div class="slider">
+            <div class="slides">
+                <img src="Images/aquaImage.jpg" />
+                <img src="Images/aquaImage2.jpeg" />
+                <img src="Images/dolet.png" />
+            </div>
+        </div> *@
     </MainContent>
 </MainLayout>
 
-@code{
+@code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
