@@ -12,7 +12,7 @@
 <p>@status</p>
 
 
-@if (audioReady)
+@if (System.IO.File.Exists("wwwroot/recorded.webm"))
 {
     <audio controls src="recorded.webm?cache=@DateTime.Now.Ticks"></audio>
 }

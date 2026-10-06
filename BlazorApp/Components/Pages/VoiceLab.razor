@@ -1,0 +1,81 @@
+﻿@page "/VoiceLab"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject HttpClient Http
+@using Service
+
+<h3>Voice Lab</h3>
+
+<h3>🎤 Audio Recorder Test</h3>
+
+<button @onclick="StartRecording">録音開始</button>
+<button @onclick="StopRecording">録音停止</button>
+
+<p>@status</p>
+
+@if (System.IO.File.Exists("wwwroot/recorded.webm"))
+{
+    <audio controls src="recorded.webm?cache=@DateTime.Now.Ticks"></audio>
+}
+
+@code {
+    private string status = "待機中";
+    private string result = "待機中";
+    private bool audioReady = false;
+    [Inject] RecorderService Recorder { get; set; }
+
+    #region lifeCycle
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("voiceRecord.initRecorder",
+                DotNetObjectReference.Create(this));
+        }
+    }
+
+    #endregion
+
+    # region Recording
+    private async Task StartRecording()
+    {
+        status = "録音中…";
+        await JS.InvokeVoidAsync("voiceRecord.start");
+    }
+
+    private async Task StopRecording()
+    {
+        status = "録音停止 → 保存中…";
+        await JS.InvokeVoidAsync("voiceRecord.stop");
+
+        // ★ ここで音声ファイルを生成する
+        Save();
+        chunks.Clear();
+        status = "保存完了";
+        StateHasChanged();
+    }
+    #endregion
+
+
+    private List<byte[]> chunks = new();
+
+    [JSInvokable]
+    public Task OnChunkBase64(string base64Chunk)
+    {
+        var chunk = Convert.FromBase64String(base64Chunk);
+        chunks.Add(chunk); // ★ byte[] を追加する
+        Console.WriteLine($"Chunk received: {chunk.Length} bytes");
+        return Task.CompletedTask;
+    }
+
+    public void Save()
+    {
+        var ms = new MemoryStream();
+
+        // ★ byte[] を順番に書き込む
+        foreach (var c in chunks)
+            ms.Write(c, 0, c.Length);
+
+        File.WriteAllBytes("wwwroot/recorded.webm", ms.ToArray());
+    }
+}

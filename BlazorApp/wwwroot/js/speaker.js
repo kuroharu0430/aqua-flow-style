@@ -41,6 +41,10 @@
         recog.start();
     },
 
+
+
+
+
     // ★ Volume 対応の「喋る」機能（正しい位置）
     speak: function (text, volume) {
         const utter = new SpeechSynthesisUtterance(text);

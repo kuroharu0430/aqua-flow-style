@@ -28,6 +28,7 @@ builder.Services.AddTransient<SelectionService>();
 builder.Services.AddTransient<EffectService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<VoiceCommandService>();
+builder.Services.AddScoped<RecorderService>();
 
 var cs = builder.Configuration.GetConnectionString("Default");
 
@@ -60,41 +61,30 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 // ‰¹ºFile upload
-app.MapPost("/upload-audio", async (HttpRequest req) =>
-{
-    var form = await req.ReadFormAsync();
-    var file = form.Files["file"];
-
-    if (file is null)
-        return Results.BadRequest("file ‚ª‚ ‚è‚Ü‚¹‚ñ");
-
-    var savePath = Path.Combine("wwwroot", "recorded.webm");
-
-    using (var fs = new FileStream(savePath, FileMode.Create))
-    {
-        await file.CopyToAsync(fs);
-    }
-
-    return Results.Ok();
-});
-
-// API whisper ¦YOUR_API_KEYŽæ“¾‚ª•K—v
-//app.MapPost("/whisper-transcribe", async () =>
+//app.MapPost("/api/audio", async (HttpRequest req, RecorderService service) =>
 //{
-//    var filePath = Path.Combine("wwwroot", "recorded.webm");
+//    var form = await req.ReadFormAsync();
+//    var file = form.Files["file"];
+//    await service.GetRecordedFile(file);
+//    return Results.Ok();
+//});
 
-//    using var http = new HttpClient();
-//    http.DefaultRequestHeaders.Authorization =
-//        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "YOUR_API_KEY");
+//app.MapPost("/upload-audio", async (HttpRequest req) =>
+//{
+//    var form = await req.ReadFormAsync();
+//    var file = form.Files["file"];
 
-//    using var form = new MultipartFormDataContent();
-//    form.Add(new StreamContent(File.OpenRead(filePath)), "file", "audio.webm");
-//    form.Add(new StringContent("whisper-1"), "model");
+//    if (file is null)
+//        return Results.BadRequest("file ‚ª‚ ‚è‚Ü‚¹‚ñ");
 
-//    var response = await http.PostAsync("https://api.openai.com/v1/audio/transcriptions", form);
-//    var json = await response.Content.ReadAsStringAsync();
+//    var savePath = Path.Combine("wwwroot", "recorded.webm");
 
-//    return Results.Text(json, "application/json");
+//    using (var fs = new FileStream(savePath, FileMode.Create))
+//    {
+//        await file.CopyToAsync(fs);
+//    }
+
+//    return Results.Ok();
 //});
 
 app.Run();
