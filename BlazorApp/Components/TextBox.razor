@@ -1,0 +1,32 @@
+﻿@using ViewModel
+
+<input id="@Control.Id"
+       type="text"
+       value="@Value"
+       @onchange="OnChange"
+       class="@Control.CssClass"
+       style="@Control.Style"
+       disabled="@Control.Disabled"
+       hidden="@(!Control.Visible)" />
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public Control Control { get; set; } = default!;
+    [Parameter] public string? Style { get; set; }
+    [Parameter] public string? CssClass { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(Style))
+            Control.Style = Style;
+
+        if (!string.IsNullOrWhiteSpace(CssClass))
+            Control.CssClass = CssClass;
+    }
+
+    private async Task OnChange(ChangeEventArgs e)
+    {
+        await ValueChanged.InvokeAsync(e.Value?.ToString() ?? "");
+    }
+}

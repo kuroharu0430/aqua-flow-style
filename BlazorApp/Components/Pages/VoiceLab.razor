@@ -1,8 +1,9 @@
 ﻿@page "/VoiceLab"
 @rendermode InteractiveServer
 @inject IJSRuntime JS
-@inject HttpClient Http
+@inject RecorderService Recorder
 @using Service
+@using ViewModel
 
 <h3>Voice Lab</h3>
 
@@ -10,21 +11,37 @@
 
 <button @onclick="StartRecording">録音開始</button>
 <button @onclick="StopRecording">録音停止</button>
-
 <p>@status</p>
-
 @if (System.IO.File.Exists("wwwroot/recorded.webm"))
 {
     <audio controls src="recorded.webm?cache=@DateTime.Now.Ticks"></audio>
 }
 
+<div>
+    <TextBox @bind-Value="@person.Name" Control="NameControl" style="color:red;"/>
+    <input type="text" value="something">
+    <p>VM: @person.Name</p>
+
+</div>
+
 @code {
+    #region Control
+    Control NameControl { get; set; } = new();
+    #endregion
+    private TestPerson person{ get; set; } = new();
+
     private string status = "待機中";
     private string result = "待機中";
-    private bool audioReady = false;
-    [Inject] RecorderService Recorder { get; set; }
 
     #region lifeCycle
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        person.Name = "少女A";
+    }
+
+
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -55,7 +72,6 @@
         StateHasChanged();
     }
     #endregion
-
 
     private List<byte[]> chunks = new();
 

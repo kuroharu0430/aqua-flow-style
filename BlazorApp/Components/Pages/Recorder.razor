@@ -25,7 +25,6 @@
 @code {
     private string status = "待機中";
     private string result = "待機中";
-    private bool audioReady = false;
 
     private async Task StartRecording()
     {
@@ -55,7 +54,6 @@
         // var text = doc.RootElement.GetProperty("text").GetString();
 
         // status = $"文字起こし結果: {text}";
-        audioReady = true;
         StateHasChanged();
     }
 }

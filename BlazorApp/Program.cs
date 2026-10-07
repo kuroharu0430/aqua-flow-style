@@ -53,38 +53,10 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
-
-// ‰¹ºFile upload
-//app.MapPost("/api/audio", async (HttpRequest req, RecorderService service) =>
-//{
-//    var form = await req.ReadFormAsync();
-//    var file = form.Files["file"];
-//    await service.GetRecordedFile(file);
-//    return Results.Ok();
-//});
-
-//app.MapPost("/upload-audio", async (HttpRequest req) =>
-//{
-//    var form = await req.ReadFormAsync();
-//    var file = form.Files["file"];
-
-//    if (file is null)
-//        return Results.BadRequest("file ‚ª‚ ‚è‚Ü‚¹‚ñ");
-
-//    var savePath = Path.Combine("wwwroot", "recorded.webm");
-
-//    using (var fs = new FileStream(savePath, FileMode.Create))
-//    {
-//        await file.CopyToAsync(fs);
-//    }
-
-//    return Results.Ok();
-//});
 
 app.Run();
