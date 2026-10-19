@@ -8,6 +8,8 @@ using BlazorApp.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
@@ -29,6 +31,7 @@ builder.Services.AddTransient<EffectService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<VoiceCommandService>();
 builder.Services.AddScoped<RecorderService>();
+builder.Services.AddHttpClient<SpeechToTextService>();
 
 var cs = builder.Configuration.GetConnectionString("Default");
 

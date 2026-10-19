@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @inject IJSRuntime JS
 @inject RecorderService Recorder
+@inject SpeechToTextService STT
 @using Service
 @using ViewModel
 
@@ -21,6 +22,7 @@
     <TextBox @bind-Value="@person.Name" Control="NameControl" style="color:red;"/>
     <input type="text" value="something">
     <p>VM: @person.Name</p>
+    <p>@result</p>
 
 </div>
 
@@ -66,9 +68,12 @@
         await JS.InvokeVoidAsync("voiceRecord.stop");
 
         // ★ ここで音声ファイルを生成する
-        Save();
+        await Save();
         chunks.Clear();
         status = "保存完了";
+        // AI文字起こし
+        var text = await STT.TranscribeAsync("wwwroot/recorded.webm");
+        result = text;
         StateHasChanged();
     }
     #endregion
@@ -84,7 +89,7 @@
         return Task.CompletedTask;
     }
 
-    public void Save()
+    public async Task Save()
     {
         var ms = new MemoryStream();
 
