@@ -4,7 +4,8 @@
 @inject RecorderService Recorder
 @inject SpeechToTextService STT
 @using Service
-@using ViewModel
+@using ViewModel 
+@using BlazorApp.Core.Model
 
 <h3>Voice Lab</h3>
 
@@ -12,17 +13,13 @@
 
 <button @onclick="StartRecording">録音開始</button>
 <button @onclick="StopRecording">録音停止</button>
-<p>@status</p>
-@if (System.IO.File.Exists("wwwroot/recorded.webm"))
-{
-    <audio controls src="recorded.webm?cache=@DateTime.Now.Ticks"></audio>
-}
-
 <div>
-    <TextBox @bind-Value="@person.Name" Control="NameControl" style="color:red;"/>
-    <input type="text" value="something">
-    <p>VM: @person.Name</p>
+    <p>@status</p>
     <p>@result</p>
+</div>
+<div>
+    <TextBox @bind-Value="@person.Name" Control="NameControl" style="color:red;" />
+
 
 </div>
 
@@ -30,7 +27,7 @@
     #region Control
     Control NameControl { get; set; } = new();
     #endregion
-    private TestPerson person{ get; set; } = new();
+    private TestPerson person { get; set; } = new();
 
     private string status = "待機中";
     private string result = "待機中";
@@ -41,8 +38,6 @@
         base.OnInitialized();
         person.Name = "少女A";
     }
-
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -67,13 +62,18 @@
         status = "録音停止 → 保存中…";
         await JS.InvokeVoidAsync("voiceRecord.stop");
 
-        // ★ ここで音声ファイルを生成する
-        await Save();
-        chunks.Clear();
-        status = "保存完了";
+
         // AI文字起こし
-        var text = await STT.TranscribeAsync("wwwroot/recorded.webm");
+        var text = await STT.TranscribeAsync(chunks);
+        status = "AI文字起こし完了";
+        chunks.Clear();
         result = text;
+
+        // ここでIntentを作ってもらう
+        var intent = GetIntent(text);
+        // Intent空メソッド呼び出し（実行)
+        ExecuteIntent(intent);
+
         StateHasChanged();
     }
     #endregion
@@ -83,20 +83,69 @@
     [JSInvokable]
     public Task OnChunkBase64(string base64Chunk)
     {
+        Console.WriteLine($"C# base64 length: {base64Chunk?.Length}");
         var chunk = Convert.FromBase64String(base64Chunk);
+        Console.WriteLine($"C# chunk bytes: {chunk.Length}");
+
         chunks.Add(chunk); // ★ byte[] を追加する
         Console.WriteLine($"Chunk received: {chunk.Length} bytes");
         return Task.CompletedTask;
     }
 
-    public async Task Save()
+    private Intent GetIntent(string text)
     {
-        var ms = new MemoryStream();
+        return IntentParser.Parse(text);
+    }
 
-        // ★ byte[] を順番に書き込む
-        foreach (var c in chunks)
-            ms.Write(c, 0, c.Length);
+    private void ExecuteIntent(Intent intent)
+    {
+        switch (intent.Type)
+        {
+            case IntentType.Set:
+                ApplySet(intent.Slot);
+                break;
 
-        File.WriteAllBytes("wwwroot/recorded.webm", ms.ToArray());
+            // case IntentType.Toggle:
+            //     ApplyToggle(intent.Slot);
+            //     break;
+
+            // case IntentType.Move:
+            //     ApplyMove(intent.Slot);
+            //     break;
+
+            default:
+                // 何もしない
+                break;
+        }
+        // ここでIntentを実行する処理を書く
+        // 例: VM.ApplyIntent(intent);
+    }
+
+    private void ApplySet(Slot slot)
+    {
+        var vm = GetVMInstance(slot.TargetVM);
+        if (vm == null) return;
+
+        var prop = vm.GetType().GetProperty(slot.Field);
+        if (prop == null) return;
+
+        var converted = Convert.ChangeType(slot.Value, prop.PropertyType);
+        prop.SetValue(vm, converted);
+    }
+
+    private object? GetVMInstance(string? targetName)
+    {
+        // ① 明示的指定
+        // 明示的指定
+        if (!string.IsNullOrEmpty(targetName))
+        {
+            return targetName switch
+            {
+                "TestPerson" => person,
+                "NameControl" => NameControl,
+                _ => null
+            };
+        }
+        return null;
     }
 }
