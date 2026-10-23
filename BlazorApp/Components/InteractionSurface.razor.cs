@@ -76,21 +76,6 @@ namespace BlazorApp.Components
             // Add Event
             State.ModeChanged += OnInteractionModeChanged;
             State.DisplayOption.OnChanged += Controller.OnDisplayOptionChanged;
-
-            // 音声命令
-            // HACK:音声命令はコンポーネントのStateを変化させてるだけなので
-            // InvokeAsync(StateHasChanged);が必要
-            //VoiceCommand.Register(VoiceIntent.Undo, () =>
-            //{
-            //    UndoManager.Undo();
-            //    InvokeAsync(StateHasChanged); // ★ UI 更新
-            //});
-
-            //VoiceCommand.Register(VoiceIntent.Redo, () =>
-            //{
-            //    UndoManager.Redo();
-            //    InvokeAsync(StateHasChanged); // ★ UI 更新
-            //});
         }
 
         /// <summary>

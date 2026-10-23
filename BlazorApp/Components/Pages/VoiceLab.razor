@@ -17,10 +17,30 @@
     <p>@status</p>
     <p>@result</p>
 </div>
-<div>
-    <TextBox @bind-Value="@person.Name" Control="NameControl" style="color:red;" />
+<div class="person-form">
+    <div class="form-row">
+        <label for="person-name">名前</label>
+        <input id="person-name"
+               type="text"
+               class="form-control"
+               @bind="person.Name" />
+    </div>
 
+    <div class="form-row">
+        <label for="person-address">住所</label>
+        <input id="person-address"
+               type="text"
+               class="form-control"
+               @bind="person.Address" />
+    </div>
 
+    <div class="form-row">
+        <label for="person-age">年齢</label>
+        <input id="person-age"
+               type="number"
+               class="form-control"
+               @bind="person.Age" />
+    </div>
 </div>
 
 @code {
@@ -69,8 +89,11 @@
         chunks.Clear();
         result = text;
 
-        // ここでIntentを作ってもらう
-        var intent = GetIntent(text);
+        // ★ ここで Meta を作る
+        var meta = ViewModelMetaBuilder.Build(person);
+
+        // ★ Intent を作る
+        var intent = GetIntent(text, meta);
         // Intent空メソッド呼び出し（実行)
         ExecuteIntent(intent);
 
@@ -92,9 +115,9 @@
         return Task.CompletedTask;
     }
 
-    private Intent GetIntent(string text)
+    private Intent GetIntent(string text, ViewModelMetadata meta)
     {
-        return IntentParser.Parse(text);
+        return IntentParser.Parse(text, meta);
     }
 
     private void ExecuteIntent(Intent intent)
