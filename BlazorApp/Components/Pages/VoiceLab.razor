@@ -20,17 +20,14 @@
 <div class="person-form">
     <div class="form-row">
         <label for="person-name">名前</label>
-        <input id="person-name"
-               type="text"
-               class="form-control"
-               @bind="person.Name" />
+        <TextBox Control="NameControl" @bind-Value="person.Name"/>
     </div>
 
     <div class="form-row">
         <label for="person-address">住所</label>
         <input id="person-address"
                type="text"
-               class="form-control"
+               class="form-control"             
                @bind="person.Address" />
     </div>
 
@@ -46,6 +43,7 @@
 @code {
     #region Control
     Control NameControl { get; set; } = new();
+
     #endregion
     private TestPerson person { get; set; } = new();
 

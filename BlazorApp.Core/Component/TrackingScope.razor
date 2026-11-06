@@ -1,0 +1,21 @@
+﻿@typeparam T
+
+@using BlazorApp.Core.Model
+@using BlazorApp.Core.Model.SnapShots
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter] public ITrackable<T> VM { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    public async Task NotifyChangedAsync()
+    {
+        VM.Old = VM.DeepCopy();                 // ★ Track（古い履歴を積む）
+        var snap = VM.CreateCompositeSnap();    // ★ 世界線の材料を作る
+        await OnChanged.InvokeAsync(snap);      // ★ Page に渡す
+    }
+}

@@ -3,6 +3,9 @@
     public class Control
     {
         public string Id { get; set; } = "";
+
+        public object? Value { get; set; }
+
         public string Label { get; set; } = ""; // 音声で呼ばれる名前
 
         // --- UI状態 ---

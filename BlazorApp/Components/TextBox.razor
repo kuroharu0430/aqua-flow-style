@@ -10,23 +10,17 @@
        hidden="@(!Control.Visible)" />
 
 @code {
-    [Parameter] public string Value { get; set; } = "";
+    private string oldvalue { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
     [Parameter] public Control Control { get; set; } = default!;
     [Parameter] public string? Style { get; set; }
     [Parameter] public string? CssClass { get; set; }
 
-    protected override void OnParametersSet()
-    {
-        if (!string.IsNullOrWhiteSpace(Style))
-            Control.Style = Style;
-
-        if (!string.IsNullOrWhiteSpace(CssClass))
-            Control.CssClass = CssClass;
-    }
-
     private async Task OnChange(ChangeEventArgs e)
     {
+        // oldvalue = Value;
+        // Undo用InvokeAsync(VM);
         await ValueChanged.InvokeAsync(e.Value?.ToString() ?? "");
     }
 }
