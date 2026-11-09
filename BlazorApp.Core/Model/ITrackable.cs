@@ -1,17 +1,17 @@
-﻿using BlazorApp.Core.Model.SnapShots;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BlazorApp.Core.Enum;
+using BlazorApp.Core.Model.SnapShots;
 
 namespace BlazorApp.Core.Model
 {
     public interface ITrackable<T>
     {
         T DeepCopy();
-        T Old { get; set; }
+        void CopyFrom(T other);
 
-        CompositeSnapshot CreateCompositeSnap();
+        T Prev { get; set; }
+        LayoutStatus LayoutStatus { get; set; }
+
+        IReversible CreateSnapShot();
     }
+
 }

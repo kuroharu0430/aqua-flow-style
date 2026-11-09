@@ -37,7 +37,7 @@ namespace BlazorApp.Core.Model.SnapShots
         LayoutStatus LayoutStatus
     ) : IReversible // 継承
     {
-        public UndoActionType Type => UndoActionType.Dragged;
+        public UndoActionType undoActionType => UndoActionType.Dragged;
 
         public void Restore()
         {
@@ -59,7 +59,7 @@ namespace BlazorApp.Core.Model.SnapShots
         LayoutStatus LayoutStatus
     ) : IReversible
     {
-        public UndoActionType Type => UndoActionType.StyleEdited;
+        public UndoActionType undoActionType => UndoActionType.StyleEdited;
 
         public void Restore()
         {
@@ -80,7 +80,7 @@ namespace BlazorApp.Core.Model.SnapShots
         LayoutStatus LayoutStatus
     ) : IReversible
     {
-        public UndoActionType Type => UndoActionType.StyleEdited;
+        public UndoActionType undoActionType => UndoActionType.StyleEdited;
 
         public void Restore()
         {
@@ -103,7 +103,7 @@ namespace BlazorApp.Core.Model.SnapShots
         int HeightPerCell
     ) : IReversible
     {
-        public UndoActionType Type => UndoActionType.DisplayChanged;
+        public UndoActionType undoActionType => UndoActionType.DisplayChanged;
 
         public void Restore()
         {

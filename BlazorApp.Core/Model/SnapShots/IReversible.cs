@@ -9,7 +9,7 @@ namespace BlazorApp.Core.Model.SnapShots
 {
     public interface IReversible
     {
-        UndoActionType Type { get; }
+        UndoActionType undoActionType { get; }
 
         LayoutStatus LayoutStatus { get; }
 
@@ -33,6 +33,8 @@ namespace BlazorApp.Core.Model.SnapShots
         Dragged,
         Deleted,
         StyleEdited,
-        DisplayChanged
+        DisplayChanged,
+        Added,
+        Modifyed,
     }
 }
