@@ -6,8 +6,6 @@
 
         public object? Value { get; set; }
 
-        public string Label { get; set; } = ""; // 音声で呼ばれる名前
-
         // --- UI状態 ---
         public bool Visible { get; set; } = true;
         public bool Disabled { get; set; } = false;

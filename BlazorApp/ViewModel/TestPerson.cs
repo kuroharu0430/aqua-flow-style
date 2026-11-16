@@ -8,12 +8,14 @@ namespace BlazorApp.ViewModel
 {
     public class TestPerson : ITrackable<TestPerson>
     {
-        public TestPerson Prev { get; set; } = null!;
         public LayoutStatus LayoutStatus { get; set; } = LayoutStatus.Modified;
 
         public string Name { get; set; } = string.Empty;
         public int Age { get; set; }
         public string Address { get; set; } = string.Empty;
+
+        #region ITrackable実装
+        public TestPerson Prev { get; set; } = null!;
 
         public TestPerson DeepCopy()
         {
@@ -45,6 +47,6 @@ namespace BlazorApp.ViewModel
                 Prev
             );
         }
+        #endregion
     }
-
 }

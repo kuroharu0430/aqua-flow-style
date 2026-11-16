@@ -1,4 +1,7 @@
-﻿@using ViewModel
+﻿@using BlazorApp.Core.Component
+@using BlazorApp.Core.Model
+@using ViewModel
+@implements IAIOperable
 
 <input id="@Control.Id"
        type="text"
@@ -10,17 +13,57 @@
        hidden="@(!Control.Visible)" />
 
 @code {
-    private string oldvalue { get; set; } = string.Empty;
+    [CascadingParameter] TrackingScope<TestPerson>? Scope { get; set; } = null;
+    [CascadingParameter] AIInteractionScope? AIScope { get; set; } = null;
     [Parameter] public string Value { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> ValueChanged { get; set; }
     [Parameter] public Control Control { get; set; } = default!;
     [Parameter] public string? Style { get; set; }
     [Parameter] public string? CssClass { get; set; }
 
+    #region LifeCycle
+    protected override void OnInitialized()
+    {
+        AIScope?.Register(this);
+    }
+    #endregion
+
     private async Task OnChange(ChangeEventArgs e)
     {
-        // oldvalue = Value;
-        // Undo用InvokeAsync(VM);
-        await ValueChanged.InvokeAsync(e.Value?.ToString() ?? "");
+        var newValue = e.Value?.ToString() ?? "";
+
+        // TrackingScope があるときだけ世界線を記録
+        if (Scope is not null)
+        {
+            await Scope.NotifyChangedAsync();    // Tracking
+        }
+        await ValueChanged.InvokeAsync(newValue);
     }
+
+    #region IAIOperatabel実装
+
+    [Parameter] public string DisplayName { get; set; } = string.Empty;
+
+    private const string ComponentType = "TextBox";
+
+    public void SetValue(object? value)
+    {
+        // Setの前に入力可能化のGateが必要
+        // Visible Disabledの状態を確認して、入力可能な場合のみSetする
+
+
+        // ValueをSet
+        Value = value?.ToString() ?? "";
+    }
+
+    public object CreateOperationInfo()
+    {
+        return new
+        {
+            DisplayName = DisplayName,
+            Value = Value,
+            ComponentType = "TextBox"
+        };
+    }
+    #endregion
 }

@@ -1,56 +1,76 @@
 ﻿@page "/VoiceLab"
 @rendermode InteractiveServer
+@implements IOperationScopeOwner
+
 @inject IJSRuntime JS
 @inject RecorderService Recorder
 @inject SpeechToTextService STT
-@using Service
-@using ViewModel 
+@inject UndoManager UndoManager
+
+@using System.Text.Json
+@using BlazorApp.Core.Component
 @using BlazorApp.Core.Model
+@using BlazorApp.Core.Model.SnapShots
+@using Service
+@using ViewModel
 
-<h3>Voice Lab</h3>
+<CascadingValue Value="(IOperationScopeOwner)this">
+    <h3>Voice Lab</h3>
 
-<h3>🎤 Audio Recorder Test</h3>
+    <h3>🎤 Audio Recorder Test</h3>
 
-<button @onclick="StartRecording">録音開始</button>
-<button @onclick="StopRecording">録音停止</button>
-<div>
-    <p>@status</p>
-    <p>@result</p>
+    <button @onclick="StartRecording">録音開始</button>
+    <button @onclick="StopRecording">録音停止</button>
+    <div>
+        <p>@status</p>
+        <p>@result</p>
+    </div>
+    <AIInteractionScope DisplayName="個人情報">
+        <p>個人情報</p>
+        <TrackingScope ViewModel="person" OnChanged="OnPersonChanged">
+            <div class="person-form">
+                <div class="form-row">
+                    <label for="person-name">名前</label>
+                    <TextBox DisplayName="名前" Control="NameControl" @bind-Value="person.Name" />
+                </div>
+                @*         <div class="form-row">
+                <label for="person-address">住所</label>
+                <TextBox @bind-Value="person.Address" />
+            </div> *@
+                @*          <div class="form-row">
+                <label for="person-age">年齢</label>
+                <TextBox @bind-Value="person.Age" />
+            </div> *@
+            </div>
+        </TrackingScope>
+    </AIInteractionScope>
+</CascadingValue>
+
+<div class="interactive-buttons">
+    <button class="button small undo" title="巻き戻しctrl+Z"
+            @onmousedown="() => UndoManager.Undo()" disabled="@(!UndoManager.CanUndo)">
+        <i class="fas fa-undo"></i>
+    </button>
+
+    <button class="button small redo" title="やり直しctrl+shift+Z"
+            @onmousedown="() => UndoManager.Redo()" disabled="@(!UndoManager.CanRedo)">
+        <i class="fas fa-redo"></i>
+    </button>
 </div>
-<div class="person-form">
-    <div class="form-row">
-        <label for="person-name">名前</label>
-        <TextBox Control="NameControl" @bind-Value="person.Name"/>
-    </div>
 
-    <div class="form-row">
-        <label for="person-address">住所</label>
-        <input id="person-address"
-               type="text"
-               class="form-control"             
-               @bind="person.Address" />
-    </div>
-
-    <div class="form-row">
-        <label for="person-age">年齢</label>
-        <input id="person-age"
-               type="number"
-               class="form-control"
-               @bind="person.Age" />
-    </div>
-</div>
 
 @code {
     #region Control
     Control NameControl { get; set; } = new();
-
     #endregion
-    private TestPerson person { get; set; } = new();
 
+    #region ViewModel
+    private TestPerson person { get; set; } = new();
+    # endregion
     private string status = "待機中";
     private string result = "待機中";
 
-    #region lifeCycle
+    #region LifeCycle
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -61,12 +81,25 @@
     {
         if (firstRender)
         {
+            // 音声録音の初期化
             await JS.InvokeVoidAsync("voiceRecord.initRecorder",
                 DotNetObjectReference.Create(this));
+
+            // Prevの初期値代入
+            person.Prev = person.DeepCopy();
         }
     }
 
     #endregion
+
+    private Task OnPersonChanged(IReversible snapshot)
+    {
+        var snapshotList = new List<IReversible> { snapshot };
+        var snap = new CompositeSnapshot(snapshotList, UndoActionType.Modifyed);
+        UndoManager.Push(snap);
+        return Task.CompletedTask;
+    }
+
 
     # region Recording
     private async Task StartRecording()
@@ -87,13 +120,13 @@
         chunks.Clear();
         result = text;
 
-        // ★ ここで Meta を作る
-        var meta = ViewModelMetaBuilder.Build(person);
+        // ★ ここで Map を作る 
+        var operationMap = CreateOperationMap();
 
         // ★ Intent を作る
-        var intent = GetIntent(text, meta);
+        // var intentList = GetIntent(text, operationMap);
         // Intent空メソッド呼び出し（実行)
-        ExecuteIntent(intent);
+        // ExecuteIntent(intent);
 
         StateHasChanged();
     }
@@ -113,9 +146,10 @@
         return Task.CompletedTask;
     }
 
-    private Intent GetIntent(string text, ViewModelMetadata meta)
+    private List<Intent> GetIntent(string text, string map)
     {
-        return IntentParser.Parse(text, meta);
+        // return IntentParser.Parse(text, map);
+        return new List<Intent>();
     }
 
     private void ExecuteIntent(Intent intent)
@@ -169,4 +203,25 @@
         }
         return null;
     }
+
+
+    # region AIInteractionScope関連
+    public List<AIInteractionScope> Scopes { get; } = [];
+
+    public void Register(AIInteractionScope scope)
+    {
+        Scopes.Add(scope);
+    }
+
+    public string CreateOperationMap()
+    {
+        return JsonSerializer.Serialize(
+            new
+            {
+                Scopes = Scopes.Select(x => x.CreateOperationMap())
+            }
+        );
+    }
+    #endregion
+
 }

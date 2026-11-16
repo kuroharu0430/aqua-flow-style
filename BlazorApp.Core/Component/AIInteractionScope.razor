@@ -1,0 +1,48 @@
+﻿@using System.Text.Json
+@using BlazorApp.Core.Model
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [CascadingParameter] public IOperationScopeOwner? Page { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Parameter] public string DisplayName { get; set; } = string.Empty;
+
+    public List<IAIOperable> Operables { get; set; } = new();
+
+    #region LifeCycle
+        protected override void OnInitialized()
+    {
+        Page?.Register(this);
+    }
+    #endregion
+
+    public void Register(IAIOperable operable)
+    {
+        Operables.Add(operable);
+    }
+
+    public object CreateOperationMap()
+    {
+        int id = 1;
+
+        return new
+        {
+            DisplayName,
+            Operables = Operables.Select(x =>
+            {
+                var info = x.CreateOperationInfo();
+
+                return new
+                {
+                    Id = id++,
+                    Info = info
+                };
+            })
+        };
+    }
+}

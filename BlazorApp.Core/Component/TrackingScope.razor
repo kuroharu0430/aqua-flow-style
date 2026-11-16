@@ -10,12 +10,12 @@
 @code {
     [Parameter] public ITrackable<T> ViewModel { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public EventCallback OnChanged { get; set; }
+    [Parameter] public EventCallback<IReversible>OnChanged { get; set; }
 
     public async Task NotifyChangedAsync()
     {
-        ViewModel.Prev = ViewModel.DeepCopy();                 // ★ Track（古い履歴を積む）
-        var snap = ViewModel.CreateSnapShot();    // ★ 世界線の材料を作る
-        await OnChanged.InvokeAsync(snap);      // ★ Page に渡す
+        // ★ Track（古い履歴を積む）
+        ViewModel.Prev = ViewModel.DeepCopy();      
+        await OnChanged.InvokeAsync(ViewModel.CreateSnapShot());      
     }
 }
