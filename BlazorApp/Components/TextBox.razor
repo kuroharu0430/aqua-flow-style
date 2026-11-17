@@ -50,10 +50,15 @@
     {
         // Setの前に入力可能化のGateが必要
         // Visible Disabledの状態を確認して、入力可能な場合のみSetする
-
+        if (Scope is not null)
+        {
+            Scope.NotifyChangedAsync();    // Tracking
+        }
 
         // ValueをSet
         Value = value?.ToString() ?? "";
+
+        ValueChanged.InvokeAsync(Value);
     }
 
     public object CreateOperationInfo()

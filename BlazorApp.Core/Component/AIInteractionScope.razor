@@ -28,8 +28,6 @@
 
     public object CreateOperationMap()
     {
-        int id = 1;
-
         return new
         {
             DisplayName,
@@ -39,7 +37,6 @@
 
                 return new
                 {
-                    Id = id++,
                     Info = info
                 };
             })

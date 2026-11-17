@@ -32,6 +32,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<VoiceCommandService>();
 builder.Services.AddScoped<RecorderService>();
 builder.Services.AddHttpClient<SpeechToTextService>();
+builder.Services.AddScoped<IntentService>();
 
 var cs = builder.Configuration.GetConnectionString("Default");
 

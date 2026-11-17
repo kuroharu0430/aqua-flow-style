@@ -6,11 +6,13 @@
 @inject RecorderService Recorder
 @inject SpeechToTextService STT
 @inject UndoManager UndoManager
+@inject IntentService IntentService
 
 @using System.Text.Json
 @using BlazorApp.Core.Component
 @using BlazorApp.Core.Model
 @using BlazorApp.Core.Model.SnapShots
+@using BlazorApp.Core.Service
 @using Service
 @using ViewModel
 
@@ -32,6 +34,10 @@
                 <div class="form-row">
                     <label for="person-name">名前</label>
                     <TextBox DisplayName="名前" Control="NameControl" @bind-Value="person.Name" />
+                </div>
+                <div class="form-row">
+                    <label for="person-adress">住所</label>
+                    <TextBox DisplayName="住所" Control="AdressControl" @bind-Value="person.Address" />
                 </div>
                 @*         <div class="form-row">
                 <label for="person-address">住所</label>
@@ -62,6 +68,7 @@
 @code {
     #region Control
     Control NameControl { get; set; } = new();
+    Control AdressControl { get; set; } = new();
     #endregion
 
     #region ViewModel
@@ -124,9 +131,14 @@
         var operationMap = CreateOperationMap();
 
         // ★ Intent を作る
-        // var intentList = GetIntent(text, operationMap);
-        // Intent空メソッド呼び出し（実行)
-        // ExecuteIntent(intent);
+        var prompt = IntentParser.BuildPrompt(text, operationMap);
+        // AIに私　IntenListを返却してもらう
+        var intentList = await IntentService.ParseAsync(text, operationMap);
+        // Intent（実行)
+        foreach (var intent in intentList)
+        {
+            ExecuteIntent(intent);
+        }   
 
         StateHasChanged();
     }
@@ -146,67 +158,48 @@
         return Task.CompletedTask;
     }
 
-    private List<Intent> GetIntent(string text, string map)
-    {
-        // return IntentParser.Parse(text, map);
-        return new List<Intent>();
-    }
 
     private void ExecuteIntent(Intent intent)
     {
         switch (intent.Type)
         {
             case IntentType.Set:
-                ApplySet(intent.Slot);
+                ApplySet(intent);
                 break;
 
-            // case IntentType.Toggle:
-            //     ApplyToggle(intent.Slot);
-            //     break;
+            case IntentType.Submit:
+                // ApplySubmit(intent);
+                break;
 
-            // case IntentType.Move:
-            //     ApplyMove(intent.Slot);
-            //     break;
+            case IntentType.Undo:
+                UndoManager.Undo();
+                break;
+
+            case IntentType.Select: // Open??
+                // ApplySelect(intent);
+                break;
 
             default:
-                // 何もしない
                 break;
         }
-        // ここでIntentを実行する処理を書く
-        // 例: VM.ApplyIntent(intent);
     }
 
-    private void ApplySet(Slot slot)
+    #region Intent Excute
+    private void ApplySet(Intent intent)
     {
-        var vm = GetVMInstance(slot.TargetVM);
-        if (vm == null) return;
+        var operable = FindOperable(intent.TargetId);
 
-        var prop = vm.GetType().GetProperty(slot.Field);
-        if (prop == null) return;
+        if (operable is null)
+            return;
 
-        var converted = Convert.ChangeType(slot.Value, prop.PropertyType);
-        prop.SetValue(vm, converted);
+        operable.SetValue(intent.Value);
     }
-
-    private object? GetVMInstance(string? targetName)
-    {
-        // ① 明示的指定
-        // 明示的指定
-        if (!string.IsNullOrEmpty(targetName))
-        {
-            return targetName switch
-            {
-                "TestPerson" => person,
-                "NameControl" => NameControl,
-                _ => null
-            };
-        }
-        return null;
-    }
-
+    #endregion
 
     # region AIInteractionScope関連
     public List<AIInteractionScope> Scopes { get; } = [];
+
+    private Dictionary<int, IAIOperable> _operableMap = [];
 
     public void Register(AIInteractionScope scope)
     {
@@ -215,12 +208,42 @@
 
     public string CreateOperationMap()
     {
+        _operableMap.Clear();
+
+        int id = 1;
+
+        var map =
+            Scopes.Select(scope =>
+            {
+                return new
+                {
+                    scope.DisplayName,
+
+                    Operables = scope.Operables.Select(x =>
+                    {
+                        _operableMap[id] = x;
+
+                        return new
+                        {
+                            Id = id++,
+                            Info = x.CreateOperationInfo()
+                        };
+                    })
+                };
+            });
+
         return JsonSerializer.Serialize(
             new
             {
-                Scopes = Scopes.Select(x => x.CreateOperationMap())
-            }
-        );
+                Scopes = map
+            });
+    }
+
+    private IAIOperable? FindOperable(int targetId)
+    {
+        _operableMap.TryGetValue(targetId, out var operable);
+
+        return operable;
     }
     #endregion
 

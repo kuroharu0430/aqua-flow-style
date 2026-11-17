@@ -10,22 +10,21 @@ namespace BlazorApp.Core.Model
     public class Intent
     {
         public IntentType Type { get; set; }
-        public Slot Slot { get; set; } = new();
+
+        public int TargetId { get; set; }
+
+        public string? Value { get; set; }
+
         public float Confidence { get; set; }
-        public string RawText { get; set; }
+
+        public string RawText { get; set; } = "";
     }
 
     public enum IntentType
     {
         Set,
-        Move,
-        Resize,
-        Delete,
-        Select,
-        Add,
-        Toggle,
-        Commit,
-        Cancel
+        Submit,
+        Undo,
+        Select
     }
-
 }
